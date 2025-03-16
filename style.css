@@ -1,0 +1,31 @@
+* {
+  font-family: system-ui
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background-color: #f0f0f0;
+  --md-sys-color-background: #f0f0f0;
+  --md-sys-color-on-background: black;
+  --md-sys-color-surface: white;
+  --md-sys-color-on-surface: black;
+  --md-sys-color-primary: #2cb11b;
+  --md-sys-color-primary-variant: #2e9c1f;
+  --md-sys-color-secondary: #238aff;
+  --md-sys-color-secondary-variant: #3485f7;
+  color: black;
+  min-height: 100vh;
+}
+
+@media (prefers-color-scheme: dark) {
+  body {
+    background-color: #333;
+    color: white;
+    --md-sys-color-background: #333;
+    --md-sys-color-on-background: white;
+    --md-sys-color-surface: #444;
+    --md-sys-color-on-surface: white;
+    --md-sys-color-on-surface-variant: #ccc;
+  }
+}
