@@ -4,16 +4,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My PWA App</title>
+    <title>iKurso+</title>
     <script src="./libraries/materialWeb.js"></script>
     <link rel="manifest" href="manifest.json">
     <link rel="stylesheet" href="style.css">
     <script src="index.js"></script>
-    <script src="scripts/tabSwitcher.js"></script>
 </head>
 
 <body>
     <md-tabs>
+        <script src="scripts/tabSwitcher.js"></script>
         <md-primary-tab aria-label="Cours" selected onclick="switchTab(0)">
             <md-icon slot="icon">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960">
@@ -44,7 +44,6 @@
     </md-tabs>
 
     <!--Main content-->
-
     <div class="tab">
         <div class="tab-content">
             <h1>Cours</h1>
@@ -59,13 +58,30 @@
             <p>Le vocabulaire est l'ensemble des mots qu'une personne connaît et utilise. Il est important d'avoir un bon vocabulaire pour communiquer efficacement. En apprenant de nouveaux mots et en les utilisant régulièrement, on peut améliorer son vocabulaire et sa capacité à s'exprimer.</p>
         </div>
     </div>
-    <div class="tab">
+    <div class="tab" style="display: none;">
         Exercices à venir!
     </div>
-    <div class="tab">
+    <div class="tab" style="display: none;">
         Vocabulaire à venir!
-        <mio-icon-badge></mio-icon-badge>
     </div>
+
+    <!--Onboarding-->
+    <script src="scripts/onBoarding.js"></script>
+    <md-dialog id="language-form-dialog">
+        <div slot="headline">
+            Language select
+        </div>
+        <form slot="content" id="language-form" method="dialog">
+            <md-radio id="fr-radio" name="language" value="fr"></md-radio>
+            <label for="fr-radio">Français</label>
+
+            <md-radio id="en-radio" name="language" value="en"></md-radio>
+            <label for="en-radio">English</label>
+        </form>
+        <div slot="actions">
+            <md-text-button form="form-id" onclick="saveLanguage()">Ok</md-text-button>
+        </div>
+    </md-dialog>
 </body>
 
 </html>

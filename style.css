@@ -27,5 +27,6 @@ html, body {
     --md-sys-color-surface: #444;
     --md-sys-color-on-surface: white;
     --md-sys-color-on-surface-variant: #ccc;
+    --md-sys-color-surface-container-high: #555;
   }
 }
