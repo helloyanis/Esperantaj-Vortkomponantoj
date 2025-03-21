@@ -30,3 +30,9 @@ html, body {
     --md-sys-color-surface-container-high: #555;
   }
 }
+.form-item {
+  margin: 1rem 0;
+}
+.elevated {
+  --md-elevation-level: 3;
+}

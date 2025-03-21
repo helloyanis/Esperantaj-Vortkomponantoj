@@ -5,6 +5,8 @@ const URLS_TO_CACHE = [
     '/style.css',
     '/libraries/materialWeb.js',
     '/scripts/tabSwitcher.js',
+    '/scripts/lessonIntegrator.js',
+    '/scripts/pagePrinter.js',
 ];
 
 // Install Service Worker
