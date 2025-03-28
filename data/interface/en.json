@@ -1,6 +1,7 @@
 {
     "kursoj": "Lessons",
     "ekzercoj": "Exercises",
-    "vortaron": "Vocabulary",
-    "agordoj": "Settings"
+    "mian_vortaron": "Vocabulary",
+    "agordoj": "Settings",
+    "komenci_kurson": "Start lesson"
 }

@@ -27,6 +27,7 @@ async function translateInterface(language) {
   const translateData = await translateRequest.json();
   console.log(translateData);
   document.querySelectorAll('.translatable').forEach((element) => {
+    console.log(element);
     const key = element.getAttribute('translate-key');
     element.innerText = translateData[key];
   });
