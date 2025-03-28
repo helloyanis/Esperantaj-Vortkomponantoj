@@ -53,7 +53,7 @@
     <div class="tab" id="lessons-tab">
         <script src="scripts/lessonIntegrator.js"></script>
         <script src="scripts/pagePrinter.js"></script>
-        <md-outlined-icon-button onclick="printDiv('leciono-enhavo')">
+        <md-outlined-icon-button id="print" style="display: none;" onclick="printDiv('leciono-enhavo')">
             <md-icon>
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960">
                     <path
@@ -62,9 +62,9 @@
             </md-icon>
         </md-outlined-icon-button>
         <div id="lesson-container">
-            <md-filled-button id="start-lesson" onclick="integrateLesson('cge', 'lec01')">
+            <md-filled-button id="start-lesson" onclick="integrateLesson('cge', 'lec01', '01')">
                 <span class="translatable" translate-key="komenci_kurson">
-                    Commencer la leçon
+                    Commencer le cours
                 </span>
             </md-filled-button>
         </div>
