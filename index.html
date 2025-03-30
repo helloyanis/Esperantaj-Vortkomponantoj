@@ -62,7 +62,7 @@
             </md-icon>
         </md-outlined-icon-button>
         <div id="lesson-container">
-            <md-filled-button id="start-lesson" onclick="integrateLesson('cge', 'lec01', '01')">
+            <md-filled-button id="start-lesson" onclick="integrateLesson('cge', 'lec01', '00')">
                 <span class="translatable" translate-key="komenci_kurson">
                     Commencer le cours
                 </span>
@@ -70,8 +70,60 @@
         </div>
     </div>
     <div class="tab" id="vocabulary-tab" style="display: none;">
-        1
+        <script src="scripts/vocabulary.js"></script>
+        <div class="container">
+            <h2 class="translatable" translate-key="aldoni_ero">Ajouter un composant</h2>
+            <form id="add-component-form">
+                <md-outlined-text-field id="component-input" label="Composant"></md-outlined-text-field>
+    
+                <md-outlined-select id="type-select" label="Type">
+                    <md-select-option value="prefix"><span>Préfixe</span></md-select-option>
+                    <md-select-option value="root"><span>Racine</span></md-select-option>
+                    <md-select-option value="suffix"><span>Suffixe</span></md-select-option>
+                </md-outlined-select>
+    
+                <md-outlined-text-field id="can-precede-input" label="Peut précéder (séparé par des virgules, * pour tout)">
+                </md-outlined-text-field>
+    
+                <md-outlined-text-field id="can-follow-input" label="Peut suivre (séparé par des virgules, * pour tout)">
+                </md-outlined-text-field>
+    
+                <md-outlined-text-field id="description-input" label="Description"></md-outlined-text-field>
+    
+                <md-filled-button id="save-component-btn" type="button">
+                    <span class="translatable" translate-key="savi">Enregistrer</span>
+                </md-filled-button>
+            </form>
+    
+            <h2 class="translatable" translate-key="vorteroj">Composants enregistrés</h2>
+            <md-outlined-text-field id="search-component-input" label="Rechercher un composant"></md-outlined-text-field>
+    
+            <div id="components-list">
+                <!-- Components will be displayed here -->
+            </div>
+    
+            <h2 class="translatable" translate-key="konstrui_vorton">Construire un mot</h2>
+            <div id="word-builder">
+                <md-outlined-text-field id="search-word-input" label="Rechercher ou construire un mot"></md-outlined-text-field>
+    
+                <div id="built-word">
+                    <md-chip-set id="word-chip-set">
+                        <!-- Selected components will be shown as chips -->
+                    </md-chip-set>
+                </div>
+    
+                <md-filled-button id="save-word-btn" type="button">
+                    <span class="translatable" translate-key="savi_vorton">Enregistrer le mot</span>
+                </md-filled-button>
+            </div>
+    
+            <h2 class="translatable" translate-key="tradukoj">Traductions enregistrées</h2>
+            <div id="translations-list">
+                <!-- Saved words and translations will be displayed here -->
+            </div>
+        </div>
     </div>
+    
     <div class="tab" id="settings-tab" style="display: none;">
         2
     </div>

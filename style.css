@@ -36,3 +36,10 @@ html, body {
 .elevated {
   --md-elevation-level: 3;
 }
+.leciono-enhavo {
+  margin: 0.5rem;
+  padding: 0.5rem;
+  background-color: var(--md-sys-color-surface-container-high);
+  border-radius: 8px;
+  box-shadow: var(--md-elevation-level-3);
+}
