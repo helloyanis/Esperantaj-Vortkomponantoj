@@ -103,7 +103,6 @@
     kaŝiĈiujPaneloj();
     paneloListo.removeAttribute('hidden');
     refreshListoKomponentoj();
-    tog
   }
 
   function montriAldonPanelon() {
