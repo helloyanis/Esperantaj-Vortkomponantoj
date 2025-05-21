@@ -8,8 +8,8 @@ const DOSIEROJ_KAJHEĴ = [
   '/manifest.json',
   '/assets/mdui/mdui.min.css',
   '/assets/mdui/mdui.min.js',
-  '/assets/icon-192.png',
-  '/assets/icon-512.png'
+  '/assets/piktogramoj/icon-192.png',
+  '/assets/piktogramoj/icon-512.png'
 ];
 
 // Instalaperiodo: kaŝmemoru la ĉefajn dosierojn
