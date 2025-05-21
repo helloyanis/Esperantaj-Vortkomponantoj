@@ -1,155 +1,139 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="eo" class="mdui-theme-auto">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>iKurso+</title>
-    <script src="./libraries/materialWeb.js"></script>
-    <link rel="manifest" href="manifest.json">
-    <link rel="stylesheet" href="style.css">
-    <script src="index.js"></script>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Esperanto Vortkomponentoj</title>
+
+    <!-- MDUI v2 Styles and Scripts -->
+    <link rel="stylesheet" href="assets/mdui/mdui.css" />
+    <script type="module" src="assets/mdui/mdui.js"></script>
+
+    <!-- Manifest for PWA -->
+    <link rel="manifest" href="manifest.json" />
+
+    <!-- Fallback Icon -->
+    <link rel="icon" type="image/png" href="assets/icon.png" />
 </head>
 
-<body>
-    <md-tabs>
-        <script src="scripts/tabSwitcher.js"></script>
-        <md-primary-tab aria-label="Cours" selected onclick="switchTab(0)">
-            <md-icon slot="icon">
+<body style="font-family: system-ui;">
+    <!-- Top App Bar -->
+    <mdui-top-app-bar>
+        <mdui-button-icon onclick="toggleDrawer()">
+            <mdui-icon>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960">
+                    <path d="M120-240v-80h720v80H120Zm0-200v-80h720v80H120Zm0-200v-80h720v80H120Z" />
+                </svg>
+            </mdui-icon>
+        </mdui-button-icon>
+        <mdui-top-app-bar-title>Esperanto Vortkomponentoj</mdui-top-app-bar-title>
+        <div style="flex-grow: 1"></div>
+        <mdui-button-icon id="butono-alŝuti">
+            <mdui-icon>
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960">
                     <path
-                        d="M560-574v-48q33-14 67.5-21t72.5-7q26 0 51 4t49 10v44q-24-9-48.5-13.5T700-610q-38 0-73 9.5T560-574Zm0 220v-49q33-13.5 67.5-20.25T700-430q26 0 51 4t49 10v44q-24-9-48.5-13.5T700-390q-38 0-73 9t-67 27Zm0-110v-48q33-14 67.5-21t72.5-7q26 0 51 4t49 10v44q-24-9-48.5-13.5T700-500q-38 0-73 9.5T560-464ZM248-300q53.57 0 104.28 12.5Q403-275 452-250v-427q-45-30-97.62-46.5Q301.76-740 248-740q-38 0-74.5 9.5T100-707v434q31-14 70.5-20.5T248-300Zm264 50q50-25 98-37.5T712-300q38 0 78.5 6t69.5 16v-429q-34-17-71.82-25-37.82-8-76.18-8-54 0-104.5 16.5T512-677v427Zm-30 90q-51-38-111-58.5T248-239q-36.54 0-71.77 9T106-208q-23.1 11-44.55-3Q40-225 40-251v-463q0-15 7-27.5T68-761q42-20 87.39-29.5 45.4-9.5 92.61-9.5 63 0 122.5 17T482-731q51-35 109.5-52T712-800q46.87 0 91.93 9.5Q849-781 891-761q14 7 21.5 19.5T920-714v463q0 27.89-22.5 42.45Q875-194 853-208q-34-14-69.23-22.5Q748.54-239 712-239q-63 0-121 21t-109 58ZM276-489Z" />
+                        d="M440-200h80v-167l64 64 56-57-160-160-160 160 57 56 63-63v167ZM240-80q-33 0-56.5-23.5T160-160v-640q0-33 23.5-56.5T240-880h320l240 240v480q0 33-23.5 56.5T720-80H240Zm280-520v-200H240v640h480v-440H520ZM240-800v200-200 640-640Z" />
                 </svg>
-            </md-icon>
-            <span class="translatable" translate-key="kursoj">
-                Cours
-            </span>
-        </md-primary-tab>
-        <md-primary-tab aria-label="Mon vocabulaire" onclick="switchTab(1)">
-            <md-icon slot="icon">
+            </mdui-icon>
+        </mdui-button-icon>
+        <mdui-button-icon id="butono-ekspremi">
+            <mdui-icon>
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960">
                     <path
-                        d="M340-60v-221h-10q-106 0-178-76.5T80-540q0-109 75.5-184.5T340-800h53l-77-78 42-42 150 150-150 150-42-42 77-78h-53q-83 0-141.5 58.5T140-540q0 82 54.5 141T330-340h70v135l136-135h85q83 0 141-58.5T820-541q0-83-58.5-141T620-740h-53v-60h53q108 0 184 75.5T880-541q0 109-75.5 185T621-280h-60L340-60Z" />
+                        d="m720-120 160-160-56-56-64 64v-167h-80v167l-64-64-56 56 160 160ZM560 0v-80h320V0H560ZM240-160q-33 0-56.5-23.5T160-240v-560q0-33 23.5-56.5T240-880h280l240 240v121h-80v-81H480v-200H240v560h240v80H240Zm0-80v-560 560Z" />
                 </svg>
-            </md-icon>
-            <span class="translatable" translate-key="mian_vortaron">
-                Vocabulaire
-            </span>
-        </md-primary-tab>
-        <md-primary-tab aria-label="Mon vocabulaire" onclick="switchTab(2)">
-            <md-icon slot="icon">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960">
-                    <path
-                        d="m370-80-16-128q-13-5-24.5-12T307-235l-119 50L78-375l103-78q-1-7-1-13.5v-27q0-6.5 1-13.5L78-585l110-190 119 50q11-8 23-15t24-12l16-128h220l16 128q13 5 24.5 12t22.5 15l119-50 110 190-103 78q1 7 1 13.5v27q0 6.5-2 13.5l103 78-110 190-118-50q-11 8-23 15t-24 12L590-80H370Zm70-80h79l14-106q31-8 57.5-23.5T639-327l99 41 39-68-86-65q5-14 7-29.5t2-31.5q0-16-2-31.5t-7-29.5l86-65-39-68-99 42q-22-23-48.5-38.5T533-694l-13-106h-79l-14 106q-31 8-57.5 23.5T321-633l-99-41-39 68 86 64q-5 15-7 30t-2 32q0 16 2 31t7 30l-86 65 39 68 99-42q22 23 48.5 38.5T427-266l13 106Zm42-180q58 0 99-41t41-99q0-58-41-99t-99-41q-59 0-99.5 41T342-480q0 58 40.5 99t99.5 41Zm-2-140Z" />
-                </svg>
-            </md-icon>
-            <span class="translatable" translate-key="agordoj">
-                Paramètres
-            </span>
-        </md-primary-tab>
-    </md-tabs>
+            </mdui-icon>
+        </mdui-button-icon>
+    </mdui-top-app-bar>
 
-    <!--Main content-->
-    <div class="tab" id="lessons-tab">
-        <script src="scripts/lessonIntegrator.js"></script>
-        <script src="scripts/pagePrinter.js"></script>
-        <md-outlined-icon-button id="print" style="display: none;" onclick="printDiv('leciono-enhavo')">
-            <md-icon>
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960">
-                    <path
-                        d="M640-640v-120H320v120h-80v-200h480v200h-80Zm-480 80h640-640Zm560 100q17 0 28.5-11.5T760-500q0-17-11.5-28.5T720-540q-17 0-28.5 11.5T680-500q0 17 11.5 28.5T720-460Zm-80 260v-160H320v160h320Zm80 80H240v-160H80v-240q0-51 35-85.5t85-34.5h560q51 0 85.5 34.5T880-520v240H720v160Zm80-240v-160q0-17-11.5-28.5T760-560H200q-17 0-28.5 11.5T160-520v160h80v-80h480v80h80Z" />
-                </svg>
-            </md-icon>
-        </md-outlined-icon-button>
-        <div id="lesson-container">
-            <md-filled-button id="start-lesson" onclick="integrateLesson('cge', 'lec01', '00')">
-                <span class="translatable" translate-key="komenci_kurson">
-                    Commencer le cours
-                </span>
-            </md-filled-button>
-        </div>
-    </div>
-    <div class="tab" id="vocabulary-tab" style="display: none;">
-        <script src="scripts/vocabulary.js"></script>
-        <div class="container">
-            <h2 class="translatable" translate-key="aldoni_ero">Ajouter un composant</h2>
-            <form id="add-component-form">
-                <md-outlined-text-field id="component-input" label="Composant"></md-outlined-text-field>
-    
-                <md-outlined-select id="type-select" label="Type">
-                    <md-select-option value="prefix"><span>Préfixe</span></md-select-option>
-                    <md-select-option value="root"><span>Racine</span></md-select-option>
-                    <md-select-option value="suffix"><span>Suffixe</span></md-select-option>
-                </md-outlined-select>
-    
-                <md-outlined-text-field id="can-precede-input" label="Peut précéder (séparé par des virgules, * pour tout)">
-                </md-outlined-text-field>
-    
-                <md-outlined-text-field id="can-follow-input" label="Peut suivre (séparé par des virgules, * pour tout)">
-                </md-outlined-text-field>
-    
-                <md-outlined-text-field id="description-input" label="Description"></md-outlined-text-field>
-    
-                <md-filled-button id="save-component-btn" type="button">
-                    <span class="translatable" translate-key="savi">Enregistrer</span>
-                </md-filled-button>
-            </form>
-    
-            <h2 class="translatable" translate-key="vorteroj">Composants enregistrés</h2>
-            <md-outlined-text-field id="search-component-input" label="Rechercher un composant"></md-outlined-text-field>
-    
-            <div id="components-list">
-                <!-- Components will be displayed here -->
-            </div>
-    
-            <h2 class="translatable" translate-key="konstrui_vorton">Construire un mot</h2>
-            <div id="word-builder">
-                <md-outlined-text-field id="search-word-input" label="Rechercher ou construire un mot"></md-outlined-text-field>
-    
-                <div id="built-word">
-                    <md-chip-set id="word-chip-set">
-                        <!-- Selected components will be shown as chips -->
-                    </md-chip-set>
+    <!-- Navigation Drawer -->
+    <mdui-navigation-drawer id="lado-tirilo">
+        <mdui-list>
+            <mdui-list-item id="menu-listo-komponentoj">
+                <mdui-icon slot="icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960">
+                        <path
+                            d="M320-280q17 0 28.5-11.5T360-320q0-17-11.5-28.5T320-360q-17 0-28.5 11.5T280-320q0 17 11.5 28.5T320-280Zm0-160q17 0 28.5-11.5T360-480q0-17-11.5-28.5T320-520q-17 0-28.5 11.5T280-480q0 17 11.5 28.5T320-440Zm0-160q17 0 28.5-11.5T360-640q0-17-11.5-28.5T320-680q-17 0-28.5 11.5T280-640q0 17 11.5 28.5T320-600Zm120 320h240v-80H440v80Zm0-160h240v-80H440v80Zm0-160h240v-80H440v80ZM200-120q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h560q33 0 56.5 23.5T840-760v560q0 33-23.5 56.5T760-120H200Zm0-80h560v-560H200v560Zm0-560v560-560Z" />
+                    </svg>
+                </mdui-icon>
+                Listo de komponantoj
+            </mdui-list-item>
+            <mdui-list-item id="menu-aldonu-nova" icon="add">
+                <mdui-icon slot="icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960">
+                        <path
+                            d="M440-280h80v-160h160v-80H520v-160h-80v160H280v80h160v160Zm40 200q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Zm0-80q134 0 227-93t93-227q0-134-93-227t-227-93q-134 0-227 93t-93 227q0 134 93 227t227 93Zm0-320Z" />
+                    </svg>
+                </mdui-icon>
+                Aldoni novan komponenton
+            </mdui-list-item>
+            <mdui-list-item id="menu-serĉi" icon="search">
+                <mdui-icon slot="icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960">
+                        <path
+                            d="M784-120 532-372q-30 24-69 38t-83 14q-109 0-184.5-75.5T120-580q0-109 75.5-184.5T380-840q109 0 184.5 75.5T640-580q0 44-14 83t-38 69l252 252-56 56ZM380-400q75 0 127.5-52.5T560-580q0-75-52.5-127.5T380-760q-75 0-127.5 52.5T200-580q0 75 52.5 127.5T380-400Z" />
+                    </svg>
+                </mdui-icon>
+                Serĉi / Decoficilo
+            </mdui-list-item>
+        </mdui-list>
+    </mdui-navigation-drawer>
+
+    <!-- Main Content -->
+    <main style="padding: 16px;">
+        <!-- Component List Panel -->
+        <section id="panelo-listo" hidden>
+            <h2>Vortkomponentoj</h2>
+            <mdui-list id="listo-komponentoj">
+                <!-- Dynamically populated items -->
+            </mdui-list>
+        </section>
+
+        <!-- Add/Edit Component Panel -->
+        <section id="panelo-aldo" hidden>
+            <h2 id="titolo-aldo">Aldoni Novan Komponenton</h2>
+            <form id="formularo-komponento">
+                <mdui-text-field label="Teksto de Komponento" id="komp-teksto" required></mdui-text-field>
+
+                <mdui-select label="Tipo de Komponento" id="komp-tipo" required>
+                    <mdui-menu-item value="radiko">Radiko</mdui-menu-item>
+                    <mdui-menu-item value="prefikso">Prefikso</mdui-menu-item>
+                    <mdui-menu-item value="sufikso">Sufikso</mdui-menu-item>
+                </mdui-select>
+
+                <mdui-text-field label="Antaŭpovas (separu per komoj aŭ * por ajna)" id="komp-antaupovas"
+                    placeholder="ekz: radiko,*,sufikso"></mdui-text-field>
+
+                <mdui-text-field label="Postpovas (separu per komoj aŭ * por ajna)" id="komp-postpovas"
+                    placeholder="ekz: radiko,sufikso"></mdui-text-field>
+
+                <mdui-text-field label="Difino" id="komp-difino" textarea rows="3" required></mdui-text-field>
+
+                <div style="margin-top: 24px;">
+                    <mdui-button type="submit" variant="filled" id="butono-salvi">Salvi</mdui-button>
+                    <mdui-button type="button" variant="text" id="butono-nuligi">Nuligi</mdui-button>
                 </div>
-    
-                <md-filled-button id="save-word-btn" type="button">
-                    <span class="translatable" translate-key="savi_vorton">Enregistrer le mot</span>
-                </md-filled-button>
-            </div>
-    
-            <h2 class="translatable" translate-key="tradukoj">Traductions enregistrées</h2>
-            <div id="translations-list">
-                <!-- Saved words and translations will be displayed here -->
-            </div>
-        </div>
-    </div>
-    
-    <div class="tab" id="settings-tab" style="display: none;">
-        2
-    </div>
+            </form>
+        </section>
 
-    <!--Translations-->
-    <script src="scripts/translateManager.js"></script>
-    <md-dialog id="language-form-dialog" type="alert">
-        <div slot="headline">
-            Language select
-        </div>
-        <form slot="content" id="language-form" method="dialog">
-            <div class="form-item">
-                <md-radio id="fr-radio" name="language" value="fr"></md-radio>
-                <label for="fr-radio">Français</label>
-            </div>
+        <!-- Search/Decompose Panel -->
+        <section id="panelo-serĉo" hidden>
+            <h2>Serĉi aŭ Decofici Vorton</h2>
+            <mdui-text-field label="Eniru radikon aŭ tutan vorton" id="serĉo-vorto"></mdui-text-field>
+            <mdui-button variant="filled" id="butono-serĉi" style="margin-top: 16px;">Serĉi / Decofici</mdui-button>
+            <div id="rezultoj-serĉo" style="margin-top: 24px;"></div>
+        </section>
+    </main>
 
-            <div class="form-item">
-                <md-radio id="en-radio" name="language" value="en"></md-radio>
-                <label for="en-radio">English</label>
-            </div>
-
-        </form>
-        <div slot="actions">
-            <md-text-button form="form-id" onclick="saveLanguage()">Ok</md-text-button>
-        </div>
-    </md-dialog>
+    <!-- Main Application Script -->
+    <script src="app.js"></script>
+    <script>
+        function toggleDrawer() {
+            const drawer = document.getElementById('lado-tirilo');
+            drawer.open = !drawer.open;
+        }
+    </script>
 </body>
 
 </html>
