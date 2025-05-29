@@ -4,12 +4,11 @@
 // - Stoki, legi, ĝisdatigi, forigi vortkomponentojn en LocalStorage.
 // - Montri liston de komponantoj.
 // - Formojn por aldoni/redakti komponanton.
-// - Serĉi aŭ decofici tutan vorton.
+// - Serĉi aŭ malkonstrui tutan vorton.
 // - Importi/eksporti JSON-dosieron.
 // - PWA‐registron de service worker.
 // =============================
 
-(function () {
   'use strict';
 
   // -----------------------------
@@ -39,7 +38,6 @@
   const butonoNuligi = document.getElementById('butono-nuligi');
 
   const serĉoVorto = document.getElementById('serĉo-vorto');
-  const butonoSerĉi = document.getElementById('butono-serĉi');
   const rezultojSerĉo = document.getElementById('rezultoj-serĉo');
 
   const butonoAlŝuti = document.getElementById('butono-alŝuti');
@@ -130,9 +128,10 @@
     const listo = legiKomponentojn();
     listoKomponentojUi.innerHTML = ''; // purigu antaŭe
     if (listo.length === 0) {
-      const neEkzistas = document.createElement('li');
-      neEkzistas.className = 'mdui-list-item';
-      neEkzistas.textContent = 'Neniaj komponantoj trovitaj.';
+      const neEkzistas = document.createElement('mdui-card');
+      neEkzistas.Text = 'Neniaj komponantoj trovitaj.';
+      const aldoniButono = document.createElement('mdui-button');
+      aldoniButono.textContent = 'Aldoni Komponenton';
       listoKomponentojUi.appendChild(neEkzistas);
       return;
     }
@@ -272,7 +271,7 @@
   }
 
   // -----------------------------
-  // <6> Serĉo / Decoficilo de Tuta Vorto
+  // <6> Serĉo de Tuta Vorto
   // -----------------------------
   /**
    * Funkcio por “dekomponi” vorton en vortkomponentojn, unuavice trovi la plej longan
@@ -283,67 +282,24 @@
    *          komp estas la komponento-objekto, kaj mapado = {tekstero, tipo, difino}.
    *          Se ne troviĝis plua komponanto, ĉesas.
    */
-  function dekomponiVorton(vorto) {
-    const listoKomp = legiKomponentojn();
-    const majuscVorto = vorto.toLowerCase();
-    const rezulto = [];
 
-    let restas = majuscVorto;
+  const worker = new Worker('web-worker.js');
 
-    while (restas.length > 0) {
-      // Trovu en listoKomp la komponanton kun plej longa teksto, kiu taŭgas en la komenco
-      let plejLonga = null;
-      for (const kp of listoKomp) {
-        const tek = kp.teksto.toLowerCase();
-        if (restas.startsWith(tek)) {
-          // Kontroli, se la antaŭa komponento kaj post-aplikaĵaj reguloj kongruas
-          plejLonga = plejLonga || kp;
-          if (tek.length > plejLonga.teksto.length) {
-            plejLonga = kp;
-          }
-        }
-      }
-      if (!plejLonga) {
-        // Ne troviĝis valida komponanto ĉe la komenco
-        rezulto.push({
-          mapado: {
-            tekstero: restas,
-            tipo: 'neniu',
-            difino: 'Neniu komponanto trovita',
-          },
-        });
-        break;
-      }
+serĉoVorto.addEventListener('input', serĉiVorto);
 
-      // Aldonu al rezulto
-      rezulto.push({
-        komp: plejLonga,
-        mapado: {
-          tekstero: plejLonga.teksto,
-          tipo: plejLonga.tipo,
-          difino: plejLonga.difino,
-        },
-      });
-      // Restigu la ceteron
-      restas = restas.substring(plejLonga.teksto.length);
-    }
-    return rezulto;
+function serĉiVorto() {
+  const teksto = serĉoVorto.value.trim().toLowerCase();
+  rezultojSerĉo.innerHTML = '';
+  if (!teksto) {
+    //mdui.alert('Enigu vorton aŭ komponenton por serĉi.', 'Serĉo Malplena');
+    return;
   }
 
-  butonoSerĉi.addEventListener('click', function () {
-    const teksto = serĉoVorto.value.trim().toLowerCase();
-    rezultojSerĉo.innerHTML = '';
-    if (!teksto) {
-      mdui.alert('Enigu vorton aŭ komponenton por serĉi.', 'Serĉo Malplena');
-      return;
-    }
+  const listoK = legiKomponentojn();
+  const ekzKom = listoK.find((kp) => kp.teksto.toLowerCase() === teksto);
 
-    // Unue, kontrolu ĉu teksto egale kongruas kun komponanto
-    const listoK = legiKomponentojn();
-    const ekzKom = listoK.find((kp) => kp.teksto.toLowerCase() === teksto);
-
-    if (ekzKom) {
-      // Montru la komponanton per ĝia difino
+  if (ekzKom) {
+    // Montru la komponanton per ĝia difino
       const karto = document.createElement('div');
       karto.className = 'mdui-card mdui-m-y-2';
       karto.innerHTML = `
@@ -358,10 +314,14 @@
       `;
       rezultojSerĉo.appendChild(karto);
       return;
-    }
+  }
 
-    // Se ne trovis komponenton, provo dekomponi kiel tuta vorto
-    const deko = dekomponiVorton(teksto);
+  // Now use worker
+  worker.postMessage({ vorto: teksto, komponentoj: listoK });
+
+  worker.onmessage = function (e) {
+    const deko = e.data;
+
     if (deko.length === 0) {
       rezultojSerĉo.textContent = 'Neniaj rezultoj trovita.';
       return;
@@ -371,18 +331,16 @@
     titolo.className = 'mdui-typo-subheading';
     titolo.textContent = `Dekomponado de “${teksto}”:`;
     rezultojSerĉo.appendChild(titolo);
-
+    const kartoj = document.createElement('div');
+    kartoj.style.display = 'flex';
     deko.forEach((ero) => {
       const karto = document.createElement('div');
       karto.className = 'mdui-card mdui-m-y-1';
       if (ero.komp) {
         karto.innerHTML = `
-          <div class="mdui-card-primary">
-            <div class="mdui-card-primary-title">${ero.mapado.tekstero} (${ero.mapado.tipo})</div>
-          </div>
-          <div class="mdui-card-content">
-            <p>${ero.mapado.difino}</p>
-          </div>
+          <mdui-tooltip content="${ero.komp.difino}">
+            <mdui-chip variant="filter" onclick="document.getElementById('serĉo-vorto').value='${ero.mapado.tekstero}'; serĉiVorto()">${ero.mapado.tekstero}</mdui-chip>
+          </mdui-tooltip>
         `;
       } else {
         karto.innerHTML = `
@@ -394,9 +352,11 @@
           </div>
         `;
       }
-      rezultojSerĉo.appendChild(karto);
+      kartoj.appendChild(karto);
     });
-  });
+    rezultojSerĉo.appendChild(kartoj);
+  };
+}
 
   // -----------------------------
   // <7> Importi JSON-dosieron de Komponentoj
@@ -469,4 +429,3 @@
         });
     });
   }
-})();
