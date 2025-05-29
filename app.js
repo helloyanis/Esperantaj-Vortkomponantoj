@@ -101,6 +101,7 @@
     kaŝiĈiujPaneloj();
     paneloListo.removeAttribute('hidden');
     refreshListoKomponentoj();
+    localStorage.setItem('paneloAktiva', 'panelo-listo');
   }
 
   function montriAldonPanelon() {
@@ -110,6 +111,7 @@
     formularoKomponento.reset();
     aktivaRedaktadoId = null;
     titoloAldo.textContent = 'Aldoni Novan Komponenton';
+    localStorage.setItem('paneloAktiva', 'panelo-aldo');
   }
 
   function montriSerĉPanelon() {
@@ -117,9 +119,22 @@
     paneloSerĉo.removeAttribute('hidden');
     rezultojSerĉo.innerHTML = '';
     serĉoVorto.value = '';
+    localStorage.setItem('paneloAktiva', 'panelo-serĉo');
   }
 
-  montriSerĉPanelon();
+  function ŝargiPanelojn() {
+    const antaŭaPanelo = localStorage.getItem('paneloAktiva');
+    if (antaŭaPanelo === 'panelo-listo') {
+      montriListon();
+    } else if (antaŭaPanelo === 'panelo-aldo') {
+      montriAldonPanelon();
+    } else if (antaŭaPanelo === 'panelo-serĉo') {
+      montriSerĉPanelon();
+    } else {
+      // defaŭlta al listo
+      montriListon();
+    }
+  }
 
   // -----------------------------
   // <4> Montri Liston de Komponentoj
@@ -186,13 +201,8 @@
       .filter((s) => s.length > 0);
     const difino = kompDifino.value.trim();
 
-    if (!teksto) {
-      mdui.alert('Bonvolu enigi la tekston de la komponanto.', 'Mankas Teksto');
-      return;
-    }
-    if (!difino) {
-      mdui.alert('Bonvolu enigi difinon por la komponanto.', 'Mankas Difino');
-      return;
+    if (!teksto || !difino) {
+      return
     }
 
     let listo = legiKomponentojn();
@@ -291,7 +301,6 @@ function serĉiVorto() {
   const teksto = serĉoVorto.value.trim().toLowerCase();
   rezultojSerĉo.innerHTML = '';
   if (!teksto) {
-    //mdui.alert('Enigu vorton aŭ komponenton por serĉi.', 'Serĉo Malplena');
     return;
   }
 
@@ -344,12 +353,9 @@ function serĉiVorto() {
         `;
       } else {
         karto.innerHTML = `
-          <div class="mdui-card-primary">
-            <div class="mdui-card-primary-title">${ero.mapado.tekstero} (neniu)</div>
-          </div>
-          <div class="mdui-card-content">
-            <p>${ero.mapado.difino}</p>
-          </div>
+          <mdui-tooltip content="${ero.komp.difino}">
+            <mdui-chip variant="filter" disabled>${ero.mapado.tekstero}</mdui-chip>
+          </mdui-tooltip>
         `;
       }
       kartoj.appendChild(karto);
@@ -379,7 +385,11 @@ function serĉiVorto() {
           mdui.snackbar({ message: 'Komponentoj importitaj.' });
           montriListon();
         } catch (er) {
-          mdui.alert('Eraro en importi JSON: ' + er, 'Importa Eraro');
+          mdui.alert({
+            headline:'Eraro en importi JSON: ',
+            description:er,
+            confirmText: 'Komprenis'
+          });
         }
       };
       legilo.readAsText(dos, 'UTF-8');
@@ -411,8 +421,8 @@ function serĉiVorto() {
   menuAldonuNova.addEventListener('click', montriAldonPanelon);
   menuSerĉi.addEventListener('click', montriSerĉPanelon);
 
-  // Montri liston ĉe starto
-  montriListon();
+  // Montri panelon ĉe starto
+  ŝargiPanelojn()
 
   // -----------------------------
   // <10> PWA: Registri Service Worker
