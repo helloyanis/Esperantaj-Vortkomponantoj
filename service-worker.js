@@ -5,6 +5,7 @@ const DOSIEROJ_KAJHEĴ = [
   '/', 
   '/index.html',
   '/app.js',
+  '/web-worker.js',
   '/manifest.json',
   '/assets/mdui/mdui.min.css',
   '/assets/mdui/mdui.min.js',

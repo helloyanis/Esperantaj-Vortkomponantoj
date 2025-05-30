@@ -23,15 +23,27 @@ self.addEventListener('message', (e) => {
           lastTipo === "sufikso" && kp.tipo !== "sufikso"
         ) continue;
 
-        // Enforce antaŭpovas/postpovas
-        if (lastTipo && !kp.antaŭpovas.includes(lastTipo) && kp.antaŭpovas.length > 0)
-          continue;
-        if (
-          rezulto.length > 0 &&
-          !rezulto[rezulto.length - 1].komp.postpovas.includes(kp.tipo) &&
-          rezulto[rezulto.length - 1].komp.postpovas.length > 0
-        )
-          continue;
+        // Enforce antaŭpovas/postpovas with type OR text match
+        if (rezulto.length > 0) {
+          const lastKomp = rezulto[rezulto.length - 1].komp;
+
+          // Check if kp is allowed to come after lastKomp
+          const allowedBefore = kp.antaŭpovas;
+          if (
+            allowedBefore.length > 0 &&
+            !allowedBefore.includes(lastKomp.tipo) &&
+            !allowedBefore.includes(lastKomp.teksto)
+          ) continue;
+
+          // Check if lastKomp is allowed to be followed by kp
+          const allowedAfter = lastKomp.postpovas;
+          if (
+            allowedAfter.length > 0 &&
+            !allowedAfter.includes(kp.tipo) &&
+            !allowedAfter.includes(kp.teksto)
+          ) continue;
+        }
+
 
         if (!plejLonga || tek.length > plejLonga.teksto.length) {
           plejLonga = kp;
