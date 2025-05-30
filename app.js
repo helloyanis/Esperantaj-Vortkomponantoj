@@ -1,7 +1,7 @@
 // =============================
 // Fengŝu: “Esperanto Vortkomponentoj”
 // Ĉi tiu dosiero enhavas la logikon por:
-// - Stoki, legi, ĝisdatigi, forigi vortkomponentojn en LocalStorage.
+// - Stoki, legi, ĝisdatigi, forigi vortkomponentojn en indexedDB.
 // - Montri liston de komponantoj.
 // - Formojn por aldoni/redakti komponanton.
 // - Serĉi aŭ malkonstrui tutan vorton.
@@ -51,41 +51,136 @@ let aktivaRedaktadoId = null;
 // <2> Funkcioj por Manipuli LokaStokejo
 // -----------------------------
 /**
- * Legas ĉiujn vortkomponentojn el localStorage kaj returnas kiel tablo.
+ * Legas ĉiujn vortkomponentojn el indexedDB kaj returnas kiel tablo.
  * Se ne ekzistas, returnas malplenan liston.
  */
 function legiKomponentojn() {
-  const json = localStorage.getItem(ŝlosiloKomponentoj);
-  if (!json) {
-    return [];
-  }
-  try {
-    return JSON.parse(json);
-  } catch (eraro) {
-    console.error('Eraro dum legi JSON el stokejo:', eraro);
-    return [];
-  }
-}
+  return new Promise(async (resolve) => {
+    try {
+      const peto = await ŝargiĈiujnKomponentoj();
 
-/**
- * Skribas la liston de komponantoj al localStorage.
- * @param {Array<Object>} listo – listo de komponantoj.
- */
-function skribiKomponentojn(listo) {
-  const json = JSON.stringify(listo);
-  localStorage.setItem(ŝlosiloKomponentoj, json);
-}
+      peto.onsuccess = function(event) {
+        if (!event.target.result) {
+          resolve([]);
+        } else if (!Array.isArray(event.target.result)) {
+          console.error('Nevalida formato de komponentoj:', event.target.result);
+          resolve([]);
+        } else {
+          resolve(event.target.result);
+        }
+      };
 
-/**
- * Kreu unikajn identigilon por komponanto (UUID-simila).
- */
-function kreiUnikanId() {
-  // Simpligita UUID (ne perfektigita, sed utila ĉi tie)
-  return 'xxyxxy'.replace(/[xy]/g, function (c) {
-    const r = (Math.random() * 16) | 0;
-    const v = c === 'x' ? r : (r & 0x3) | 0x8;
-    return v.toString(16);
+      peto.onerror = function(eraro) {
+        console.error('Eraro dum legado de komponentoj:', eraro);
+        resolve([]);
+      };
+    } catch (eraro) {
+      console.error('Eraro dum ŝargo de komponentoj:', eraro);
+      resolve([]);
+    }
   });
+}
+
+function malfermiDB() {
+  return new Promise((resolve, reject) => {
+    const request = indexedDB.open('VortkomponentojDB', 1);
+
+    request.onupgradeneeded = (event) => {
+      const db = event.target.result;
+      if (!db.objectStoreNames.contains('komponentoj')) {
+        db.createObjectStore('komponentoj', { keyPath: 'id', autoIncrement: true });
+      }
+    };
+
+    request.onsuccess = () => resolve(request.result);
+    request.onerror = () => reject(request.error);
+  });
+}
+
+async function ŝargiĈiujnKomponentoj() {
+  const db = await malfermiDB();
+  const tx = db.transaction('komponentoj', 'readonly');
+  const store = tx.objectStore('komponentoj');
+  const all = await store.getAll();
+  return all;
+}
+async function aldoniKomponenton(komponento) {
+  petiKonstantaStokado();
+  const db = await malfermiDB();
+  const tx = db.transaction('komponentoj', 'readwrite');
+  const store = tx.objectStore('komponentoj');
+  const request = store.add(komponento);
+  return new Promise((resolve, reject) => {
+    request.onsuccess = () => resolve(request.result);
+    request.onerror = () => reject(request.error);
+  });
+}
+async function ĝisdatigiKomponenton(komponento) {
+  const db = await malfermiDB();
+  const tx = db.transaction('komponentoj', 'readwrite');
+  const store = tx.objectStore('komponentoj');
+  const request = store.put(komponento);
+  return new Promise((resolve, reject) => {
+    request.onsuccess = () => resolve(request.result);
+    request.onerror = () => reject(request.error);
+  });
+}
+async function forigiKomponenton(id) {
+  const db = await malfermiDB();
+  const tx = db.transaction('komponentoj', 'readwrite');
+  const store = tx.objectStore('komponentoj');
+  const request = store.delete(id);
+  return new Promise((resolve, reject) => {
+    request.onsuccess = () => resolve(request.result);
+    request.onerror = () => reject(request.error);
+  });
+}
+
+function petiKonstantaStokado() {
+  if (navigator.storage && navigator.storage.persist && !sessionStorage.getItem('persistanta-stokejo-rifuzita')) {
+    navigator.storage.persisted().then((persistent) => {
+      if (persistent) {
+        console.log("✅ La stokejo estas persista.");
+      } else {
+        mdui.confirm({
+          headline: 'Ebligu Persistantan Stokejon',
+          description: 'Ĉu vi volas ebligi persistan stokejon por konservi viajn komponantojn eĉ post fermo de la retumilo? Ĉi tio helpas konservi viajn komponantojn sen perdi ilin.',
+          confirmText: '✅ Ebligi',
+          cancelText: '❌ Nuligi',
+          onConfirm: function () {
+            navigator.storage.persist().then((persisted) => {
+              if (persisted) {
+                mdui.snackbar({ message: 'Persistanta stokejo ebligita.' });
+              } else {
+                mdui.confirm({
+                  headline: 'Eraro',
+                  description: 'Permeso estis rifuzita. Persistanta stokejo ne ebligita.',
+                  confirmText: 'Komprenis',
+                  cancelText: 'Ne voku min denove',
+                  onCancel: function () {
+                    sessionStorage.setItem('persistanta-stokejo-rifuzita', 'true');
+                  }
+                });
+              }
+            });
+          },
+          onCancel: function () {
+            mdui.snackbar({ message: 'Persistanta stokejo ne ebligita.' });
+          }
+        });
+      }
+    });
+  }else {
+    mdui.alert({
+      headline: 'Stokejo ne persista',
+      description: 'Via retumilo ne subtenas persistan stokejon. La komponantoj eble estos forigitaj kiam la retumilo bezonas liberigi memoron aŭ estas fermita. Uzu Google Chrome, Firefox aŭ aliajn modernajn retumilojn por pli bonan subtenon.',
+      confirmText: 'Komprenis',
+      onConfirm: function () {
+        sessionStorage.setItem('persistanta-stokejo-rifuzita', 'true');
+      }
+    });
+  }
+
 }
 
 // -----------------------------
@@ -115,14 +210,14 @@ function montriAldonPanelon() {
   localStorage.setItem('paneloAktiva', 'panelo-aldo');
 }
 
-function montriRedaktonPanelon() {
+async function montriRedaktonPanelon() {
   kaŝiĈiujPaneloj();
   paneloAldo.removeAttribute('hidden');
   // resetu formon
   formularoKomponento.reset();
   // Plenigu la formon kun la redaktota komponanto
   if (aktivaRedaktadoId) {
-    const listo = legiKomponentojn();
+    const listo = await legiKomponentojn();
     const komponanto = listo.find(kp => kp.id === aktivaRedaktadoId);
     if (komponanto) {
       titoloAldo.textContent = `Redakti Komponenton: ${komponanto.teksto}`;
@@ -160,14 +255,23 @@ function ŝargiPanelojn() {
 // -----------------------------
 // <4> Montri Liston de Komponentoj
 // -----------------------------
-function refreshListoKomponentoj() {
-  const listo = legiKomponentojn();
+async function refreshListoKomponentoj() {
+  const listo = await legiKomponentojn();
   listoKomponentojUi.innerHTML = ''; // purigu antaŭe
   if (listo.length === 0) {
-    const neEkzistas = document.createElement('mdui-card');
-    neEkzistas.Text = 'Neniaj komponantoj trovitaj.';
+    const neEkzistas = document.createElement('mdui-list-item');
+    neEkzistas.nonclickable = true;
+    neEkzistas.textContent = 'Neniaj komponantoj trovitaj.';
     const aldoniButono = document.createElement('mdui-button');
-    aldoniButono.textContent = 'Aldoni Komponenton';
+    aldoniButono.slot='end-icon';
+    aldoniButono.textContent = 'Aldoni';
+    aldoniButono.addEventListener('click', montriAldonPanelon);
+    neEkzistas.appendChild(aldoniButono);
+    const importiButono = document.createElement('mdui-button');
+    importiButono.slot='end-icon';
+    importiButono.textContent = 'Importi';
+    importiButono.addEventListener('click', importiKomponentojn);
+    neEkzistas.appendChild(importiButono);
     listoKomponentojUi.appendChild(neEkzistas);
     return;
   }
@@ -199,24 +303,25 @@ function refreshListoKomponentoj() {
           <path d="M280-120q-33 0-56.5-23.5T200-200v-520h-40v-80h200v-40h240v40h200v80h-40v520q0 33-23.5 56.5T680-120H280Zm400-600H280v520h400v-520ZM360-280h80v-360h-80v360Zm160 0h80v-360h-80v360ZM280-720v520-520Z"/>
         </svg>
       </mdui-icon>`;
-    butonoForigi.addEventListener('click', () => forigiKomponenton(komp.id));
+    butonoForigi.addEventListener('click', () => forigiKomponentonKonfirmo(komp.id));
 
     // Aldonu la piktogramojn al la linio
     const linioPiktogramoj = document.createElement('mdui-icon');
     switch (komp.tipo) {
       case 'radiko':
-        linioPiktogramoj.innerHTML = ``
+        linioPiktogramoj.innerHTML = `
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960"><path d="M40-199v-200h80v120h720v-120h80v200H40Zm342-161v-34h-3q-13 20-35 31.5T294-351q-49 0-77-25.5T189-446q0-42 32.5-68.5T305-541q23 0 42.5 3.5T381-526v-14q0-27-18.5-43T312-599q-21 0-39.5 9T241-564l-43-32q19-27 48-41t67-14q62 0 95 29.5t33 85.5v176h-59Zm-66-134q-32 0-49 12.5T250-446q0 20 15 32.5t39 12.5q32 0 54.5-22.5T381-478q-14-8-32-12t-33-4Zm185 134v-401h62v113l-3 40h3q3-5 24-25.5t66-20.5q64 0 101 46t37 106q0 60-36.5 105.5T653-351q-41 0-62.5-18T563-397h-3v37h-59Zm143-238q-40 0-62 29.5T560-503q0 37 22 66t62 29q40 0 62.5-29t22.5-66q0-37-22.5-66T644-598Z"/></svg>`
         break;
       case 'prefikso':
         linioPiktogramoj.innerHTML = `
-        <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960"><path d="M160-240H80v-480h80v480Zm320 0L240-480l240-240 56 56-143 144h487v80H393l144 144-57 56Z"/></svg>`
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960"><path d="M160-240H80v-480h80v480Zm320 0L240-480l240-240 56 56-143 144h487v80H393l144 144-57 56Z"/></svg>`
         break;
       case 'sufikso':
-        linioPiktogramoj.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960"><path d="M80-240v-480h80v480H80Zm560 0-57-56 144-144H240v-80h487L584-664l56-56 240 240-240 240Z"/></svg>`
+        linioPiktogramoj.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960"><path d="M80-240v-480h80v480H80Zm560 0-57-56 144-144H240v-80h487L584-664l56-56 240 240-240 240Z"/></svg>`
         break;
     }
     const linioPiktogramoMesaĝo = document.createElement('mdui-tooltip');
-    linioPiktogramoMesaĝo.content = komp.tipo;
+    linioPiktogramoMesaĝo.content = komp.tipo.charAt(0).toUpperCase() + komp.tipo.slice(1);;
     linioPiktogramoMesaĝo.slot='icon';
 
     linio.appendChild(difino);
@@ -233,7 +338,7 @@ function refreshListoKomponentoj() {
 // -----------------------------
 // <5> Aldoni / Redakti Komponenton (Form-submeto)
 // -----------------------------
-formularoKomponento.addEventListener('submit', function (evento) {
+formularoKomponento.addEventListener('submit', async function (evento) {
   evento.preventDefault();
   const teksto = kompTeksto.value.trim();
   const tipo = kompTipo.value;
@@ -252,46 +357,41 @@ formularoKomponento.addEventListener('submit', function (evento) {
     return
   }
 
-  let listo = legiKomponentojn();
+  let listo = await legiKomponentojn();
 
   if (aktivaRedaktadoId) {
     // Redakti ekzistantan komponenton
-    listo = listo.map((kp) => {
-      if (kp.id === aktivaRedaktadoId) {
-        return {
-          id: kp.id,
-          teksto: teksto,
-          tipo: tipo,
-          antaŭpovas: antaŭpovasListo,
-          postpovas: postpovasListo,
-          difino: difino,
-        };
-      }
-      return kp;
+    ĝisdatigiKomponenton({
+      id: aktivaRedaktadoId,
+      teksto: teksto,
+      tipo: tipo,
+      antaŭpovas: antaŭpovasListo,
+      postpovas: postpovasListo,
+      difino: difino,
     });
     mdui.snackbar({ message: 'Komponento ĝisdatita.' });
+    aktivaRedaktadoId = null; // nuligi redaktadon
+    montriListon(); // montri la ĝisdatitan liston
   } else {
     // Aldoni novan komponenton
     const novaKp = {
-      id: kreiUnikanId(),
       teksto: teksto,
       tipo: tipo,
       antaŭpovas: antaŭpovasListo,
       postpovas: postpovasListo,
       difino: difino,
     };
-    listo.push(novaKp);
+    await aldoniKomponenton(novaKp);
+    refreshListoKomponentoj();
     mdui.snackbar({
       message: 'Komponento aldonita.',
-      actionText: 'Montri liston',
-      actionHandler: function () {
+      action: 'Montri liston',
+      onActionClick: function () {
         montriListon();
       },
     });
     formularoKomponento.reset();
   }
-
-  skribiKomponentojn(listo);
   
 });
 
@@ -302,8 +402,8 @@ butonoNuligi.addEventListener('click', function () {
 });
 
 // Redakti komponanton (plenigas formon)
-function redaktiKomponenton(id) {
-  const listo = legiKomponentojn();
+async function redaktiKomponenton(id) {
+  const listo = await legiKomponentojn();
   const trovita = listo.find((kp) => kp.id === id);
   if (!trovita) return;
   aktivaRedaktadoId = id;
@@ -317,17 +417,25 @@ function redaktiKomponenton(id) {
 }
 
 // Forigi komponanton kun konfirmo
-function forigiKomponenton(id) {
+function forigiKomponentonKonfirmo(id) {
   mdui.confirm({
     headline:'Forigi Komponenton?',
     description: 'Ĉu vi certe forigi ĉi tiun komponanton?',
     confirmText: '🗑️ Forigi',
     cancelText: '↩️ Nuligi',
     onConfirm: function () {
-      let listo = legiKomponentojn();
-      listo = listo.filter((kp) => kp.id !== id);
-      skribiKomponentojn(listo);
-      mdui.snackbar({ message: 'Komponento forigita.' });
+      forigiKomponenton(id)
+        .then(() => {
+          mdui.snackbar({ message: 'Komponento forigita.' });
+          refreshListoKomponentoj();
+        })
+        .catch((er) => {
+          mdui.alert({
+            headline: 'Eraro dum forigo:',
+            description: er.message || er,
+            confirmText: 'Komprenis'
+          });
+        });
       refreshListoKomponentoj();
     },
     onCancel: function () {
@@ -336,94 +444,127 @@ function forigiKomponenton(id) {
 });
 }
 
-// -----------------------------
-// <6> Serĉo de Tuta Vorto
-// -----------------------------
-/**
- * Funkcio por “dekomponi” vorton en vortkomponentojn, unuavice trovi la plej longan
- * kombinaĵon ĉe la komenco, tiam pluan, ktp. Ĉi tio estas simpla heuristika.
- *
- * @param {string} vorto – la plene kunmetita vorto (ekz: malgrandajn)
- * @returns {Array<Object>} listo de objektoj kun {komp, mapado} kie
- *          komp estas la komponento-objekto, kaj mapado = {tekstero, tipo, difino}.
- *          Se ne troviĝis plua komponanto, ĉesas.
- */
-
 const worker = new Worker('web-worker.js');
 
 serĉoVorto.addEventListener('input', serĉiVorto);
 
-function serĉiVorto() {
-const teksto = serĉoVorto.value.trim().toLowerCase();
-rezultojSerĉo.innerHTML = '';
-if (!teksto) {
-  return;
-}
+async function serĉiVorto() {
+  const teksto = serĉoVorto.value.trim().toLowerCase();
+  document.getElementById('rezulto-karto').innerHTML = '';
+  if (!teksto) return rezultojSerĉo.innerHTML = 'Bonvolu enigi vorton por serĉi.';
+  rezultojSerĉo.innerHTML = '<mdui-circular-progress></mdui-circular-progress>';
+  const listoK = await legiKomponentojn();
+  const ekzKom = listoK.find((kp) => kp.teksto.toLowerCase() === teksto);
 
-const listoK = legiKomponentojn();
-const ekzKom = listoK.find((kp) => kp.teksto.toLowerCase() === teksto);
-
-if (ekzKom) {
-  // Montru la komponanton per ĝia difino
-    const karto = document.createElement('div');
-    karto.className = 'mdui-card mdui-m-y-2';
-    karto.innerHTML = `
-      <div class="mdui-card-primary">
-        <div class="mdui-card-primary-title">${ekzKom.teksto} (${ekzKom.tipo})</div>
-      </div>
-      <div class="mdui-card-content">
-        <p><strong>Difino:</strong> ${ekzKom.difino}</p>
-        <p><strong>Antaŭpovas:</strong> ${ekzKom.antaŭpovas.join(', ') || 'neniu restrikto'}</p>
-        <p><strong>Postpovas:</strong> ${ekzKom.postpovas.join(', ') || 'neniu restrikto'}</p>
-      </div>
-    `;
-    rezultojSerĉo.appendChild(karto);
-    return;
-}
-
-// Now use worker
-worker.postMessage({ vorto: teksto, komponentoj: listoK });
-
-worker.onmessage = function (e) {
-  const deko = e.data;
-
-  if (deko.length === 0) {
-    rezultojSerĉo.textContent = 'Neniaj rezultoj trovita.';
+  if (ekzKom) {
+    montriKarton(ekzKom, { tekstero: ekzKom.teksto, tipo: ekzKom.tipo, difino: ekzKom.difino });
     return;
   }
 
-  const titolo = document.createElement('h3');
-  titolo.className = 'mdui-typo-subheading';
-  titolo.textContent = `Dekomponado de “${teksto}”:`;
-  rezultojSerĉo.appendChild(titolo);
+  worker.postMessage({ vorto: teksto, komponentoj: listoK });
+
+  worker.onmessage = function (e) {
+    rezultojSerĉo.innerHTML = ''; // purigu antaŭe
+    const deko = e.data;
+    if (deko.length === 0) {
+      rezultojSerĉo.innerHTML = 'Neniaj rezultoj trovita.';
+      return;
+    }
+
+    const titolo = document.createElement('h3');
+    titolo.textContent = `Dekomponado de “${teksto}”:`;
+    rezultojSerĉo.appendChild(titolo);
+
+    montriĈipojn(deko);
+  };
+}
+
+function montriĈipojn(deko) {
   const kartoj = document.createElement('div');
   kartoj.style.display = 'flex';
-  deko.forEach((ero) => {
-    const karto = document.createElement('div');
-    karto.className = 'mdui-card mdui-m-y-1';
+  kartoj.style.flexWrap = 'wrap';
+  kartoj.id = 'chip-container';
+
+  deko.forEach((ero, index) => {
+    const tooltip = document.createElement('mdui-tooltip');
+    const chip = document.createElement('mdui-chip');
+
+    chip.setAttribute('variant', 'filter');
+    chip.classList.add('chip-selectable');
+    chip.dataset.index = index;
+
     if (ero.komp) {
-      karto.innerHTML = `
-        <mdui-tooltip content="${ero.komp.difino}">
-          <mdui-chip variant="filter" onclick="document.getElementById('serĉo-vorto').value='${ero.mapado.tekstero}'; serĉiVorto()">${ero.mapado.tekstero}</mdui-chip>
-        </mdui-tooltip>
-      `;
+      tooltip.setAttribute('content', ero.komp.difino);
+      chip.textContent = ero.mapado.tekstero;
+
+      chip.onclick = () => {
+        // Deselect all chips
+        document.querySelectorAll('.chip-selectable').forEach(c => c.removeAttribute('selected'));
+        // Select the clicked chip
+        chip.setAttribute('selected', '');
+
+        // Show corresponding card
+        montriKarton(ero.komp, ero.mapado);
+      };
     } else {
-      karto.innerHTML = `
-        <mdui-tooltip content="Nevalida">
-          <mdui-chip variant="filter" disabled>${ero.mapado.tekstero}</mdui-chip>
-        </mdui-tooltip>
-      `;
+      tooltip.setAttribute('content', 'Nevalida');
+      chip.textContent = ero.mapado.tekstero;
+      chip.setAttribute('disabled', '');
     }
-    kartoj.appendChild(karto);
+
+    tooltip.appendChild(chip);
+    kartoj.appendChild(tooltip);
   });
+  rezultojSerĉo.innerHTML = ''; // purigu antaŭe
   rezultojSerĉo.appendChild(kartoj);
-};
 }
+
+function montriKarton(komp, mapado) {
+  const container = document.getElementById('rezulto-karto');
+  container.innerHTML = '';
+
+  const karto = document.createElement('mdui-card');
+  karto.variant = 'filled';
+  karto.style.padding = '10px';
+  karto.style.width = '100%';
+
+  const title = document.createElement('h3');
+  title.textContent = `${mapado.tekstero} (${komp.tipo})`;
+  karto.appendChild(title);
+
+  const difinoPara = document.createElement('p');
+  const difinoStrong = document.createElement('strong');
+  difinoStrong.textContent = 'Difino: ';
+  difinoPara.appendChild(difinoStrong);
+  difinoPara.appendChild(document.createTextNode(komp.difino));
+  karto.appendChild(difinoPara);
+
+  const antauPara = document.createElement('p');
+  const antauStrong = document.createElement('strong');
+  antauStrong.textContent = 'Antaŭpovas: ';
+  antauPara.appendChild(antauStrong);
+  const antauText = komp.antaŭpovas.length > 0 ? komp.antaŭpovas.join(', ') : 'neniu restrikto';
+  antauPara.appendChild(document.createTextNode(antauText));
+  karto.appendChild(antauPara);
+
+  const postPara = document.createElement('p');
+  const postStrong = document.createElement('strong');
+  postStrong.textContent = 'Postpovas: ';
+  postPara.appendChild(postStrong);
+  const postText = komp.postpovas.length > 0 ? komp.postpovas.join(', ') : 'neniu restrikto';
+  postPara.appendChild(document.createTextNode(postText));
+  karto.appendChild(postPara);
+  rezultojSerĉo.innerHTML = ''; // purigu antaŭe
+  container.appendChild(karto);
+}
+
+
 
 // -----------------------------
 // <7> Importi JSON-dosieron de Komponentoj
 // -----------------------------
-butonoAlŝuti.addEventListener('click', () => {
+butonoAlŝuti.addEventListener('click', importiKomponentojn);
+function importiKomponentojn() {
   // Krei kaŝitan input[type=file]
   const inputDos = document.createElement('input');
   inputDos.type = 'file';
@@ -452,7 +593,7 @@ butonoAlŝuti.addEventListener('click', () => {
   });
   // "kliku" por malfermi dosier-Dialogon
   inputDos.click();
-});
+};
 
 // -----------------------------
 // <8> Eksporti Komponentojn kiel JSON

@@ -4,7 +4,8 @@
   "icons": [
     {
       "src": "assets/piktogramoj/icon.svg",
-      "type": "image/svg+xml"
+      "type": "image/svg+xml",
+      "sizes": "any"
     }
   ],
   "start_url": "./index.html",
