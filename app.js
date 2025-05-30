@@ -583,7 +583,28 @@ function importiKomponentojn() {
         const enhavo = JSON.parse(e.target.result);
         if (!Array.isArray(enhavo)) throw 'Ne taŭga formato';
         // Ĉiu objekto en la listo devus havi id, teksto, tipo, antaŭpovas, postpovas, difino.
-        skribiKomponentojn(enhavo);
+        enhavo.forEach((kp) => {
+        if (!kp.id || !kp.teksto || !kp.tipo || !Array.isArray(kp.antaŭpovas) || !Array.isArray(kp.postpovas) || !kp.difino) {
+          throw `Nevalida komponanto: ${JSON.stringify(kp)}`;
+        } else {
+          // Instead of deleting kp.id, just omit it when adding, or clone without id:
+          const kompSenId = {...kp};
+          delete kompSenId.id;
+
+          aldoniKomponenton(kompSenId)
+            .then(generatedId => {
+              console.log(`Komponanto aldonita kun id ${generatedId}`);
+            })
+            .catch((er) => {
+              console.error('Eraro dum aldono:', er);
+              mdui.alert({
+                headline: 'Eraro dum importo:',
+                description: `Ne povis aldoni komponanton: ${kp.teksto}. Eraro: ${er.message || er}`,
+                confirmText: 'Komprenis'
+              });
+            });
+        }
+      });
         mdui.snackbar({ message: 'Komponentoj importitaj.' });
         montriListon();
       } catch (er) {
