@@ -462,6 +462,7 @@ async function serĉiVorto() {
   const ekzKom = listoK.find((kp) => kp.teksto.toLowerCase() === teksto);
 
   if (ekzKom) {
+    rezultojSerĉo.innerHTML = ''; // purigu antaŭe
     montriKarton(ekzKom, { tekstero: ekzKom.teksto, tipo: ekzKom.tipo, difino: ekzKom.difino });
     return;
   }
@@ -489,7 +490,6 @@ function montriĈipojn(deko) {
   kartoj.style.display = 'flex';
   kartoj.style.flexWrap = 'wrap';
   kartoj.id = 'chip-container';
-
   deko.forEach((ero, index) => {
     const tooltip = document.createElement('mdui-tooltip');
     const chip = document.createElement('mdui-chip');
@@ -507,7 +507,6 @@ function montriĈipojn(deko) {
         document.querySelectorAll('.chip-selectable').forEach(c => c.removeAttribute('selected'));
         // Select the clicked chip
         chip.setAttribute('selected', '');
-
         // Show corresponding card
         montriKarton(ero.komp, ero.mapado);
       };
@@ -520,7 +519,6 @@ function montriĈipojn(deko) {
     tooltip.appendChild(chip);
     kartoj.appendChild(tooltip);
   });
-  rezultojSerĉo.innerHTML = ''; // purigu antaŭe
   rezultojSerĉo.appendChild(kartoj);
 }
 
@@ -559,7 +557,6 @@ function montriKarton(komp, mapado) {
   const postText = komp.postpovas.length > 0 ? komp.postpovas.join(', ') : 'neniu restrikto';
   postPara.appendChild(document.createTextNode(postText));
   karto.appendChild(postPara);
-  rezultojSerĉo.innerHTML = ''; // purigu antaŭe
   container.appendChild(karto);
 }
 
