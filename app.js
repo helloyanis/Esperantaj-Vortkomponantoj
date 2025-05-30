@@ -21,6 +21,7 @@ const ŝlosiloKomponentoj = 'vortkomponentoj'; // Loka stokejo ŝlosilo
 const menuListoKomponentoj = document.getElementById('menu-listo-komponentoj');
 const menuAldonuNova = document.getElementById('menu-aldonu-nova');
 const menuSerĉi = document.getElementById('menu-serĉi');
+const menuFontkodo = document.getElementById('menu-fontkodo');
 
 const paneloListo = document.getElementById('panelo-listo');
 const paneloAldo = document.getElementById('panelo-aldo');
@@ -46,6 +47,10 @@ const butonoEkspremi = document.getElementById('butono-ekspremi');
 
 // Variablo por teni la id de komponanto kiam oni redaktas
 let aktivaRedaktadoId = null;
+
+menuFontkodo.addEventListener('click', () => {
+  window.open('https://github.com/helloyanis/Esperanto-Vortkomponentoj', '_blank');
+});
 
 // -----------------------------
 // <2> Funkcioj por Manipuli LokaStokejo
@@ -598,8 +603,8 @@ function importiKomponentojn() {
 // -----------------------------
 // <8> Eksporti Komponentojn kiel JSON
 // -----------------------------
-butonoEkspremi.addEventListener('click', () => {
-  const listo = legiKomponentojn();
+butonoEkspremi.addEventListener('click', async () => {
+  const listo = await legiKomponentojn();
   const json = JSON.stringify(listo, null, 2);
   const dosBlob = new Blob([json], { type: 'application/json' });
   const url = URL.createObjectURL(dosBlob);
@@ -607,7 +612,7 @@ butonoEkspremi.addEventListener('click', () => {
   ligilo.href = url;
   ligilo.download = 'vortkomponentoj.json';
   ligilo.click();
-  setTimeout(() => URL.revokeObjectURL(url), 10000);
+  //setTimeout(() => URL.revokeObjectURL(url), 10000);
   mdui.snackbar({ message: 'Komponentoj eksportitaj.' });
 });
 
@@ -636,7 +641,27 @@ if ('serviceWorker' in navigator) {
       });
   });
 }
+let instaliPrompt = null;
+const instaliButono = document.querySelector("#menu-instali");
 
+window.addEventListener("beforeinstaliPrompt", (event) => {
+  event.preventDefault();
+  instaliPrompt = event;
+  instaliButono.removeAttribute("style");
+});
+instaliButono.addEventListener("click", async () => {
+  if (!instaliPrompt) {
+    return;
+  }
+  const result = await instaliPrompt.prompt();
+  console.log(result.outcome);
+  malaktiviInAppInstaliPrompt();
+});
+
+function malaktiviInAppInstaliPrompt() {
+  instaliPrompt = null;
+  instaliButono.setAttribute("style", "display: none;");
+}
 document.addEventListener('DOMContentLoaded', () => {
   mdui.setColorScheme("#78A75A");
 });
