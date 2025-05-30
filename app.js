@@ -115,6 +115,26 @@ function montriAldonPanelon() {
   localStorage.setItem('paneloAktiva', 'panelo-aldo');
 }
 
+function montriRedaktonPanelon() {
+  kaŝiĈiujPaneloj();
+  paneloAldo.removeAttribute('hidden');
+  // resetu formon
+  formularoKomponento.reset();
+  // Plenigu la formon kun la redaktota komponanto
+  if (aktivaRedaktadoId) {
+    const listo = legiKomponentojn();
+    const komponanto = listo.find(kp => kp.id === aktivaRedaktadoId);
+    if (komponanto) {
+      titoloAldo.textContent = `Redakti Komponenton: ${komponanto.teksto}`;
+      kompTeksto.value = komponanto.teksto;
+      kompTipo.value = komponanto.tipo;
+      kompAntaupovas.value = komponanto.antaŭpovas.join(',');
+      kompPostpovas.value = komponanto.postpovas.join(',');
+      kompDifino.value = komponanto.difino;
+    }
+  }
+}
+
 function montriSerĉPanelon() {
   kaŝiĈiujPaneloj();
   paneloSerĉo.removeAttribute('hidden');
@@ -293,7 +313,7 @@ function redaktiKomponenton(id) {
   kompAntaupovas.value = trovita.antaŭpovas.join(',');
   kompPostpovas.value = trovita.postpovas.join(',');
   kompDifino.value = trovita.difino;
-  montriAldonPanelon();
+  montriRedaktonPanelon();
 }
 
 // Forigi komponanton kun konfirmo
@@ -309,6 +329,9 @@ function forigiKomponenton(id) {
       skribiKomponentojn(listo);
       mdui.snackbar({ message: 'Komponento forigita.' });
       refreshListoKomponentoj();
+    },
+    onCancel: function () {
+      mdui.snackbar({ message: 'Forigo nuligita.' });
     }
 });
 }
