@@ -644,7 +644,7 @@ if ('serviceWorker' in navigator) {
 let instaliPrompt = null;
 const instaliButono = document.querySelector("#menu-instali");
 
-window.addEventListener("beforeInstallPrompt", (event) => {
+window.addEventListener("beforeinstallPrompt", (event) => {
   event.preventDefault();
   instaliPrompt = event;
   instaliButono.removeAttribute("style");
