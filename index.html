@@ -94,7 +94,6 @@
                 <mdui-icon slot="icon">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960"><path d="M320-120v-80H160q-33 0-56.5-23.5T80-280v-480q0-33 23.5-56.5T160-840h320v80H160v480h640v-120h80v120q0 33-23.5 56.5T800-200H640v80H320Zm360-280L480-600l56-56 104 103v-287h80v287l104-103 56 56-200 200Z"/></svg>
                 </mdui-icon>
-                <mdui-badge> </mdui-badge>
                 Instali programon
                 <div slot="description">Via retumilo povas instali ĉi tiun retejon kiel aplikaĵon sur via aparato. Tio permesas al vi aliri ĉi tiun retejon eĉ kiam vi estas senreta!</div>
             </mdui-list-item>
@@ -102,6 +101,7 @@
     </mdui-navigation-drawer>
 
     <!-- Main Content -->
+    <mdui-linear-progress id="progreso" indeterminate style="display: none;"></mdui-linear-progress>
     <main style="padding: 16px;">
         <!-- Component List Panel -->
         <section id="panelo-listo" hidden>

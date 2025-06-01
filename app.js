@@ -18,6 +18,7 @@
 const ŝlosiloKomponentoj = 'vortkomponentoj'; // Loka stokejo ŝlosilo
 
 // Referencoj al HTML-elementoj
+const progreso = document.getElementById('progreso');
 const menuListoKomponentoj = document.getElementById('menu-listo-komponentoj');
 const menuAldonuNova = document.getElementById('menu-aldonu-nova');
 const menuSerĉi = document.getElementById('menu-serĉi');
@@ -133,7 +134,7 @@ async function ŝargiĈiujnKomponentoj() {
   const db = await malfermiDB();
   const tx = db.transaction('komponentoj', 'readonly');
   const store = tx.objectStore('komponentoj');
-  const all = await store.getAll();
+  const all = await store.getAll(null,1000);
   return all;
 }
 async function aldoniKomponenton(komponento) {
@@ -294,10 +295,12 @@ function ŝargiPanelojn() {
 // <4> Montri Liston de Komponentoj
 // -----------------------------
 async function refreshListoKomponentoj() {
-  listoKomponentojUi.innerHTML = '<mdui-circular-progress></mdui-circular-progress>';
+  progreso.style.display = 'block';
+  progreso.indeterminate = true;
+  progreso.removeAttribute("value")
   const listo = await legiKomponentojn();
-  listoKomponentojUi.innerHTML = ''; // purigu antaŭe
   if (listo.length === 0) {
+    progreso.style.display = 'none';
     const neEkzistas = document.createElement('mdui-list-item');
     neEkzistas.nonclickable = true;
     neEkzistas.textContent = 'Neniaj komponantoj trovitaj.';
@@ -341,6 +344,9 @@ async function refreshListoKomponentoj() {
     listoKomponentojUi.appendChild(importiSistemVortaro);
     return;
   }
+  progreso.max = listo.length;
+  progreso.value = 0;
+  progreso.indeterminate = false;
   listo.forEach((komp) => {
     const linio = document.createElement('mdui-list-item');
     linio.textContent = `${komp.teksto}`;
@@ -402,6 +408,7 @@ async function refreshListoKomponentoj() {
       serĉoVorto.value = komp.teksto;
       serĉiVorto();
     });
+    progreso.value++;
   });
   const forigiListo = document.createElement('mdui-list-item');
   forigiListo.nonclickable = true;
@@ -430,12 +437,17 @@ async function refreshListoKomponentoj() {
     });
   });
 
+  progreso.style.display = 'none';
   forigiListo.appendChild(forigiButono);
   listoKomponentojUi.appendChild(forigiListo);
 
 }
 
 async function importiSistemVortaroKomponentojn() {
+  // Montru progreso dum la importado
+  progreso.style.display = 'block';
+  progreso.indeterminate = true;
+progreso.removeAttribute("value")
   //FETCH /sistem-vortaro.json
   const respondo = await fetch('sistem-vortaro.json');
   if (!respondo.ok) {
@@ -445,6 +457,9 @@ async function importiSistemVortaroKomponentojn() {
   if (!Array.isArray(komponentoj)) {
     throw new Error('Sistem-vortaro.json ne enhavas validan liston de komponentoj.');
   }
+  progreso.max = komponentoj.length;
+  progreso.value = 0;
+  progreso.indeterminate = false;
   for (const komponanto of komponentoj) {
     // Validigu la komponantojn
     if (!komponanto.teksto || !komponanto.tipo || !komponanto.difino) {
@@ -458,7 +473,9 @@ async function importiSistemVortaroKomponentojn() {
       postpovas: komponanto.postpovas || [],
       difino: komponanto.difino,
     });
+    progreso.value++;
   }
+  progreso.style.display = 'none';
   mdui.snackbar({ message: 'Sistem-vortaro importita kun sukceso.' });
   // Refresh the list to show the new components
   await refreshListoKomponentoj();
@@ -683,6 +700,31 @@ function montriKarton(komp, mapado) {
   const postText = komp.postpovas.length > 0 ? komp.postpovas.join(', ') : 'neniu restrikto';
   postPara.appendChild(document.createTextNode(postText));
   karto.appendChild(postPara);
+
+  const butonoj = document.createElement('div');
+  butonoj.style.display = 'flex';
+
+  const butonoRedakti = document.createElement('mdui-button-icon');
+  butonoRedakti.slot = 'end-icon';
+  butonoRedakti.innerHTML = `
+      <mdui-icon>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960">
+          <path d="M200-200h57l391-391-57-57-391 391v57Zm-80 80v-170l528-527q12-11 26.5-17t30.5-6q16 0 31 6t26 18l55 56q12 11 17.5 26t5.5 30q0 16-5.5 30.5T817-647L290-120H120Zm640-584-56-56 56 56Zm-141 85-28-29 57 57-29-28Z"/>
+        </svg>
+      </mdui-icon>`;
+    butonoRedakti.addEventListener('click', () => redaktiKomponenton(komp.id));
+  butonoj.appendChild(butonoRedakti);
+  const butonoForigi = document.createElement('mdui-button-icon');
+  butonoForigi.slot = 'end-icon';
+  butonoForigi.innerHTML = `
+      <mdui-icon>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960">
+          <path d="M280-120q-33 0-56.5-23.5T200-200v-520h-40v-80h200v-40h240v40h200v80h-40v520q0 33-23.5 56.5T680-120H280Zm400-600H280v520h400v-520ZM360-280h80v-360h-80v360Zm160 0h80v-360h-80v360ZM280-720v520-520Z"/>
+        </svg>
+      </mdui-icon>`;
+  butonoForigi.addEventListener('click', () => forigiKomponentonKonfirmo(komp.id));
+  butonoj.appendChild(butonoForigi);
+  karto.appendChild(butonoj);
   container.appendChild(karto);
 }
 
@@ -716,12 +758,21 @@ function importiKomponentojn() {
             return;
           }
         }
-
+        progreso.style.display = 'block';
+        progreso.indeterminate = true;
+progreso.removeAttribute("value")
         const enhavo = JSON.parse(e.target.result);
         if (!Array.isArray(enhavo)) throw 'Ne taŭga formato';
         // Ĉiu objekto en la listo devus havi id, teksto, tipo, antaŭpovas, postpovas, difino.
+        listoKomponentojUi.innerHTML = ''; // purigu antaŭe
+        listoKomponentojUi.appendChild(progreso);
+        progreso.indeterminate = true;
+progreso.removeAttribute("value")
         forigiĈiujKomponentoj()
         .then(() => {
+          progreso.indeterminate = false;
+          progreso.max = enhavo.length;
+          progreso.value = 0;
           enhavo.forEach(async (kp) => {
           if (!kp.id || !kp.teksto || !kp.tipo || !Array.isArray(kp.antaŭpovas) || !Array.isArray(kp.postpovas) || !kp.difino) {
             throw `Nevalida komponanto: ${JSON.stringify(kp)}`;
@@ -732,6 +783,7 @@ function importiKomponentojn() {
             aldoniKomponenton(kompSenId)
             .then(generatedId => {
               console.log(`Komponanto aldonita kun id ${generatedId}`);
+              progreso.value++;
             })
             .catch((er) => {
               console.error('Eraro dum aldono:', er);
