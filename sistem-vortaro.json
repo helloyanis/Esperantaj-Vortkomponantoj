@@ -1,33 +1,51 @@
 [
   {
-    "id": 9,
+    "teksto": "a",
+    "tipo": "sufikso",
+    "antaŭpovas": [
+      "ki",
+      "ti",
+      "i",
+      "ĉi",
+      "neni"
+    ],
+    "postpovas": [],
+    "difino": "This component refers to an adjective, a description (As \"How\" in \"How is the food?\")",
+    "id": 31
+  },
+  {
     "teksto": "a",
     "tipo": "sufikso",
     "antaŭpovas": [
       "radiko"
     ],
     "postpovas": [],
-    "difino": "This word is an adjective. It gives a precision about the noun (As in \"The tree is tall\")"
+    "difino": "This word is an adjective. It gives a precision about the noun (As in \"The tree is tall\")",
+    "id": 32
   },
   {
-    "id": 10,
     "teksto": "o",
     "tipo": "sufikso",
     "antaŭpovas": [
       "radiko"
     ],
     "postpovas": [],
-    "difino": "This word is a noun, can also mean this word refers to an object; something"
+    "difino": "This word is a noun, can also mean this word refers to an object; something",
+    "id": 33
   },
   {
-    "id": 11,
     "teksto": "e",
     "tipo": "sufikso",
     "antaŭpovas": [
-      "radiko"
+      "ki",
+      "ti",
+      "i",
+      "ĉi",
+      "neni"
     ],
     "postpovas": [],
-    "difino": "This word is an adverb. This component can be compared to \"-ly\" (as in \"Greatly\") in English. It can also mean the word refers to a place."
+    "difino": "This component indicates a location, a place.",
+    "id": 34
   },
   {
     "teksto": "j",
@@ -38,7 +56,7 @@
     ],
     "postpovas": [],
     "difino": "This word is in its plural form (For example in english, not \"Candy\" but \"Candies\")",
-    "id": 12
+    "id": 35
   },
   {
     "teksto": "n",
@@ -50,7 +68,7 @@
     ],
     "postpovas": [],
     "difino": "Accusative indicator. This shows direct objects, measures, time points, directions. For example, \"Mi amas vin\" (\"I love you\"), \"vi\" is a direct object so it gets the accusative (Who do I love? ➡️You)",
-    "id": 13
+    "id": 36
   },
   {
     "teksto": "os",
@@ -60,7 +78,7 @@
     ],
     "postpovas": [],
     "difino": "This word is a verb conjugated to the future (As in \"I will do better\")",
-    "id": 14
+    "id": 37
   },
   {
     "teksto": "as",
@@ -70,7 +88,7 @@
     ],
     "postpovas": [],
     "difino": "This word is a verb conjugated to the present (As in \"I am sleepy\")",
-    "id": 15
+    "id": 38
   },
   {
     "teksto": "us",
@@ -80,20 +98,33 @@
     ],
     "postpovas": [],
     "difino": "This word is a verb conjugated to the subjunctive.",
-    "id": 16
+    "id": 39
   },
   {
-    "id": 17,
+    "teksto": "u",
+    "tipo": "sufikso",
+    "antaŭpovas": [
+      "ki",
+      "ti",
+      "i",
+      "ĉi",
+      "neni"
+    ],
+    "postpovas": [],
+    "difino": "The word refers to an individual (As in \"Who?\")",
+    "id": 40
+  },
+  {
     "teksto": "u",
     "tipo": "sufikso",
     "antaŭpovas": [
       "radiko"
     ],
     "postpovas": [],
-    "difino": "This word is a verb conjugated to the imperative, to give an instruction or an order (As in \"Do your homework!\"). If following ki,ti,i,ĉi,neni, this means instead that the word refers to an individual (As in \"Who?\")"
+    "difino": "This word is a verb conjugated to the imperative, to give an instruction or an order (As in \"Do your homework!\"). If following ki,ti,i,ĉi,neni, this means instead that the word refers to an individual (As in \"Who?\")",
+    "id": 41
   },
   {
-    "id": 18,
     "teksto": "i",
     "tipo": "sufikso",
     "antaŭpovas": [
@@ -107,7 +138,8 @@
       "es"
     ],
     "postpovas": [],
-    "difino": "This word is the infinitive of a verb. It's not conjugated (As in \"To be happy\")"
+    "difino": "This word is the infinitive of a verb. It's not conjugated (As in \"To be happy\")",
+    "id": 42
   },
   {
     "teksto": "el",
@@ -121,7 +153,7 @@
     ],
     "postpovas": [],
     "difino": "Indicates the way, the manner of doing. (As in \"How?\")",
-    "id": 19
+    "id": 43
   },
   {
     "teksto": "om",
@@ -135,7 +167,7 @@
     ],
     "postpovas": [],
     "difino": "Indicates the amount, the count of something (As in \"How many?\", \"how much?\")",
-    "id": 20
+    "id": 44
   },
   {
     "teksto": "al",
@@ -149,7 +181,7 @@
     ],
     "postpovas": [],
     "difino": "Indicates the reason for something (As in \"Why?\", \"Because\")",
-    "id": 21
+    "id": 45
   },
   {
     "teksto": "es",
@@ -163,7 +195,7 @@
     ],
     "postpovas": [],
     "difino": "Indicates the possession",
-    "id": 22
+    "id": 46
   },
   {
     "teksto": "mal",
@@ -173,7 +205,7 @@
       "radiko"
     ],
     "difino": "This component means \"The opposite of...\". For example, \"granda\" = \"big\", \"malgranda\"=\"small\"",
-    "id": 24
+    "id": 47
   },
   {
     "teksto": "ki",
@@ -190,7 +222,7 @@
       "es"
     ],
     "difino": "This indicator indicates a question, an interrogation.",
-    "id": 25
+    "id": 48
   },
   {
     "teksto": "ti",
@@ -207,10 +239,9 @@
       "es"
     ],
     "difino": "This component indicates an indication. For example, \"Tio\" = \"This\" (Ti + o, which refers to an object or something)",
-    "id": 26
+    "id": 49
   },
   {
-    "id": 27,
     "teksto": "i",
     "tipo": "radiko",
     "antaŭpovas": [],
@@ -224,7 +255,8 @@
       "al",
       "es"
     ],
-    "difino": "This indicates indefinity. For example, \"iel\" means \"In any way\" (As in \"It doesn't matter which way\")"
+    "difino": "This indicates indefinity. For example, \"iel\" means \"In any way\" (As in \"It doesn't matter which way\")",
+    "id": 50
   },
   {
     "teksto": "ĉi",
@@ -241,10 +273,9 @@
       "es"
     ],
     "difino": "This indicates \"Every...\", \"All of...\". For example \"Ĉiel\" means \"In all the possible ways\"",
-    "id": 28
+    "id": 51
   },
   {
-    "id": 29,
     "teksto": "neni",
     "tipo": "radiko",
     "antaŭpovas": [],
@@ -258,7 +289,8 @@
       "al",
       "es"
     ],
-    "difino": "This means \"None of...\". For example, \"Nenio\" means \"Nothing\""
+    "difino": "This means \"None of...\". For example, \"Nenio\" means \"Nothing\"",
+    "id": 52
   },
   {
     "teksto": "mi",
@@ -268,27 +300,27 @@
       "sufikso"
     ],
     "difino": "Pronoun, means \"Me\", \"I\".",
-    "id": 30
+    "id": 53
   },
   {
-    "id": 31,
     "teksto": "vi",
     "tipo": "radiko",
     "antaŭpovas": [],
     "postpovas": [
       "sufikso"
     ],
-    "difino": "Pronoun, means \"You\""
+    "difino": "Pronoun, means \"You\"",
+    "id": 54
   },
   {
-    "id": 32,
     "teksto": "li",
     "tipo": "radiko",
     "antaŭpovas": [],
     "postpovas": [
       "suffikso"
     ],
-    "difino": "Pronoun, means \"he\""
+    "difino": "Pronoun, means \"he\"",
+    "id": 55
   },
   {
     "teksto": "ŝi",
@@ -298,7 +330,7 @@
       "sufikso"
     ],
     "difino": "Pronoun, means \"She\"",
-    "id": 33
+    "id": 56
   },
   {
     "teksto": "ĝi",
@@ -308,26 +340,34 @@
       "sufikso"
     ],
     "difino": "Neutral pronoun. Can mean \"It\", \"This individual\".",
-    "id": 34
+    "id": 57
   },
   {
-    "id": 35,
     "teksto": "ni",
     "tipo": "radiko",
     "antaŭpovas": [],
     "postpovas": [
       "sufikso"
     ],
-    "difino": "Pronoun. Means \"We\""
+    "difino": "Pronoun. Means \"We\"",
+    "id": 58
   },
   {
-    "id": 36,
     "teksto": "ili",
     "tipo": "radiko",
     "antaŭpovas": [],
     "postpovas": [
       "sufikso"
     ],
-    "difino": "Pronoun, means \"They\" (As in multiple individuals)"
+    "difino": "Pronoun, means \"They\" (As in multiple individuals)",
+    "id": 59
+  },
+  {
+    "teksto": "grand",
+    "tipo": "radiko",
+    "antaŭpovas": [],
+    "postpovas": [],
+    "difino": "Big",
+    "id": 60
   }
 ]
