@@ -48,12 +48,39 @@ const butonoEkspremi = document.getElementById('butono-ekspremi');
 // Variablo por teni la id de komponanto kiam oni redaktas
 let aktivaRedaktadoId = null;
 
+
 menuFontkodo.addEventListener('click', () => {
   window.open('https://github.com/helloyanis/Esperanto-Vortkomponentoj', '_blank');
 });
 
+// Helpo pri la x-sistemo
+function xSistemonSubstituo(texto){
+  const replacements = {
+        'c': 'ĉ',
+        'g': 'ĝ',
+        'h': 'ĥ',
+        'j': 'ĵ',
+        's': 'ŝ',
+        'u': 'ŭ'
+    };
+
+    return texto.replace(/([cghjsu])x/gi, (match, letter) => {
+        const lower = letter.toLowerCase();
+        const accented = replacements[lower];
+        return letter === letter.toUpperCase() ? accented.toUpperCase() : accented;
+    });
+}
+document.querySelectorAll('.x-sistemo').forEach((element) => {
+  element.addEventListener('input', (evento) => {
+    const originalText = evento.target.value;
+    const convertedText = xSistemonSubstituo(originalText);
+    if (originalText !== convertedText) {
+      evento.target.value = convertedText;
+    }
+  });
+});
 // -----------------------------
-// <2> Funkcioj por Manipuli LokaStokejo
+// <2> Funkcioj por Manipuli IndexedDB
 // -----------------------------
 /**
  * Legas ĉiujn vortkomponentojn el indexedDB kaj returnas kiel tablo.
@@ -140,13 +167,25 @@ async function forigiKomponenton(id) {
     request.onerror = () => reject(request.error);
   });
 }
+async function forigiĈiujKomponentoj() {
+  const db = await malfermiDB();
+  const tx = db.transaction('komponentoj', 'readwrite');
+  const store = tx.objectStore('komponentoj');
+  const request = store.clear();
+  return new Promise((resolve, reject) => {
+    request.onsuccess = () => resolve(request.result);
+    request.onerror = () => reject(request.error);
+  });
+}
 
 function petiKonstantaStokado() {
-  if (navigator.storage && navigator.storage.persist && !sessionStorage.getItem('persistanta-stokejo-rifuzita')) {
+  if (navigator.storage && navigator.storage.persist) {
     navigator.storage.persisted().then((persistent) => {
       if (persistent) {
         console.log("✅ La stokejo estas persista.");
       } else {
+        if(sessionStorage.getItem('persistanta-stokejo-rifuzita')) return;
+        sessionStorage.setItem('persistanta-stokejo-rifuzita', 'true');
         mdui.confirm({
           headline: 'Ebligu Persistantan Stokejon',
           description: 'Ĉu vi volas ebligi persistan stokejon por konservi viajn komponantojn eĉ post fermo de la retumilo? Ĉi tio helpas konservi viajn komponantojn sen perdi ilin.',
@@ -161,16 +200,10 @@ function petiKonstantaStokado() {
                   headline: 'Eraro',
                   description: 'Permeso estis rifuzita. Persistanta stokejo ne ebligita.',
                   confirmText: 'Komprenis',
-                  cancelText: 'Ne voku min denove',
-                  onCancel: function () {
-                    sessionStorage.setItem('persistanta-stokejo-rifuzita', 'true');
-                  }
+                  cancelText: 'Ne voku min denove'
                 });
               }
             });
-          },
-          onCancel: function () {
-            mdui.snackbar({ message: 'Persistanta stokejo ne ebligita.' });
           }
         });
       }
@@ -278,6 +311,33 @@ async function refreshListoKomponentoj() {
     importiButono.addEventListener('click', importiKomponentojn);
     neEkzistas.appendChild(importiButono);
     listoKomponentojUi.appendChild(neEkzistas);
+    const importiSistemVortaro = document.createElement('mdui-list-item');
+    importiSistemVortaro.nonclickable = true; 
+    importiSistemVortaro.textContent = 'Defaŭlte, ĉi tiu retejo ne enhavas vortaron, do vi povas agordi ĝin laŭplaĉe (kaj ĉar ankoraŭ ne ekzistas kompleta vortaro kun ĉi tiu sistemo). Se vi volas, vi povas uzi enkonstruitan Esperanta-angla vortaron kun kelkaj bazaj komponantoj por helpi vin komenci!';
+    const importiSistemVortaroButono = document.createElement('mdui-button');
+    importiSistemVortaroButono.slot='end-icon';
+    importiSistemVortaroButono.textContent = 'Importi Vortaron';
+    importiSistemVortaroButono.addEventListener('click', () => {
+      mdui.confirm({
+        headline: 'Importi Vortaron',
+        description: 'Ĉu vi certas, ke vi volas importi la enkonstruitan Esperanta-anglan vortaron? Ĉi tio aldonos kelkajn bazajn komponantojn.',
+        confirmText: '✅ Importi Vortaron',
+        cancelText: '❌ Nuligi',
+        onConfirm: async function () {
+          try {
+            await importiSistemVortaroKomponentojn();
+          } catch (er) {
+            mdui.alert({
+              headline: 'Eraro dum importado:',
+              description: er.message || er,
+              confirmText: 'Komprenis',
+            });
+          }
+        }
+      });
+    });
+    importiSistemVortaro.appendChild(importiSistemVortaroButono);
+    listoKomponentojUi.appendChild(importiSistemVortaro);
     return;
   }
   listo.forEach((komp) => {
@@ -336,8 +396,72 @@ async function refreshListoKomponentoj() {
     linio.appendChild(linioPiktogramoMesaĝo);
 
     listoKomponentojUi.appendChild(linio);
+    linio.addEventListener('click', () => {
+      montriSerĉPanelon();
+      serĉoVorto.value = komp.teksto;
+      serĉiVorto();
+    });
+  });
+  const forigiListo = document.createElement('mdui-list-item');
+  forigiListo.nonclickable = true;
+  const forigiButono = document.createElement('mdui-button');
+  forigiButono.slot = 'end-icon';
+  forigiButono.textContent = 'Forigi Ĉiujn';
+  forigiButono.addEventListener('click', () => {
+    mdui.confirm({
+      headline: 'Forigi Ĉiujn Komponentojn?',
+      description: 'Ĉu vi certas forigi ĉiujn komponantojn? Ĉi tio ne povas esti malfariĝita.',
+      confirmText: '🗑️ Forigi Ĉiujn',
+      cancelText: '↩️ Nuligi',
+      onConfirm: async function () {
+        try {
+          await forigiĈiujKomponentoj();
+          mdui.snackbar({ message: 'Ĉiuj komponantoj forigitaj.' });
+          refreshListoKomponentoj();
+          } catch (er) {
+            mdui.alert({
+              headline: 'Eraro dum forigo:',
+              description: er.message || er,
+              confirmText: 'Komprenis',
+            });
+          }
+        }
+    });
   });
 
+  forigiListo.appendChild(forigiButono);
+  listoKomponentojUi.appendChild(forigiListo);
+
+}
+
+async function importiSistemVortaroKomponentojn() {
+  //FETCH /sistem-vortaro.json
+  const respondo = await fetch('sistem-vortaro.json');
+  if (!respondo.ok) {
+    throw new Error(`Eraro dum ŝarĝo de sistem-vortaro.json: ${respondo.status} ${respondo.statusText}`);
+  }
+  const komponentoj = await respondo.json();
+  if (!Array.isArray(komponentoj)) {
+    throw new Error('Sistem-vortaro.json ne enhavas validan liston de komponentoj.');
+  }
+  for (const komponanto of komponentoj) {
+    // Validigu la komponantojn
+    if (!komponanto.teksto || !komponanto.tipo || !komponanto.difino) {
+      throw new Error(`Komponento ne havas necesajn kampojn: ${JSON.stringify(komponanto)}`);
+    }
+    // Aldonu la komponanton al la stokejo
+    await aldoniKomponenton({
+      teksto: komponanto.teksto,
+      tipo: komponanto.tipo,
+      antaŭpovas: komponanto.antaŭpovas || [],
+      postpovas: komponanto.postpovas || [],
+      difino: komponanto.difino,
+    });
+  }
+  mdui.snackbar({ message: 'Sistem-vortaro importita kun sukceso.' });
+  // Refresh the list to show the new components
+  await refreshListoKomponentoj();
+  return true;
 }
 
 // -----------------------------
@@ -454,6 +578,7 @@ const worker = new Worker('web-worker.js');
 serĉoVorto.addEventListener('input', serĉiVorto);
 
 async function serĉiVorto() {
+  serĉoVorto.value=xSistemonSubstituo(serĉoVorto.value)
   const teksto = serĉoVorto.value.trim().toLowerCase();
   document.getElementById('rezulto-karto').innerHTML = '';
   if (!teksto) return rezultojSerĉo.innerHTML = 'Bonvolu enigi vorton por serĉi.';
@@ -560,8 +685,6 @@ function montriKarton(komp, mapado) {
   container.appendChild(karto);
 }
 
-
-
 // -----------------------------
 // <7> Importi JSON-dosieron de Komponentoj
 // -----------------------------
@@ -573,22 +696,39 @@ function importiKomponentojn() {
   inputDos.accept = '.json,application/json';
   inputDos.addEventListener('change', (evento) => {
     const dos = evento.target.files[0];
-    if (!dos) return;
     const legilo = new FileReader();
-    legilo.onload = function (e) {
+    legilo.onload = async function (e) {
+      butonoAlŝuti.loading = true;
       try {
+        const listo = await legiKomponentojn();
+        if (listo.length > 0) {
+          try{
+            await mdui.confirm({
+              headline: 'Ĉu vi certas?',
+              description: 'Importi novajn komponantojn forigos ĉiujn ekzistantajn komponantojn. Ĉu vi daŭrigi?',
+              confirmText: 'Daŭrigi',
+              cancelText: 'Nuligi'
+            });
+          } catch (er) {
+            console.error('Importo nuligita:', er);
+            butonoAlŝuti.loading = false;
+            return;
+          }
+        }
+
         const enhavo = JSON.parse(e.target.result);
         if (!Array.isArray(enhavo)) throw 'Ne taŭga formato';
         // Ĉiu objekto en la listo devus havi id, teksto, tipo, antaŭpovas, postpovas, difino.
-        enhavo.forEach((kp) => {
-        if (!kp.id || !kp.teksto || !kp.tipo || !Array.isArray(kp.antaŭpovas) || !Array.isArray(kp.postpovas) || !kp.difino) {
-          throw `Nevalida komponanto: ${JSON.stringify(kp)}`;
-        } else {
-          // Instead of deleting kp.id, just omit it when adding, or clone without id:
-          const kompSenId = {...kp};
-          delete kompSenId.id;
-
-          aldoniKomponenton(kompSenId)
+        forigiĈiujKomponentoj()
+        .then(() => {
+          enhavo.forEach(async (kp) => {
+          if (!kp.id || !kp.teksto || !kp.tipo || !Array.isArray(kp.antaŭpovas) || !Array.isArray(kp.postpovas) || !kp.difino) {
+            throw `Nevalida komponanto: ${JSON.stringify(kp)}`;
+          } else {
+            // Instead of deleting kp.id, just omit it when adding, or clone without id:
+            const kompSenId = {...kp};
+            delete kompSenId.id;
+            aldoniKomponenton(kompSenId)
             .then(generatedId => {
               console.log(`Komponanto aldonita kun id ${generatedId}`);
             })
@@ -600,11 +740,16 @@ function importiKomponentojn() {
                 confirmText: 'Komprenis'
               });
             });
-        }
-      });
-        mdui.snackbar({ message: 'Komponentoj importitaj.' });
-        montriListon();
+            
+          }
+        });
+          mdui.snackbar({ message: 'Komponentoj importitaj.' });
+          montriListon();
+          butonoAlŝuti.loading = false;
+        })
       } catch (er) {
+        console.error('Eraro dum importo:', er);
+        butonoAlŝuti.loading = false;
         mdui.alert({
           headline:'Eraro en importi JSON: ',
           description:er,

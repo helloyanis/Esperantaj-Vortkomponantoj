@@ -5,6 +5,7 @@ const DOSIEROJ_KAJHEĴ = [
   '/', 
   '/index.html',
   '/app.js',
+  '/sistem-vortaro.json',
   '/web-worker.js',
   '/manifest.json',
   '/assets/mdui/mdui.min.css',
