@@ -16,6 +16,14 @@ Features :
 - ⚡ Made to be able to work fast with large amounts of data. Loading times when searching should be minimal unless you have a super-large data dictionnary or run this on a potato!
 - 📲 Don't want to build your own dictionnary? No worries! You can ask a friend to export theirs as a file, and import it to your device within seconds!
 
+## Why not a standard dictionnary?
+When you see a word in a text, as a beginner you might look for it in the dictionnary and know its meaning. But as I was learning I found EO had words built a bit more like legos.
+Which means for example you don't need to learn "Kio", "Nenio", "ĉio" etc, all of these use the -o suffix which always means the same (In that case, that the word relates to something, to an object)
+
+So with mine you can see that it's built in 2 parts, and if you see that part later in another word you can remember that it was already used in another word before!
+
+Instead of `Word = meaning` you get `Word = part 1 + part 2 + part 3`, `part 1 = this`, `part 2 = that`, etc..."
+
 ---
 
 Unika sistemo por malkomponi vortojn en Esperanto, por vidi iliajn diversajn partojn kaj kion ili signifas!
@@ -33,3 +41,11 @@ Trajtoj:
 - 🔍 Inteligenta serĉo, aŭtomate detektos ĉu temas pri komponanto aŭ vorto, kiun vi serĉas, kaj montros la rezultojn laŭe
 - ⚡ Farita por povi labori rapide kun grandaj kvantoj da datumoj. Ŝarĝtempoj dum serĉado devus esti minimumaj krom se vi havas supergrandan datumvortaron aŭ uzas ĝin per terpomo!
 - 📲 Ĉu vi ne volas krei vian propran vortaron? Ne zorgu! Vi povas peti amikon eksporti ilian kiel dosieron kaj importi ĝin al via aparato ene de sekundoj!
+
+## Kial ne norma vortaro?
+Kiam vi vidas vorton en teksto, kiel komencanto vi eble serĉos ĝin en la vortaro kaj scios ĝian signifon. Sed dum mi lernis, mi trovis, ke EO havas vortojn konstruitajn iom pli kiel legoj.
+Kio ​​signifas, ekzemple, ke vi ne bezonas lerni "Kio", "Nenio", "ĉio" ktp., ĉiuj ĉi tiuj uzas la sufikson -o, kiu ĉiam signifas la samon (En tiu kazo, ke la vorto rilatas al io, al objekto).
+
+Do kun la mia vi povas vidi, ke ĝi estas konstruita en 2 partoj, kaj se vi vidas tiun parton poste en alia vorto, vi povas memori, ke ĝi jam estis uzita en alia vorto antaŭe!
+
+Anstataŭ `Vorto = signifo` vi ricevas `Vorto = parto 1 + parto 2 + parto 3`, `parto 1 = ĉi tiu`, `parto 2 = tiu`, ktp..."

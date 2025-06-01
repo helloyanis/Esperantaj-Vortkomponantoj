@@ -299,6 +299,8 @@ async function refreshListoKomponentoj() {
   progreso.indeterminate = true;
   progreso.removeAttribute("value")
   const listo = await legiKomponentojn();
+  listoKomponentojUi.innerHTML = ''; // purigu antaŭe
+
   if (listo.length === 0) {
     progreso.style.display = 'none';
     const neEkzistas = document.createElement('mdui-list-item');
