@@ -294,6 +294,7 @@ function ŝargiPanelojn() {
 // <4> Montri Liston de Komponentoj
 // -----------------------------
 async function refreshListoKomponentoj() {
+  listoKomponentojUi.innerHTML = '<mdui-circular-progress></mdui-circular-progress>';
   const listo = await legiKomponentojn();
   listoKomponentojUi.innerHTML = ''; // purigu antaŭe
   if (listo.length === 0) {
