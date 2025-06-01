@@ -44,8 +44,8 @@ Trajtoj:
 
 ## Kial ne norma vortaro?
 Kiam vi vidas vorton en teksto, kiel komencanto vi eble serĉos ĝin en la vortaro kaj scios ĝian signifon. Sed dum mi lernis, mi trovis, ke EO havas vortojn konstruitajn iom pli kiel legoj.
-Kio ​​signifas, ekzemple, ke vi ne bezonas lerni "Kio", "Nenio", "ĉio" ktp., ĉiuj ĉi tiuj uzas la sufikson -o, kiu ĉiam signifas la samon (En tiu kazo, ke la vorto rilatas al io, al objekto).
+Kio ​​signifas, ekzemple, ke vi ne bezonas lerni "Kio", "Nenio", "ĉio"..., ĉiuj ĉi tiuj uzas la sufikson -o, kiu ĉiam signifas la samon (En tiu kazo, ke la vorto rilatas al io, al objekto).
 
 Do kun la mia vi povas vidi, ke ĝi estas konstruita en 2 partoj, kaj se vi vidas tiun parton poste en alia vorto, vi povas memori, ke ĝi jam estis uzita en alia vorto antaŭe!
 
-Anstataŭ `Vorto = signifo` vi ricevas `Vorto = parto 1 + parto 2 + parto 3`, `parto 1 = ĉi tiu`, `parto 2 = tiu`, ktp..."
+Anstataŭ `Vorto = signifo` vi ricevas `Vorto = parto 1 + parto 2 + parto 3`, `parto 1 = ĉi tiu`, `parto 2 = tiu`..."
