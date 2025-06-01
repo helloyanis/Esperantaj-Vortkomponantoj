@@ -22,6 +22,7 @@ const progreso = document.getElementById('progreso');
 const menuListoKomponentoj = document.getElementById('menu-listo-komponentoj');
 const menuAldonuNova = document.getElementById('menu-aldonu-nova');
 const menuSerĉi = document.getElementById('menu-serĉi');
+const menuHelpo = document.getElementById('menu-helpo');
 const menuFontkodo = document.getElementById('menu-fontkodo');
 
 const paneloListo = document.getElementById('panelo-listo');
@@ -52,6 +53,9 @@ let aktivaRedaktadoId = null;
 
 menuFontkodo.addEventListener('click', () => {
   window.open('https://github.com/helloyanis/Esperanto-Vortkomponentoj', '_blank');
+});
+menuHelpo.addEventListener('click', () => {
+  window.open('https://github.com/helloyanis/Esperanto-Vortkomponentoj/wiki', '_blank');
 });
 
 // Helpo pri la x-sistemo
@@ -506,11 +510,9 @@ formularoKomponento.addEventListener('submit', async function (evento) {
     return
   }
 
-  let listo = await legiKomponentojn();
-
   if (aktivaRedaktadoId) {
     // Redakti ekzistantan komponenton
-    ĝisdatigiKomponenton({
+    await ĝisdatigiKomponenton({
       id: aktivaRedaktadoId,
       teksto: teksto,
       tipo: tipo,
