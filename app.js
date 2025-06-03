@@ -20,8 +20,11 @@ const ŝlosiloKomponentoj = 'vortkomponentoj'; // Loka stokejo ŝlosilo
 // Referencoj al HTML-elementoj
 const progreso = document.getElementById('progreso');
 const menuListoKomponentoj = document.getElementById('menu-listo-komponentoj');
+const appbarListoKomponentoj = document.getElementById('appbar-listo-komponentoj');
 const menuAldonuNova = document.getElementById('menu-aldonu-nova');
+const appbarAldonuNova = document.getElementById('appbar-aldonu-nova');
 const menuSerĉi = document.getElementById('menu-serĉi');
+const appbarSerĉi = document.getElementById('appbar-serĉi');
 const menuHelpo = document.getElementById('menu-helpo');
 const menuFontkodo = document.getElementById('menu-fontkodo');
 
@@ -49,6 +52,8 @@ const butonoEkspremi = document.getElementById('butono-ekspremi');
 
 // Variablo por teni la id de komponanto kiam oni redaktas
 let aktivaRedaktadoId = null;
+let listo = false; // Listo de komponantoj
+let listoIndekso = 0;
 
 
 menuFontkodo.addEventListener('click', () => {
@@ -138,7 +143,7 @@ async function ŝargiĈiujnKomponentoj() {
   const db = await malfermiDB();
   const tx = db.transaction('komponentoj', 'readonly');
   const store = tx.objectStore('komponentoj');
-  const all = await store.getAll(null,1000);
+  const all = await store.getAll();
   return all;
 }
 async function aldoniKomponenton(komponento) {
@@ -148,7 +153,10 @@ async function aldoniKomponenton(komponento) {
   const store = tx.objectStore('komponentoj');
   const request = store.add(komponento);
   return new Promise((resolve, reject) => {
-    request.onsuccess = () => resolve(request.result);
+    request.onsuccess = async () => {
+      listo = await legiKomponentojn();
+      resolve(request.result)
+    };
     request.onerror = () => reject(request.error);
   });
 }
@@ -158,7 +166,10 @@ async function ĝisdatigiKomponenton(komponento) {
   const store = tx.objectStore('komponentoj');
   const request = store.put(komponento);
   return new Promise((resolve, reject) => {
-    request.onsuccess = () => resolve(request.result);
+    request.onsuccess = async () => {
+      listo = await legiKomponentojn();
+      resolve(request.result);
+    }
     request.onerror = () => reject(request.error);
   });
 }
@@ -168,7 +179,10 @@ async function forigiKomponenton(id) {
   const store = tx.objectStore('komponentoj');
   const request = store.delete(id);
   return new Promise((resolve, reject) => {
-    request.onsuccess = () => resolve(request.result);
+    request.onsuccess = async () => {
+      listo = await legiKomponentojn();
+      resolve(request.result);
+    }
     request.onerror = () => reject(request.error);
   });
 }
@@ -178,7 +192,10 @@ async function forigiĈiujKomponentoj() {
   const store = tx.objectStore('komponentoj');
   const request = store.clear();
   return new Promise((resolve, reject) => {
-    request.onsuccess = () => resolve(request.result);
+    request.onsuccess = async () => {
+      listo = await legiKomponentojn();
+      resolve(request.result);
+    }
     request.onerror = () => reject(request.error);
   });
 }
@@ -233,12 +250,17 @@ function kaŝiĈiujPaneloj() {
   paneloListo.setAttribute('hidden', '');
   paneloAldo.setAttribute('hidden', '');
   paneloSerĉo.setAttribute('hidden', '');
+  appbarAldonuNova.setAttribute('variant', 'standard');
+  appbarListoKomponentoj.setAttribute('variant', 'standard');
   ladoTirilo.removeAttribute('open');
 }
 
 function montriListon() {
   kaŝiĈiujPaneloj();
+  listoIndekso = 0; // Reset the index when showing the list
   paneloListo.removeAttribute('hidden');
+  appbarListoKomponentoj.setAttribute('variant', 'filled');
+  appbarListoKomponentoj.loading = true;
   refreshListoKomponentoj();
   localStorage.setItem('paneloAktiva', 'panelo-listo');
 }
@@ -246,6 +268,7 @@ function montriListon() {
 function montriAldonPanelon() {
   kaŝiĈiujPaneloj();
   paneloAldo.removeAttribute('hidden');
+  appbarAldonuNova.setAttribute('variant', 'filled');
   // resetu formon
   formularoKomponento.reset();
   aktivaRedaktadoId = null;
@@ -256,11 +279,11 @@ function montriAldonPanelon() {
 async function montriRedaktonPanelon() {
   kaŝiĈiujPaneloj();
   paneloAldo.removeAttribute('hidden');
+  appbarAldonuNova.setAttribute('variant', 'filled');
   // resetu formon
   formularoKomponento.reset();
   // Plenigu la formon kun la redaktota komponanto
   if (aktivaRedaktadoId) {
-    const listo = await legiKomponentojn();
     const komponanto = listo.find(kp => kp.id === aktivaRedaktadoId);
     if (komponanto) {
       titoloAldo.textContent = `Redakti Komponenton: ${komponanto.teksto}`;
@@ -302,9 +325,7 @@ async function refreshListoKomponentoj() {
   progreso.style.display = 'block';
   progreso.indeterminate = true;
   progreso.removeAttribute("value")
-  const listo = await legiKomponentojn();
   listoKomponentojUi.innerHTML = ''; // purigu antaŭe
-
   if (listo.length === 0) {
     progreso.style.display = 'none';
     const neEkzistas = document.createElement('mdui-list-item');
@@ -323,14 +344,14 @@ async function refreshListoKomponentoj() {
     listoKomponentojUi.appendChild(neEkzistas);
     const importiSistemVortaro = document.createElement('mdui-list-item');
     importiSistemVortaro.nonclickable = true; 
-    importiSistemVortaro.textContent = 'Defaŭlte, ĉi tiu retejo ne enhavas vortaron, do vi povas agordi ĝin laŭplaĉe (kaj ĉar ankoraŭ ne ekzistas kompleta vortaro kun ĉi tiu sistemo). Se vi volas, vi povas uzi enkonstruitan Esperanta-angla vortaron kun kelkaj bazaj komponantoj por helpi vin komenci!';
+    importiSistemVortaro.textContent = 'Defaŭlte, ĉi tiu retejo ne enhavas vortaron, do vi povas agordi ĝin laŭplaĉe. Se vi volas, vi povas uzi enkonstruitan Esperanta-angla vortaron!';
     const importiSistemVortaroButono = document.createElement('mdui-button');
     importiSistemVortaroButono.slot='end-icon';
     importiSistemVortaroButono.textContent = 'Importi Vortaron';
     importiSistemVortaroButono.addEventListener('click', () => {
       mdui.confirm({
         headline: 'Importi Vortaron',
-        description: 'Ĉu vi certas, ke vi volas importi la enkonstruitan Esperanta-anglan vortaron? Ĉi tio aldonos kelkajn bazajn komponantojn.',
+        description: 'Ĉu vi certas, ke vi volas importi la enkonstruitan Esperanta-anglan vortaron? Tio povas daŭri kelkajn minutojn!',
         confirmText: '✅ Importi Vortaron',
         cancelText: '❌ Nuligi',
         onConfirm: async function () {
@@ -348,12 +369,49 @@ async function refreshListoKomponentoj() {
     });
     importiSistemVortaro.appendChild(importiSistemVortaroButono);
     listoKomponentojUi.appendChild(importiSistemVortaro);
+    appbarListoKomponentoj.loading = false;
     return;
   }
   progreso.max = listo.length;
   progreso.value = 0;
   progreso.indeterminate = false;
-  listo.forEach((komp) => {
+  const forigiListo = document.createElement('mdui-list-item');
+  forigiListo.nonclickable = true;
+  const forigiButono = document.createElement('mdui-button');
+  forigiButono.slot = 'end-icon';
+  forigiButono.textContent = 'Forigi Ĉiujn';
+  if(listoIndekso=== 0) {
+    forigiButono.addEventListener('click', () => {
+      mdui.confirm({
+        headline: 'Forigi Ĉiujn Komponentojn?',
+        description: 'Ĉu vi certas forigi ĉiujn komponantojn? Ĉi tio ne povas esti malfariĝita.',
+        confirmText: '🗑️ Forigi Ĉiujn',
+        cancelText: '↩️ Nuligi',
+        onConfirm: async function () {
+          try {
+            await forigiĈiujKomponentoj();
+            mdui.snackbar({ message: 'Ĉiuj komponantoj forigitaj.' });
+            refreshListoKomponentoj();
+            } catch (er) {
+              mdui.alert({
+                headline: 'Eraro dum forigo:',
+                description: er.message || er,
+                confirmText: 'Komprenis',
+              });
+            }
+          }
+      });
+    });
+  }
+    forigiListo.appendChild(forigiButono);
+    listoKomponentojUi.appendChild(forigiListo);
+  let listo2 = listo;
+  let stumpigista = false
+  if(listo.length > listoIndekso+500) {
+    listo2 = listo.slice(0, listoIndekso+500); // Limigu al 1000 komponantoj por eviti tro longan liston
+    stumpigista = true;
+  }
+  listo2.forEach((komp) => {
     const linio = document.createElement('mdui-list-item');
     linio.textContent = `${komp.teksto}`;
 
@@ -416,36 +474,19 @@ async function refreshListoKomponentoj() {
     });
     progreso.value++;
   });
-  const forigiListo = document.createElement('mdui-list-item');
-  forigiListo.nonclickable = true;
-  const forigiButono = document.createElement('mdui-button');
-  forigiButono.slot = 'end-icon';
-  forigiButono.textContent = 'Forigi Ĉiujn';
-  forigiButono.addEventListener('click', () => {
-    mdui.confirm({
-      headline: 'Forigi Ĉiujn Komponentojn?',
-      description: 'Ĉu vi certas forigi ĉiujn komponantojn? Ĉi tio ne povas esti malfariĝita.',
-      confirmText: '🗑️ Forigi Ĉiujn',
-      cancelText: '↩️ Nuligi',
-      onConfirm: async function () {
-        try {
-          await forigiĈiujKomponentoj();
-          mdui.snackbar({ message: 'Ĉiuj komponantoj forigitaj.' });
-          refreshListoKomponentoj();
-          } catch (er) {
-            mdui.alert({
-              headline: 'Eraro dum forigo:',
-              description: er.message || er,
-              confirmText: 'Komprenis',
-            });
-          }
-        }
+  if(stumpigista) {
+    const pliDaKomponentoj = document.createElement('mdui-list-item');
+    pliDaKomponentoj.textContent = `+${listo.length - listoIndekso} pli da komponantoj...`;
+    pliDaKomponentoj.addEventListener('click', () => {
+      listoIndekso += 500;
+      refreshListoKomponentoj();
     });
-  });
-
+    listoKomponentojUi.appendChild(pliDaKomponentoj);
+  } else {
+    listoIndekso = 0; // Reset the index if we show all components
+  }
   progreso.style.display = 'none';
-  forigiListo.appendChild(forigiButono);
-  listoKomponentojUi.appendChild(forigiListo);
+  appbarListoKomponentoj.loading = false;
 
 }
 
@@ -554,7 +595,6 @@ butonoNuligi.addEventListener('click', function () {
 
 // Redakti komponanton (plenigas formon)
 async function redaktiKomponenton(id) {
-  const listo = await legiKomponentojn();
   const trovita = listo.find((kp) => kp.id === id);
   if (!trovita) return;
   aktivaRedaktadoId = id;
@@ -605,7 +645,7 @@ async function serĉiVorto() {
   document.getElementById('rezulto-karto').innerHTML = '';
   if (!teksto) return rezultojSerĉo.innerHTML = 'Bonvolu enigi vorton por serĉi.';
   rezultojSerĉo.innerHTML = '<mdui-circular-progress></mdui-circular-progress>';
-  const listoK = await legiKomponentojn();
+  const listoK = listo
   const ekzKom = listoK.find((kp) => kp.teksto.toLowerCase() === teksto);
 
   if (ekzKom) {
@@ -647,6 +687,7 @@ function montriĈipojn(deko) {
 
     if (ero.komp) {
       tooltip.setAttribute('content', ero.komp.difino);
+      tooltip.placement="top-start"
       chip.textContent = ero.mapado.tekstero;
 
       chip.onclick = () => {
@@ -683,27 +724,27 @@ function montriKarton(komp, mapado) {
   karto.appendChild(title);
 
   const difinoPara = document.createElement('p');
-  const difinoStrong = document.createElement('strong');
-  difinoStrong.textContent = 'Difino: ';
-  difinoPara.appendChild(difinoStrong);
+  // const difinoStrong = document.createElement('strong');
+  // difinoStrong.textContent = 'Difino: ';
+  // difinoPara.appendChild(difinoStrong);
   difinoPara.appendChild(document.createTextNode(komp.difino));
   karto.appendChild(difinoPara);
 
-  const antauPara = document.createElement('p');
-  const antauStrong = document.createElement('strong');
-  antauStrong.textContent = 'Antaŭpovas: ';
-  antauPara.appendChild(antauStrong);
-  const antauText = komp.antaŭpovas.length > 0 ? komp.antaŭpovas.join(', ') : 'neniu restrikto';
-  antauPara.appendChild(document.createTextNode(antauText));
-  karto.appendChild(antauPara);
+  // const antauPara = document.createElement('p');
+  // const antauStrong = document.createElement('strong');
+  // antauStrong.textContent = 'Antaŭpovas: ';
+  // antauPara.appendChild(antauStrong);
+  // const antauText = komp.antaŭpovas.length > 0 ? komp.antaŭpovas.join(', ') : 'neniu restrikto';
+  // antauPara.appendChild(document.createTextNode(antauText));
+  // karto.appendChild(antauPara);
 
-  const postPara = document.createElement('p');
-  const postStrong = document.createElement('strong');
-  postStrong.textContent = 'Postpovas: ';
-  postPara.appendChild(postStrong);
-  const postText = komp.postpovas.length > 0 ? komp.postpovas.join(', ') : 'neniu restrikto';
-  postPara.appendChild(document.createTextNode(postText));
-  karto.appendChild(postPara);
+  // const postPara = document.createElement('p');
+  // const postStrong = document.createElement('strong');
+  // postStrong.textContent = 'Postpovas: ';
+  // postPara.appendChild(postStrong);
+  // const postText = komp.postpovas.length > 0 ? komp.postpovas.join(', ') : 'neniu restrikto';
+  // postPara.appendChild(document.createTextNode(postText));
+  // karto.appendChild(postPara);
 
   const butonoj = document.createElement('div');
   butonoj.style.display = 'flex';
@@ -747,7 +788,6 @@ function importiKomponentojn() {
     legilo.onload = async function (e) {
       butonoAlŝuti.loading = true;
       try {
-        const listo = await legiKomponentojn();
         if (listo.length > 0) {
           try{
             await mdui.confirm({
@@ -764,27 +804,24 @@ function importiKomponentojn() {
         }
         progreso.style.display = 'block';
         progreso.indeterminate = true;
-progreso.removeAttribute("value")
+        progreso.removeAttribute("value")
         const enhavo = JSON.parse(e.target.result);
         if (!Array.isArray(enhavo)) throw 'Ne taŭga formato';
         // Ĉiu objekto en la listo devus havi id, teksto, tipo, antaŭpovas, postpovas, difino.
         listoKomponentojUi.innerHTML = ''; // purigu antaŭe
         listoKomponentojUi.appendChild(progreso);
         progreso.indeterminate = true;
-progreso.removeAttribute("value")
+        progreso.removeAttribute("value")
         forigiĈiujKomponentoj()
         .then(() => {
           progreso.indeterminate = false;
           progreso.max = enhavo.length;
           progreso.value = 0;
           enhavo.forEach(async (kp) => {
-          if (!kp.id || !kp.teksto || !kp.tipo || !Array.isArray(kp.antaŭpovas) || !Array.isArray(kp.postpovas) || !kp.difino) {
+          if (!kp.teksto || !kp.tipo || !Array.isArray(kp.antaŭpovas) || !Array.isArray(kp.postpovas) || !kp.difino) {
             throw `Nevalida komponanto: ${JSON.stringify(kp)}`;
           } else {
-            // Instead of deleting kp.id, just omit it when adding, or clone without id:
-            const kompSenId = {...kp};
-            delete kompSenId.id;
-            aldoniKomponenton(kompSenId)
+            aldoniKomponenton(kp)
             .then(generatedId => {
               console.log(`Komponanto aldonita kun id ${generatedId}`);
               progreso.value++;
@@ -824,8 +861,11 @@ progreso.removeAttribute("value")
 // <8> Eksporti Komponentojn kiel JSON
 // -----------------------------
 butonoEkspremi.addEventListener('click', async () => {
-  const listo = await legiKomponentojn();
-  const json = JSON.stringify(listo, null, 2);
+  const listoSenId = listo.map(kp => {
+    const { id, ...resto } = kp; // forigi id
+    return resto; // returni reston sen id
+  });
+  const json = JSON.stringify(listoSenId, null, 2);
   const dosBlob = new Blob([json], { type: 'application/json' });
   const url = URL.createObjectURL(dosBlob);
   const ligilo = document.createElement('a');
@@ -839,12 +879,13 @@ butonoEkspremi.addEventListener('click', async () => {
 // -----------------------------
 // <9> Event-listeners por menuo
 // -----------------------------
+appbarListoKomponentoj.addEventListener('click', montriListon);
 menuListoKomponentoj.addEventListener('click', montriListon);
+appbarAldonuNova.addEventListener('click', montriAldonPanelon);
 menuAldonuNova.addEventListener('click', montriAldonPanelon);
+appbarSerĉi.addEventListener('click', montriSerĉPanelon);
 menuSerĉi.addEventListener('click', montriSerĉPanelon);
 
-// Montri panelon ĉe starto
-ŝargiPanelojn()
 
 // -----------------------------
 // <10> PWA: Registri Service Worker
@@ -882,6 +923,13 @@ function malaktiviInAppInstaliPrompt() {
   instaliPrompt = null;
   instaliButono.setAttribute("style", "display: none;");
 }
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
   mdui.setColorScheme("#78A75A");
+  document.querySelector('#progreso').removeAttribute('style');
+  document.querySelector('#progreso').indeterminate = true
+  listo = await legiKomponentojn();
+  // Montri panelon ĉe starto
+  ŝargiPanelojn()
+  document.querySelector('#progreso').setAttribute('style', 'display: none;');
+
 });
