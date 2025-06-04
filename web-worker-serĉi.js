@@ -42,6 +42,12 @@ self.addEventListener("message", (e) => {
             continue;
           }
 
+          // ─── 1.5) NO REPEATING EXACTLY THE SAME teksto TWICE IN A ROW ───
+          if (lastKp && kp.teksto.toLowerCase() === lastKp.teksto.toLowerCase()) {
+            // If the previous piece was “o” and this candidate is also “o,” skip it.
+            continue;
+          }
+
           // ── 2) Must match text at front ──
           const t = kp.teksto.toLowerCase();
           if (!lowerRest.startsWith(t)) {
