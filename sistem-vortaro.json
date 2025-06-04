@@ -124,8 +124,9 @@
   },
   {
     "teksto": "i",
-    "tipo": "sufikso",
-    "antaŭpovas": [
+    "tipo": "radiko",
+    "antaŭpovas": [],
+    "postpovas": [
       "o",
       "e",
       "u",
@@ -134,6 +135,13 @@
       "om",
       "al",
       "es"
+    ],
+    "difino": "This indicates indefinity. For example, \"iel\" means \"In any way\" (As in \"It doesn't matter which way\")"
+  },
+  {
+    "teksto": "i",
+    "tipo": "sufikso",
+    "antaŭpovas": [
     ],
     "postpovas": [],
     "difino": "This word is the infinitive of a verb. It's not conjugated (As in \"To be happy\")"
@@ -230,22 +238,6 @@
       "es"
     ],
     "difino": "This component indicates an indication. For example, \"Tio\" = \"This\" (Ti + o, which refers to an object or something)"
-  },
-  {
-    "teksto": "i",
-    "tipo": "radiko",
-    "antaŭpovas": [],
-    "postpovas": [
-      "o",
-      "e",
-      "u",
-      "a",
-      "el",
-      "om",
-      "al",
-      "es"
-    ],
-    "difino": "This indicates indefinity. For example, \"iel\" means \"In any way\" (As in \"It doesn't matter which way\")"
   },
   {
     "teksto": "ĉi",
@@ -33700,13 +33692,6 @@
     "difino": "Refers to neither, nor"
   },
   {
-    "teksto": "ni",
-    "tipo": "radiko",
-    "antaŭpovas": [],
-    "postpovas": [],
-    "difino": "Refers to we"
-  },
-  {
     "teksto": "nu",
     "tipo": "radiko",
     "antaŭpovas": [],
@@ -33957,12 +33942,5 @@
     "antaŭpovas": [],
     "postpovas": [],
     "difino": "Refers to wo, woe, alas"
-  },
-  {
-    "teksto": "vi",
-    "tipo": "radiko",
-    "antaŭpovas": [],
-    "postpovas": [],
-    "difino": "Refers to you"
   }
 ]
