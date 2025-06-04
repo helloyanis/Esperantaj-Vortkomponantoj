@@ -96,109 +96,51 @@ document.querySelectorAll('.x-sistemo').forEach((element) => {
  * Legas ĉiujn vortkomponentojn el indexedDB kaj returnas kiel tablo.
  * Se ne ekzistas, returnas malplenan liston.
  */
+const idbWorker = new Worker('web-worker-idb.js');
+let requestId = 0;
+const pendingRequests = new Map();
+
+idbWorker.onmessage = ({ data }) => {
+  const { id, result, error } = data;
+  const { resolve, reject } = pendingRequests.get(id) || {};
+  pendingRequests.delete(id);
+  if (error) reject(new Error(error));
+  else resolve(result);
+};
+
+function sendToWorker(action, data) {
+  return new Promise((resolve, reject) => {
+    const id = ++requestId;
+    pendingRequests.set(id, { resolve, reject });
+    idbWorker.postMessage({ id, action, data });
+  });
+}
 function legiKomponentojn() {
-  return new Promise(async (resolve) => {
-    try {
-      const peto = await ŝargiĈiujnKomponentoj();
-
-      peto.onsuccess = function(event) {
-        if (!event.target.result) {
-          resolve([]);
-        } else if (!Array.isArray(event.target.result)) {
-          console.error('Nevalida formato de komponentoj:', event.target.result);
-          resolve([]);
-        } else {
-          resolve(event.target.result);
-        }
-      };
-
-      peto.onerror = function(eraro) {
-        console.error('Eraro dum legado de komponentoj:', eraro);
-        resolve([]);
-      };
-    } catch (eraro) {
-      console.error('Eraro dum ŝargo de komponentoj:', eraro);
-      resolve([]);
-    }
-  });
+  return sendToWorker('legiKomponentojn');
 }
 
-function malfermiDB() {
-  return new Promise((resolve, reject) => {
-    const request = indexedDB.open('VortkomponentojDB', 1);
-
-    request.onupgradeneeded = (event) => {
-      const db = event.target.result;
-      if (!db.objectStoreNames.contains('komponentoj')) {
-        db.createObjectStore('komponentoj', { keyPath: 'id', autoIncrement: true });
-      }
-    };
-
-    request.onsuccess = () => resolve(request.result);
-    request.onerror = () => reject(request.error);
-  });
+function aldoniKomponenton(komponento) {
+  petiKonstantaStokado(); // stays in main thread
+  return sendToWorker('aldoniKomponenton', komponento);
 }
 
-async function ŝargiĈiujnKomponentoj() {
-  const db = await malfermiDB();
-  const tx = db.transaction('komponentoj', 'readonly');
-  const store = tx.objectStore('komponentoj');
-  const all = await store.getAll();
-  return all;
+function aldoniKomponentojn(komponentoj) {
+  petiKonstantaStokado(); // stays in main thread
+  return sendToWorker('aldoniKomponentojn', komponentoj);
 }
-async function aldoniKomponenton(komponento) {
-  petiKonstantaStokado();
-  const db = await malfermiDB();
-  const tx = db.transaction('komponentoj', 'readwrite');
-  const store = tx.objectStore('komponentoj');
-  const request = store.add(komponento);
-  return new Promise((resolve, reject) => {
-    request.onsuccess = async () => {
-      listo = await legiKomponentojn();
-      resolve(request.result)
-    };
-    request.onerror = () => reject(request.error);
-  });
+
+function ĝisdatigiKomponenton(komponento) {
+  return sendToWorker('ĝisdatigiKomponenton', komponento);
 }
-async function ĝisdatigiKomponenton(komponento) {
-  const db = await malfermiDB();
-  const tx = db.transaction('komponentoj', 'readwrite');
-  const store = tx.objectStore('komponentoj');
-  const request = store.put(komponento);
-  return new Promise((resolve, reject) => {
-    request.onsuccess = async () => {
-      listo = await legiKomponentojn();
-      resolve(request.result);
-    }
-    request.onerror = () => reject(request.error);
-  });
+
+function forigiKomponenton(id) {
+  return sendToWorker('forigiKomponenton', id);
 }
-async function forigiKomponenton(id) {
-  const db = await malfermiDB();
-  const tx = db.transaction('komponentoj', 'readwrite');
-  const store = tx.objectStore('komponentoj');
-  const request = store.delete(id);
-  return new Promise((resolve, reject) => {
-    request.onsuccess = async () => {
-      listo = await legiKomponentojn();
-      resolve(request.result);
-    }
-    request.onerror = () => reject(request.error);
-  });
+
+function forigiĈiujKomponentoj() {
+  return sendToWorker('forigiĈiujKomponentoj');
 }
-async function forigiĈiujKomponentoj() {
-  const db = await malfermiDB();
-  const tx = db.transaction('komponentoj', 'readwrite');
-  const store = tx.objectStore('komponentoj');
-  const request = store.clear();
-  return new Promise((resolve, reject) => {
-    request.onsuccess = async () => {
-      listo = await legiKomponentojn();
-      resolve(request.result);
-    }
-    request.onerror = () => reject(request.error);
-  });
-}
+
 
 function petiKonstantaStokado() {
   if (navigator.storage && navigator.storage.persist) {
@@ -407,8 +349,8 @@ async function refreshListoKomponentoj() {
     listoKomponentojUi.appendChild(forigiListo);
   let listo2 = listo;
   let stumpigista = false
-  if(listo.length > listoIndekso+500) {
-    listo2 = listo.slice(0, listoIndekso+500); // Limigu al 1000 komponantoj por eviti tro longan liston
+  if(listo.length > listoIndekso+200) {
+    listo2 = listo.slice(0, listoIndekso+200); // Limigu al 1000 komponantoj por eviti tro longan liston
     stumpigista = true;
   }
   listo2.forEach((komp) => {
@@ -478,7 +420,7 @@ async function refreshListoKomponentoj() {
     const pliDaKomponentoj = document.createElement('mdui-list-item');
     pliDaKomponentoj.textContent = `+${listo.length - listoIndekso} pli da komponantoj...`;
     pliDaKomponentoj.addEventListener('click', () => {
-      listoIndekso += 500;
+      listoIndekso += 200;
       refreshListoKomponentoj();
     });
     listoKomponentojUi.appendChild(pliDaKomponentoj);
@@ -494,7 +436,7 @@ async function importiSistemVortaroKomponentojn() {
   // Montru progreso dum la importado
   progreso.style.display = 'block';
   progreso.indeterminate = true;
-progreso.removeAttribute("value")
+  progreso.removeAttribute("value")
   //FETCH /sistem-vortaro.json
   const respondo = await fetch('sistem-vortaro.json');
   if (!respondo.ok) {
@@ -504,24 +446,7 @@ progreso.removeAttribute("value")
   if (!Array.isArray(komponentoj)) {
     throw new Error('Sistem-vortaro.json ne enhavas validan liston de komponentoj.');
   }
-  progreso.max = komponentoj.length;
-  progreso.value = 0;
-  progreso.indeterminate = false;
-  for (const komponanto of komponentoj) {
-    // Validigu la komponantojn
-    if (!komponanto.teksto || !komponanto.tipo || !komponanto.difino) {
-      throw new Error(`Komponento ne havas necesajn kampojn: ${JSON.stringify(komponanto)}`);
-    }
-    // Aldonu la komponanton al la stokejo
-    await aldoniKomponenton({
-      teksto: komponanto.teksto,
-      tipo: komponanto.tipo,
-      antaŭpovas: komponanto.antaŭpovas || [],
-      postpovas: komponanto.postpovas || [],
-      difino: komponanto.difino,
-    });
-    progreso.value++;
-  }
+  await aldoniKomponentojn(komponentoj);
   progreso.style.display = 'none';
   mdui.snackbar({ message: 'Sistem-vortaro importita kun sukceso.' });
   // Refresh the list to show the new components
@@ -635,7 +560,7 @@ function forigiKomponentonKonfirmo(id) {
 });
 }
 
-const worker = new Worker('web-worker.js');
+const workerSerĉi = new Worker('web-worker-serĉi.js');
 
 serĉoVorto.addEventListener('input', serĉiVorto);
 
@@ -654,9 +579,9 @@ async function serĉiVorto() {
     return;
   }
 
-  worker.postMessage({ vorto: teksto, komponentoj: listoK });
+  workerSerĉi.postMessage({ vorto: teksto, komponentoj: listoK });
 
-  worker.onmessage = function (e) {
+  workerSerĉi.onmessage = function (e) {
     rezultojSerĉo.innerHTML = ''; // purigu antaŭe
     const deko = e.data;
     if (deko.length === 0) {
@@ -813,30 +738,12 @@ function importiKomponentojn() {
         progreso.indeterminate = true;
         progreso.removeAttribute("value")
         forigiĈiujKomponentoj()
-        .then(() => {
+        .then(async () => {
           progreso.indeterminate = false;
           progreso.max = enhavo.length;
           progreso.value = 0;
-          enhavo.forEach(async (kp) => {
-          if (!kp.teksto || !kp.tipo || !Array.isArray(kp.antaŭpovas) || !Array.isArray(kp.postpovas) || !kp.difino) {
-            throw `Nevalida komponanto: ${JSON.stringify(kp)}`;
-          } else {
-            aldoniKomponenton(kp)
-            .then(generatedId => {
-              console.log(`Komponanto aldonita kun id ${generatedId}`);
-              progreso.value++;
-            })
-            .catch((er) => {
-              console.error('Eraro dum aldono:', er);
-              mdui.alert({
-                headline: 'Eraro dum importo:',
-                description: `Ne povis aldoni komponanton: ${kp.teksto}. Eraro: ${er.message || er}`,
-                confirmText: 'Komprenis'
-              });
-            });
-            
-          }
-        });
+          await aldoniKomponentojn(enhavo)
+          progreso.style.display = 'none';
           mdui.snackbar({ message: 'Komponentoj importitaj.' });
           montriListon();
           butonoAlŝuti.loading = false;

@@ -546,7 +546,7 @@
   {
     "teksto": "on",
     "tipo": "sufikso",
-    "antaŭpovas": [],
+    "antaŭpovas": ["radiko"],
     "postpovas": [],
     "difino": "Denotes a fraction"
   },
