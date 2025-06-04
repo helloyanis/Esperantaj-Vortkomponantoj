@@ -115,30 +115,40 @@ function sendToWorker(action, data) {
     idbWorker.postMessage({ id, action, data });
   });
 }
-function legiKomponentojn() {
-  return sendToWorker('legiKomponentojn');
+async function legiKomponentojn() {
+  listo = await sendToWorker('legiKomponentojn');
+  if (!listo || !Array.isArray(listo)) {
+    listo = [];
+  }
+  return listo;
 }
 
-function aldoniKomponenton(komponento) {
-  petiKonstantaStokado(); // stays in main thread
-  return sendToWorker('aldoniKomponenton', komponento);
+async function aldoniKomponenton(komponento) {
+  petiKonstantaStokado();
+  await sendToWorker('aldoniKomponenton', komponento);
+  await legiKomponentojn();
+  return listo;
 }
 
-function aldoniKomponentojn(komponentoj) {
-  petiKonstantaStokado(); // stays in main thread
-  return sendToWorker('aldoniKomponentojn', komponentoj);
+async function aldoniKomponentojn(komponentoj) {
+  petiKonstantaStokado();
+  await sendToWorker('aldoniKomponentojn', komponentoj);
+  await legiKomponentojn();
 }
 
-function ĝisdatigiKomponenton(komponento) {
-  return sendToWorker('ĝisdatigiKomponenton', komponento);
+async function ĝisdatigiKomponenton(komponento) {
+  await sendToWorker('ĝisdatigiKomponenton', komponento);
+  await legiKomponentojn();
 }
 
-function forigiKomponenton(id) {
-  return sendToWorker('forigiKomponenton', id);
+async function forigiKomponenton(id) {
+  await sendToWorker('forigiKomponenton', id);
+  await legiKomponentojn();
 }
 
-function forigiĈiujKomponentoj() {
-  return sendToWorker('forigiĈiujKomponentoj');
+async function forigiĈiujKomponentoj() {
+  await sendToWorker('forigiĈiujKomponentoj');
+  await legiKomponentojn();
 }
 
 
@@ -293,8 +303,8 @@ async function refreshListoKomponentoj() {
     importiSistemVortaroButono.addEventListener('click', () => {
       mdui.confirm({
         headline: 'Importi Vortaron',
-        description: 'Ĉu vi certas, ke vi volas importi la enkonstruitan Esperanta-anglan vortaron? Tio povas daŭri kelkajn minutojn!',
-        confirmText: '✅ Importi Vortaron',
+        description: 'Ĉu vi certas, ke vi volas importi la enkonstruitan Esperanta-anglan vortaron?',
+        confirmText: '✅ Importi',
         cancelText: '❌ Nuligi',
         onConfirm: async function () {
           try {

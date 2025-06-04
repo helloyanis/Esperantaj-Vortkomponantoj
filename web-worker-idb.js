@@ -87,21 +87,16 @@ async function ŝargiĈiujnKomponentoj() {
   return all;
 }
 async function aldoniKomponenton(komponento) {
-  petiKonstantaStokado();
   const db = await malfermiDB();
   const tx = db.transaction('komponentoj', 'readwrite');
   const store = tx.objectStore('komponentoj');
   const request = store.add(komponento);
   return new Promise((resolve, reject) => {
-    request.onsuccess = async () => {
-      listo = await legiKomponentojn();
-      resolve(request.result)
-    };
+    request.onsuccess =  () => resolve(request.result)
     request.onerror = () => reject(request.error);
   });
 }
 async function aldoniKomponentojn(komponentoj) {
-  petiKonstantaStokado();
   const db = await malfermiDB();
   const tx = db.transaction('komponentoj', 'readwrite');
   const store = tx.objectStore('komponentoj');
@@ -109,7 +104,7 @@ async function aldoniKomponentojn(komponentoj) {
     const request = store.addBulk(komponentoj);
     return new Promise((resolve, reject) => {
       request.onsuccess = async () => {
-        listo = await legiKomponentojn();
+        legiKomponentojn();
         resolve(request.result);
       };
       request.onerror = () => reject(request.error);
@@ -127,7 +122,6 @@ async function aldoniKomponentojn(komponentoj) {
         req.onerror = () => reject(req.error);
       });
     }
-    listo = await legiKomponentojn();
     return results;
   }
 }
@@ -137,10 +131,7 @@ async function ĝisdatigiKomponenton(komponento) {
   const store = tx.objectStore('komponentoj');
   const request = store.put(komponento);
   return new Promise((resolve, reject) => {
-    request.onsuccess = async () => {
-      listo = await legiKomponentojn();
-      resolve(request.result);
-    }
+    request.onsuccess = async () => resolve(request.result);
     request.onerror = () => reject(request.error);
   });
 }
@@ -150,10 +141,7 @@ async function forigiKomponenton(id) {
   const store = tx.objectStore('komponentoj');
   const request = store.delete(id);
   return new Promise((resolve, reject) => {
-    request.onsuccess = async () => {
-      listo = await legiKomponentojn();
-      resolve(request.result);
-    }
+    request.onsuccess = async () => resolve(request.result);
     request.onerror = () => reject(request.error);
   });
 }
@@ -163,10 +151,7 @@ async function forigiĈiujKomponentoj() {
   const store = tx.objectStore('komponentoj');
   const request = store.clear();
   return new Promise((resolve, reject) => {
-    request.onsuccess = async () => {
-      listo = await legiKomponentojn();
-      resolve(request.result);
-    }
+    request.onsuccess = async () => resolve(request.result);
     request.onerror = () => reject(request.error);
   });
 }
