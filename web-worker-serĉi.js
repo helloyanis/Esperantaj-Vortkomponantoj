@@ -11,6 +11,14 @@ self.addEventListener("message", (e) => {
    * @returns {Array<{komp:kp,mapado:{tekstero,tipo,difino}}>}
    */
     function dekomponi(vorto, listoKomp) {
+      listoKomp.sort((A,B) => {
+      // first put shorter teksto before longer teksto
+      if (A.teksto.length !== B.teksto.length) {
+        return A.teksto.length - B.teksto.length;
+      }
+      // as a secondary tie-break, maybe sort alphabetically
+      return A.teksto.localeCompare(B.teksto);
+    });
       const memo = new Map();
 
       /**
@@ -33,7 +41,7 @@ self.addEventListener("message", (e) => {
         }
 
         let bestParse = null;
-        let bestCount = -1;
+        let bestScore = -Infinity;
         const lowerRest = restas.toLowerCase();
 
         for (const kp of listoKomp) {
@@ -97,7 +105,7 @@ self.addEventListener("message", (e) => {
             continue;
           }
 
-          // ── 7) Score this candidate ──
+          // ── 7) Build the tentative parse ──
           const thisParse = [
             {
               komp: kp,
@@ -109,12 +117,54 @@ self.addEventListener("message", (e) => {
             },
             ...tail,
           ];
-          const count = thisParse.length;
-          if (count > bestCount) {
-            bestCount = count;
+
+          // 7.1) Base piece count
+          const baseCount = thisParse.length;
+
+          // 7.2) Penalty if last piece is NOT a suffix
+          let suffixPenalty = 0;
+          const lastPiece = thisParse[baseCount - 1].komp;
+          if (lastPiece.tipo !== "sufikso") {
+            suffixPenalty = 1;
+          }
+
+          // 7.3) Penalty for each consecutive “radiko→radiko”
+          let radikoChainPenalty = 0;
+          for (let i = 1; i < baseCount; i++) {
+            const prevType = thisParse[i - 1].komp.tipo;
+            const currType = thisParse[i].komp.tipo;
+            if (prevType === "radiko" && currType === "radiko") {
+              radikoChainPenalty++;
+            }
+          }
+
+          // 7.4) Bonus if there is at least one prefix anywhere
+          let prefixBonus = 0;
+          for (const piece of thisParse) {
+            if (piece.komp.tipo === "prefikso") {
+              prefixBonus = 1;
+              break;
+            }
+          }
+
+          // 7.5) Final score
+          const score =
+            baseCount - suffixPenalty - radikoChainPenalty + prefixBonus;
+
+          // 7.6) Compare to bestScore, not just piece‐count
+          if (score > bestScore) {
+            bestScore = score;
             bestParse = thisParse;
+          } else if (score === bestScore) {
+            // Optional tie-breaker: shorter first komponento wins
+            const oldFirstLen = bestParse[0].komp.teksto.length;
+            const newFirstLen = thisParse[0].komp.teksto.length;
+            if (newFirstLen < oldFirstLen) {
+              bestParse = thisParse;
+            }
           }
         }
+
 
         // ── 8) If nothing valid, emit a single “❌ restas” chunk ──
         if (bestParse === null) {
@@ -129,39 +179,36 @@ self.addEventListener("message", (e) => {
           ];
         }
 
-        // ── 9) If bestParse starts with a “prefikso,” see if a longer radiko can override ──
-        //       (i.e. prefer “neni”→… over “ne”→… in “neniu”)
+        // ── 9) If bestParse starts with a “prefikso” OR “radiko,” see if a strictly longer radiko can override ──
+        // (i.e. prefer “neni”→… over “ne”→… in “neniu”)
         if (
             bestParse.length > 0 &&
             bestParse[0].komp !== undefined &&
-            bestParse[0].komp.tipo === "prefikso"
+            (bestParse[0].komp.tipo === "prefikso" || bestParse[0].komp.tipo === "radiko")
         ) {
-          const prefikso = bestParse[0].komp;
-          const prefLen = prefikso.teksto.length;
+          const first = bestParse[0].komp;
+          const firstText = first.teksto.toLowerCase();
+          const firstLen = firstText.length;
 
-          // Look for any radiko in listoKomp that:
-          //  - starts at the same position (“restas.startsWith(radiko.teksto)”)
-          //  - is strictly longer than this prefikso
-          let overrideParse = null;
+          // Look for any radiko that starts here and is strictly longer
           for (const kpRad of listoKomp) {
             if (kpRad.tipo !== "radiko") continue;
             const radText = kpRad.teksto.toLowerCase();
             if (
               restas.toLowerCase().startsWith(radText) &&
-              radText.length > prefLen
+              radText.length > firstLen
             ) {
-              // Try re‐parsing under this longer radiko
-              const newUsed2 = new Set(usedIds);
-              newUsed2.add(kpRad.id);
-              const suffixAfterRad = restas.substring(radText.length);
-              const tail2 = helper(suffixAfterRad, kpRad, newUsed2);
+              // Re‐parse using this longer radiko
+              const newUsed = new Set(usedIds);
+              newUsed.add(kpRad.id);
+              const afterRad = restas.substring(radText.length);
+              const tail2 = helper(afterRad, kpRad, newUsed);
 
-              // If that tail2 is not a single‐failure parse, we accept it
               if (
                 Array.isArray(tail2) &&
                 !(tail2.length === 1 && tail2[0].mapado.tipo === "???")
               ) {
-                overrideParse = [
+                bestParse = [
                   {
                     komp: kpRad,
                     mapado: {
@@ -172,13 +219,9 @@ self.addEventListener("message", (e) => {
                   },
                   ...tail2,
                 ];
-                break; // we found a longer‐radiko override; stop searching
+                break;
               }
             }
-          }
-
-          if (overrideParse) {
-            bestParse = overrideParse;
           }
         }
 

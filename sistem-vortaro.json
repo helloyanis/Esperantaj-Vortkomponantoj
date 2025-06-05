@@ -1821,6 +1821,13 @@
     "difino": "Refers to inclined, prone"
   },
   {
+    "teksto": "inklud",
+    "tipo": "radiko",
+    "antaŭpovas": [],
+    "postpovas": [],
+    "difino": "Refers to include, including"
+  },
+  {
     "teksto": "inkluziv",
     "tipo": "radiko",
     "antaŭpovas": [],
@@ -18194,13 +18201,6 @@
     "difino": "Refers to corrected copy, final copy"
   },
   {
-    "teksto": "nev",
-    "tipo": "radiko",
-    "antaŭpovas": [],
-    "postpovas": [],
-    "difino": "Refers to nephew"
-  },
-  {
     "teksto": "niĉ",
     "tipo": "radiko",
     "antaŭpovas": [],
@@ -33683,6 +33683,13 @@
     "antaŭpovas": [],
     "postpovas": [],
     "difino": "Refers to no, not"
+  },
+  {
+    "teksto": "nev",
+    "tipo": "radiko",
+    "antaŭpovas": [],
+    "postpovas": [],
+    "difino": "Refers to nephew"
   },
   {
     "teksto": "nek",
