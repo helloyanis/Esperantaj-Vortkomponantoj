@@ -47,7 +47,8 @@
     "teksto": "e",
     "tipo": "sufikso",
     "antaŭpovas": [
-      "radiko"
+      "radiko",
+      "sufikso"
     ],
     "postpovas": [],
     "difino": "This word is an adverb. This component is simillar to -ly in english (As in \"Greatly\")"
