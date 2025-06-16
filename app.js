@@ -215,6 +215,12 @@ function montriListon() {
   appbarListoKomponentoj.loading = true;
   refreshListoKomponentoj();
   localStorage.setItem('paneloAktiva', 'panelo-listo');
+  const url = new URL(location);
+  if (url.searchParams.get('panelo') === 'listo') {
+    return; // Se jam estas serĉa panelo, ne ŝanĝu la URL
+  }
+  url.searchParams.set('panelo', 'listo');
+  history.pushState({panelo: 'listo'}, '', url.toString());
 }
 
 function montriAldonPanelon() {
@@ -226,6 +232,12 @@ function montriAldonPanelon() {
   aktivaRedaktadoId = null;
   titoloAldo.textContent = 'Aldoni Novan Komponenton';
   localStorage.setItem('paneloAktiva', 'panelo-aldo');
+  const url = new URL(location);
+  if (url.searchParams.get('panelo') === 'aldo') {
+    return; // Se jam estas serĉa panelo, ne ŝanĝu la URL
+  }
+  url.searchParams.set('panelo', 'aldo');
+  history.pushState({panelo: 'aldo'}, '', url.toString());
 }
 
 async function montriRedaktonPanelon() {
@@ -254,9 +266,35 @@ function montriSerĉPanelon() {
   rezultojSerĉo.innerHTML = '';
   serĉoVorto.value = '';
   localStorage.setItem('paneloAktiva', 'panelo-serĉo');
+  const url = new URL(location);
+  if (url.searchParams.get('panelo') === 'serĉo') {
+    return; // Se jam estas serĉa panelo, ne ŝanĝu la URL
+  }
+  url.searchParams.set('panelo', 'serĉo');
+  history.pushState({panelo: 'serĉo'}, '', url.toString());
 }
 
 function ŝargiPanelojn() {
+  const url = new URL(location);
+  if(url.searchParams.get('panelo')){
+    const panelo = url.searchParams.get('panelo');
+    switch (panelo) {
+      case 'listo':
+        montriListon();
+        break;
+      case 'aldo':
+        montriAldonPanelon();
+        break;
+      case 'serĉo':
+        montriSerĉPanelon();
+        break;
+      default:
+        // defaŭlta al listo
+        montriListon();
+        break;
+    }
+    return
+  }
   const antaŭaPanelo = localStorage.getItem('paneloAktiva');
   if (antaŭaPanelo === 'panelo-listo') {
     montriListon();
@@ -269,6 +307,11 @@ function ŝargiPanelojn() {
     montriListon();
   }
 }
+
+window.addEventListener('popstate', () => {
+  console.log('Popstate event detected. Reloading panel...');
+  ŝargiPanelojn()
+});
 
 // -----------------------------
 // <4> Montri Liston de Komponentoj
@@ -420,6 +463,9 @@ async function refreshListoKomponentoj() {
 
     listoKomponentojUi.appendChild(linio);
     linio.addEventListener('click', () => {
+      if(aktivaRedaktadoId) {
+        return; // Ne eblas montri karton dum redaktado
+      }
       montriSerĉPanelon();
       serĉoVorto.value = komp.teksto;
       serĉiVorto();
@@ -551,9 +597,10 @@ function forigiKomponentonKonfirmo(id) {
     cancelText: '↩️ Nuligi',
     onConfirm: function () {
       forigiKomponenton(id)
-        .then(() => {
+        .then(async () => {
           mdui.snackbar({ message: 'Komponento forigita.' });
-          refreshListoKomponentoj();
+          await refreshListoKomponentoj();
+          montriListon();
         })
         .catch((er) => {
           mdui.alert({
