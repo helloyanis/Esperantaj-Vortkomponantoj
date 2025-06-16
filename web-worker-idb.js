@@ -100,30 +100,18 @@ async function aldoniKomponentojn(komponentoj) {
   const db = await malfermiDB();
   const tx = db.transaction('komponentoj', 'readwrite');
   const store = tx.objectStore('komponentoj');
-  if (typeof store.addBulk === 'function') {
-    const request = store.addBulk(komponentoj);
-    return new Promise((resolve, reject) => {
-      request.onsuccess = async () => {
-        legiKomponentojn();
-        resolve(request.result);
+  const results = [];
+  for (const kp of komponentoj) {
+    const req = store.add(kp);
+    await new Promise((resolve, reject) => {
+      req.onsuccess = () => {
+        results.push(req.result);
+        resolve();
       };
-      request.onerror = () => reject(request.error);
+      req.onerror = () => reject(req.error);
     });
-  } else {
-    // Fallback
-    const results = [];
-    for (const kp of komponentoj) {
-      const req = store.add(kp);
-      await new Promise((resolve, reject) => {
-        req.onsuccess = () => {
-          results.push(req.result);
-          resolve();
-        };
-        req.onerror = () => reject(req.error);
-      });
-    }
-    return results;
   }
+  return results;
 }
 async function ĝisdatigiKomponenton(komponento) {
   const db = await malfermiDB();
