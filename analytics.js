@@ -40,7 +40,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 
             });
         }
-    askAnalytics();
     })
     askAnalytics();
 })
@@ -91,6 +90,31 @@ function loadAnalytics() {
         document.querySelector("#analytics-description").textContent = "Vi malŝaltis datenkolektadon, alklaku ĉi tie por reaktivigi ĝin.";
         return;
     }
+    fetch("https://www.google-analytics.com/collect", {
+        method: "POST",
+        body: JSON.stringify({
+            v: 1,
+            tid: "G-X4R5V1RGB2",
+            cid: "555",
+            t: "pageview",
+            dp: location.pathname
+        }),
+        headers: {
+            "Content-Type": "application/json"
+        }
+    }).catch((error) => {
+        console.error("Eraro dum sendado de datumoj al Google Analytics:", error);
+        mdui.snackbar({
+            message: "Komunikado kun Google Analytics malsukcesis, do datenkolektado estis aŭtomate malŝaltita.",
+            closeable: true,
+            autoCloseDelay: 10000
+        });
+        localStorage.setItem("doNotTrack", "true");
+        document.querySelector("#analytics-description").textContent = "Datenkolektado estas malŝaltita pro eraro. Alklaku ĉi tie por reaktivigi ĝin.";
+        localStorage.setItem("doNotTrack", "true");
+        return;
+    });
+    if(localStorage.getItem("doNotTrack") === "true") return;
     document.querySelector("#analytics-description").textContent = "Datumkolektado estas nuntempe ebligita. Alklaku ĉi tie por malŝalti ĝin.";
     const analyticsTag = document.createElement("script");
     analyticsTag.src = "https://www.googletagmanager.com/gtag/js?id=G-X4R5V1RGB2";
