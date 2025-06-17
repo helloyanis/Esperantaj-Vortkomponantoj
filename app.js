@@ -172,9 +172,8 @@ function petiKonstantaStokado() {
               } else {
                 mdui.confirm({
                   headline: 'Eraro',
-                  description: 'Permeso estis rifuzita. Persistanta stokejo ne ebligita.',
+                  description: 'Eraro dum ebligado de konstanta stokado. Via retumilo eble ne estas subtenata (ĉu provu Firefox?), aŭ eble vi retumas en privata reĝimo. Se la stoka spaco de via aparato malpleniĝas, via retumilo eble forigos datumojn de ĉi tiu retejo por krei spacon.',
                   confirmText: 'Komprenis',
-                  cancelText: 'Ne voku min denove'
                 });
               }
             });
@@ -773,68 +772,80 @@ function montriKarton(komp, mapado) {
 // -----------------------------
 // <7> Importi JSON-dosieron de Komponentoj
 // -----------------------------
-butonoAlŝuti.addEventListener('click', importiKomponentojn);
-function importiKomponentojn() {
-  // Krei kaŝitan input[type=file]
-  const inputDos = document.createElement('input');
-  inputDos.type = 'file';
-  inputDos.accept = '.json,application/json';
-  inputDos.addEventListener('change', (evento) => {
-    const dos = evento.target.files[0];
-    const legilo = new FileReader();
-    legilo.onload = async function (e) {
-      butonoAlŝuti.loading = true;
-      try {
-        if (listo.length > 0) {
-          try{
-            await mdui.confirm({
-              headline: 'Ĉu vi certas?',
-              description: 'Importi novajn komponantojn forigos ĉiujn ekzistantajn komponantojn. Ĉu vi daŭrigi?',
-              confirmText: 'Daŭrigi',
-              cancelText: 'Nuligi'
-            });
-          } catch (er) {
-            console.error('Importo nuligita:', er);
-            butonoAlŝuti.loading = false;
-            return;
-          }
-        }
-        progreso.style.display = 'block';
-        progreso.indeterminate = true;
-        progreso.removeAttribute("value")
-        const enhavo = JSON.parse(e.target.result);
-        if (!Array.isArray(enhavo)) throw 'Ne taŭga formato';
-        // Ĉiu objekto en la listo devus havi id, teksto, tipo, antaŭpovas, postpovas, difino.
-        listoKomponentojUi.innerHTML = ''; // purigu antaŭe
-        listoKomponentojUi.appendChild(progreso);
-        progreso.indeterminate = true;
-        progreso.removeAttribute("value")
-        forigiĈiujKomponentoj()
-        .then(async () => {
-          progreso.indeterminate = false;
-          progreso.max = enhavo.length;
-          progreso.value = 0;
-          await aldoniKomponentojn(enhavo)
-          progreso.style.display = 'none';
-          mdui.snackbar({ message: 'Komponentoj importitaj.' });
-          montriListon();
+butonoAlŝuti.addEventListener('click', () => importiKomponentojn());
+
+async function importiKomponentojn(dosiero = null) {
+  if (!dosiero) {
+    const inputDos = document.createElement('input');
+    inputDos.type = 'file';
+    inputDos.accept = '.json,application/json';
+    inputDos.addEventListener('change', (evento) => {
+      const dos = evento.target.files[0];
+      importiKomponentojn(dos);
+    });
+    inputDos.click();
+    return;
+  }
+
+  const legilo = new FileReader();
+  legilo.onload = async function (e) {
+    butonoAlŝuti.loading = true;
+    try {
+      if (listo.length > 0) {
+        try {
+          await mdui.confirm({
+            headline: 'Ĉu vi certas?',
+            description: 'Importi novajn komponantojn forigos ĉiujn ekzistantajn komponantojn. Ĉu vi daŭrigi?',
+            confirmText: 'Daŭrigi',
+            cancelText: 'Nuligi'
+          });
+        } catch (er) {
+          console.error('Importo nuligita:', er);
           butonoAlŝuti.loading = false;
-        })
-      } catch (er) {
-        console.error('Eraro dum importo:', er);
-        butonoAlŝuti.loading = false;
-        mdui.alert({
-          headline:'Eraro en importi JSON: ',
-          description:er,
-          confirmText: 'Komprenis'
-        });
+          return;
+        }
       }
-    };
-    legilo.readAsText(dos, 'UTF-8');
-  });
-  // "kliku" por malfermi dosier-Dialogon
-  inputDos.click();
-};
+      progreso.style.display = 'block';
+      progreso.indeterminate = true;
+      progreso.removeAttribute("value");
+
+      try{
+        JSON.parse(e.target.result); // Validigi JSON-formaton
+      }
+      catch (er) {
+        throw 'Ne taŭga JSON-dosiero';
+      }
+      if (!Array.isArray(enhavo)) throw 'Ne taŭga formato';
+
+      listoKomponentojUi.innerHTML = '';
+      listoKomponentojUi.appendChild(progreso);
+
+      progreso.indeterminate = true;
+      progreso.removeAttribute("value");
+
+      forigiĈiujKomponentoj().then(async () => {
+        progreso.indeterminate = false;
+        progreso.max = enhavo.length;
+        progreso.value = 0;
+        await aldoniKomponentojn(enhavo);
+        progreso.style.display = 'none';
+        mdui.snackbar({ message: 'Komponentoj importitaj.' });
+        montriListon();
+        butonoAlŝuti.loading = false;
+      });
+    } catch (er) {
+      console.error('Eraro dum importo:', er);
+      butonoAlŝuti.loading = false;
+      mdui.alert({
+        headline: 'Eraro en importi JSON:',
+        description: er,
+        confirmText: 'Komprenis'
+      });
+    }
+  };
+
+  legilo.readAsText(dosiero, 'UTF-8');
+}
 
 // -----------------------------
 // <8> Eksporti Komponentojn kiel JSON
@@ -911,4 +922,24 @@ document.addEventListener('DOMContentLoaded', async () => {
   ŝargiPanelojn()
   document.querySelector('#progreso').setAttribute('style', 'display: none;');
 
+  // Importi .json-dosieron de la sistemo se disponebla
+  if ("launchQueue" in window) {
+  window.launchQueue.setConsumer(async (launchParams) => {
+    if (launchParams.files && launchParams.files.length) {
+      const dosieroHandle = launchParams.files[0];
+
+      try {
+        const dosiero = await dosieroHandle.getFile();
+        importiKomponentojn(dosiero);
+      } catch (er) {
+        console.error("Ne eblis legi la dosieron de launchQueue:", er);
+        mdui.alert({
+          headline: 'Eraro pri malfermo',
+          description: 'Ne eblis legi la dosieron alŝutita de la sistemo.',
+          confirmText: 'Fermi'
+        });
+      }
+    }
+  });
+}
 });

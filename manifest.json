@@ -8,7 +8,23 @@
       "sizes": "any"
     }
   ],
-  "start_url": "./index.html",
+  "categories": [
+    "education",
+    "language",
+    "esperanto"
+  ],
+  "file_handlers": [
+    {
+      "action": "/",
+      "accept": {
+        "application/json": [".json"]
+      }
+    }
+  ],
+  "launch_handler": {
+    "client_mode": ["navigate-existing", "auto"]
+  },
+  "start_url": "/",
   "display": "standalone",
   "theme_color": "#78A75A",
   "description": "Progressiva ret-aplikaĵo por administri kaj lerni Esperanton per vortkomponentoj."
