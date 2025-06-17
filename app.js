@@ -215,11 +215,13 @@ function montriListon() {
   appbarListoKomponentoj.loading = true;
   refreshListoKomponentoj();
   localStorage.setItem('paneloAktiva', 'panelo-listo');
+  document.title = '📜 Listo • VortKom';
   const url = new URL(location);
   if (url.searchParams.get('panelo') === 'listo') {
     return; // Se jam estas serĉa panelo, ne ŝanĝu la URL
   }
   url.searchParams.set('panelo', 'listo');
+  url.searchParams.delete('vorto');
   history.pushState({panelo: 'listo'}, '', url.toString());
 }
 
@@ -232,11 +234,13 @@ function montriAldonPanelon() {
   aktivaRedaktadoId = null;
   titoloAldo.textContent = 'Aldoni Novan Komponenton';
   localStorage.setItem('paneloAktiva', 'panelo-aldo');
+  document.title = '➕ Aldoni • VortKom';
   const url = new URL(location);
   if (url.searchParams.get('panelo') === 'aldo') {
     return; // Se jam estas serĉa panelo, ne ŝanĝu la URL
   }
   url.searchParams.set('panelo', 'aldo');
+  url.searchParams.delete('vorto');
   history.pushState({panelo: 'aldo'}, '', url.toString());
 }
 
@@ -256,6 +260,7 @@ async function montriRedaktonPanelon() {
       kompAntaupovas.value = komponanto.antaŭpovas.join(',');
       kompPostpovas.value = komponanto.postpovas.join(',');
       kompDifino.value = komponanto.difino;
+      document.title = `✏️ Redakto de ${komponanto.teksto} • VortKom`;
     }
   }
 }
@@ -266,6 +271,7 @@ function montriSerĉPanelon() {
   rezultojSerĉo.innerHTML = '';
   serĉoVorto.value = '';
   localStorage.setItem('paneloAktiva', 'panelo-serĉo');
+  document.title = '🔍 Serĉi • VortKom';
   const url = new URL(location);
   if (url.searchParams.get('panelo') === 'serĉo') {
     return; // Se jam estas serĉa panelo, ne ŝanĝu la URL
@@ -287,6 +293,10 @@ function ŝargiPanelojn() {
         break;
       case 'serĉo':
         montriSerĉPanelon();
+        if(url.searchParams.get('vorto')) {
+          serĉoVorto.value = xSistemonSubstituo(url.searchParams.get('vorto'));
+          serĉiVorto();
+        }
         break;
       default:
         // defaŭlta al listo
@@ -626,6 +636,11 @@ async function serĉiVorto() {
   const teksto = serĉoVorto.value.trim().toLowerCase();
   document.getElementById('rezulto-karto').innerHTML = '';
   if (!teksto) return rezultojSerĉo.innerHTML = 'Bonvolu enigi vorton por serĉi.';
+  document.title = `🔍 Serĉo de ${teksto} • VortKom`;
+  const url = new URL(location);
+  url.searchParams.set('vorto', teksto);
+  url.searchParams.set('panelo', 'serĉo');
+  history.replaceState({panelo: 'serĉo', vorto: teksto}, '', url.toString());
   rezultojSerĉo.innerHTML = '<mdui-circular-progress></mdui-circular-progress>';
   const listoK = listo
   const ekzKom = listoK.find((kp) => kp.teksto.toLowerCase() === teksto);
