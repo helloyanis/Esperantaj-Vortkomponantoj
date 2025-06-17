@@ -93,12 +93,12 @@ function loadAnalytics() {
     }
     document.querySelector("#analytics-description").textContent = "Datumkolektado estas nuntempe ebligita. Alklaku ĉi tie por malŝalti ĝin.";
     const analyticsTag = document.createElement("script");
-    analyticsTag.src = "https://www.googletagmanager.com/gtag/js?id=G-J5NN9MEM5P";
+    analyticsTag.src = "https://www.googletagmanager.com/gtag/js?id=G-X4R5V1RGB2";
     analyticsTag.async = true;
     document.head.appendChild(analyticsTag);
     window.dataLayer = window.dataLayer || [];
     function gtag(){dataLayer.push(arguments);}
     gtag('js', new Date());
 
-    gtag('config', 'G-J5NN9MEM5P');
+    gtag('config', 'G-X4R5V1RGB2');
 }
