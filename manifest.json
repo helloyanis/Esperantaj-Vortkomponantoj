@@ -1,6 +1,6 @@
 {
   "short_name": "VortKom",
-  "name": "Esperanto Vortkomponentoj",
+  "name": "Esperantaj vortkomponantoj",
   "icons": [
     {
       "src": "assets/piktogramoj/icon.svg",
@@ -27,5 +27,5 @@
   "start_url": "/",
   "display": "standalone",
   "theme_color": "#78A75A",
-  "description": "Progressiva ret-aplikaĵo por administri kaj lerni Esperanton per vortkomponentoj."
+  "description": "Progressiva ret-aplikaĵo por administri kaj lerni Esperanton per vortkomponantoj."
 }

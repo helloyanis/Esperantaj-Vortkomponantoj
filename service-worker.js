@@ -1,6 +1,6 @@
 // Service Worker por PWA: kaŝmemoru la necesajn dosierojn por ke la app funkciu senrete.
 
-const NOMA_STOKEJO = 'vortkomponentoj-stokejo-v1';
+const NOMA_STOKEJO = 'vortkomponantoj-stokejo-v1';
 const DOSIEROJ_KAJHEĴ = [
   '/', 
   '/index.html',
@@ -28,7 +28,7 @@ self.addEventListener('install', (evento) => {
 // Fono-strategio: unue respondas el kaŝmemoro, se ne, rekte de la reto
 self.addEventListener('fetch', (evento) => {
   evento.respondWith(
-    caches.match(evento.request).then((respondo) => {
+    caches.match(evento.request, { ignoreSearch: true }).then((respondo) => {
       return (
         respondo ||
         fetch(evento.request).then((reteRespondo) => {

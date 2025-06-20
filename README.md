@@ -4,7 +4,7 @@ An unique system to decompose words in Esperanto, to see their different parts a
 
 ## https://vortkom.🦊💻.ws/
 
-For instructions on how to use, check the [wiki page](https://github.com/helloyanis/Esperanto-Vortkomponentoj/wiki)
+For instructions on how to use, check the [wiki page](https://github.com/helloyanis/Esperanto-Vortkomponantoj/wiki)
 
 Features :
 
@@ -31,20 +31,20 @@ Unika sistemo por malkomponi vortojn en Esperanto, por vidi iliajn diversajn par
 
 ## https://vortkom.🦊💻.ws/
 
-Por instrukcioj pri kiel uzi, kontrolu la [vikian paĝon](https://github.com/helloyanis/Esperanto-Vortkomponentoj/wiki) (angla)
+Por instrukcioj pri kiel uzi, kontrolu la [vikian paĝon](https://github.com/helloyanis/Esperanto-Vortkomponantoj/wiki) (angla)
 
 Trajtoj:
 
 - 👀 Vidu kiel vorto, kiun vi trovas, estas konstruita! Vi povas scii ĝian signifon komprenante kiel la komponantoj estas konstruitaj!
-- 📖 Inkludas Esperanta-Ingla vortaron!
-- 🎨 Pura materiala dezajna interfaco, kun helaj kaj malhelaj temoj bazitaj sur via sistemo.
+- 📖 Inkluzivas Esperanta-Angla vortaron!
+- 🎨 Pure material-stila interfaco, kun helaj kaj malhelaj temoj bazitaj sur via sistemo.
 - 🏗️ Maniero aldoni, redakti kaj forigi vortajn komponantojn, al kiuj vi povas doni difinon aŭ tradukon en alia lingvo
 - 💻 Nur loke, ne bezonas servilon por funkcii, eĉ povas esti instalita kiel aplikaĵo sur via aparato por labori senkonekte!
 - 🔍 Inteligenta serĉo, aŭtomate detektos ĉu temas pri komponanto aŭ vorto, kiun vi serĉas, kaj montros la rezultojn laŭe
 - ⚡ Farita por povi labori rapide kun grandaj kvantoj da datumoj. Ŝarĝtempoj dum serĉado devus esti minimumaj krom se vi havas supergrandan datumvortaron aŭ uzas ĝin per terpomo!
-- 📲 Ĉu vi ne volas krei vian propran vortaron? Ne zorgu! Vi povas krei vian propran vortaron peti amikon eksporti ilian kiel dosieron kaj importi ĝin al via aparato ene de sekundoj!
+- 📲 Ĉu vi ne volas krei vian propran vortaron? Ne zorgu! Vi povas krei vian propran vortaron aŭ peti amikon elporti ilian kiel dosieron kaj enporti sian al via aparato ene de sekundoj!
 
-## Kial ne norma vortaro?
+## Kial ne normala vortaro?
 Kiam vi vidas vorton en teksto, kiel komencanto vi eble serĉos ĝin en la vortaro kaj scios ĝian signifon. Sed dum mi lernis, mi trovis, ke EO havas vortojn konstruitajn iom pli kiel legoj.
 Kio ​​signifas, ekzemple, ke vi ne bezonas lerni "Kio", "Nenio", "ĉio"..., ĉiuj ĉi tiuj uzas la sufikson -o, kiu ĉiam signifas la samon (En tiu kazo, ke la vorto rilatas al io, al objekto).
 

@@ -8,23 +8,23 @@ self.onmessage = async (event) => {
     let result;
 
     switch (action) {
-      case 'legiKomponentojn':
-        result = await legiKomponentojn();
+      case 'legiKomponantojn':
+        result = await legiKomponantojn();
         break;
-      case 'aldoniKomponenton':
-        result = await aldoniKomponenton(data);
+      case 'aldoniKomponanton':
+        result = await aldoniKomponanton(data);
         break;
-      case 'aldoniKomponentojn':
-        result = await aldoniKomponentojn(data);
+      case 'aldoniKomponantojn':
+        result = await aldoniKomponantojn(data);
         break;
-      case 'ĝisdatigiKomponenton':
-        result = await ĝisdatigiKomponenton(data);
+      case 'ĝisdatigiKomponanton':
+        result = await ĝisdatigiKomponanton(data);
         break;
-      case 'forigiKomponenton':
-        result = await forigiKomponenton(data);
+      case 'forigiKomponanton':
+        result = await forigiKomponanton(data);
         break;
-      case 'forigiĈiujKomponentoj':
-        result = await forigiĈiujKomponentoj();
+      case 'forigiĈiujKomponantoj':
+        result = await forigiĈiujKomponantoj();
         break;
       default:
         throw new Error(`Nekonata ago: ${action}`);
@@ -36,16 +36,16 @@ self.onmessage = async (event) => {
   }
 };
 
-function legiKomponentojn() {
+function legiKomponantojn() {
   return new Promise(async (resolve) => {
     try {
-      const peto = await ŝargiĈiujnKomponentoj();
+      const peto = await ŝargiĈiujnKomponantoj();
 
       peto.onsuccess = function(event) {
         if (!event.target.result) {
           resolve([]);
         } else if (!Array.isArray(event.target.result)) {
-          console.error('Nevalida formato de komponentoj:', event.target.result);
+          console.error('Nevalida formato de komponantoj:', event.target.result);
           resolve([]);
         } else {
           resolve(event.target.result);
@@ -53,11 +53,11 @@ function legiKomponentojn() {
       };
 
       peto.onerror = function(eraro) {
-        console.error('Eraro dum legado de komponentoj:', eraro);
+        console.error('Eraro dum legado de komponantoj:', eraro);
         resolve([]);
       };
     } catch (eraro) {
-      console.error('Eraro dum ŝargo de komponentoj:', eraro);
+      console.error('Eraro dum ŝargo de komponantoj:', eraro);
       resolve([]);
     }
   });
@@ -65,12 +65,12 @@ function legiKomponentojn() {
 
 function malfermiDB() {
   return new Promise((resolve, reject) => {
-    const request = indexedDB.open('VortkomponentojDB', 1);
+    const request = indexedDB.open('VortkomponantojDB', 1);
 
     request.onupgradeneeded = (event) => {
       const db = event.target.result;
-      if (!db.objectStoreNames.contains('komponentoj')) {
-        db.createObjectStore('komponentoj', { keyPath: 'id', autoIncrement: true });
+      if (!db.objectStoreNames.contains('komponantoj')) {
+        db.createObjectStore('komponantoj', { keyPath: 'id', autoIncrement: true });
       }
     };
 
@@ -79,29 +79,29 @@ function malfermiDB() {
   });
 }
 
-async function ŝargiĈiujnKomponentoj() {
+async function ŝargiĈiujnKomponantoj() {
   const db = await malfermiDB();
-  const tx = db.transaction('komponentoj', 'readonly');
-  const store = tx.objectStore('komponentoj');
+  const tx = db.transaction('komponantoj', 'readonly');
+  const store = tx.objectStore('komponantoj');
   const all = await store.getAll();
   return all;
 }
-async function aldoniKomponenton(komponento) {
+async function aldoniKomponanton(komponanto) {
   const db = await malfermiDB();
-  const tx = db.transaction('komponentoj', 'readwrite');
-  const store = tx.objectStore('komponentoj');
-  const request = store.add(komponento);
+  const tx = db.transaction('komponantoj', 'readwrite');
+  const store = tx.objectStore('komponantoj');
+  const request = store.add(komponanto);
   return new Promise((resolve, reject) => {
     request.onsuccess =  () => resolve(request.result)
     request.onerror = () => reject(request.error);
   });
 }
-async function aldoniKomponentojn(komponentoj) {
+async function aldoniKomponantojn(komponantoj) {
   const db = await malfermiDB();
-  const tx = db.transaction('komponentoj', 'readwrite');
-  const store = tx.objectStore('komponentoj');
+  const tx = db.transaction('komponantoj', 'readwrite');
+  const store = tx.objectStore('komponantoj');
   const results = [];
-  for (const kp of komponentoj) {
+  for (const kp of komponantoj) {
     const req = store.add(kp);
     await new Promise((resolve, reject) => {
       req.onsuccess = () => {
@@ -113,30 +113,30 @@ async function aldoniKomponentojn(komponentoj) {
   }
   return results;
 }
-async function ĝisdatigiKomponenton(komponento) {
+async function ĝisdatigiKomponanton(komponanto) {
   const db = await malfermiDB();
-  const tx = db.transaction('komponentoj', 'readwrite');
-  const store = tx.objectStore('komponentoj');
-  const request = store.put(komponento);
+  const tx = db.transaction('komponantoj', 'readwrite');
+  const store = tx.objectStore('komponantoj');
+  const request = store.put(komponanto);
   return new Promise((resolve, reject) => {
     request.onsuccess = async () => resolve(request.result);
     request.onerror = () => reject(request.error);
   });
 }
-async function forigiKomponenton(id) {
+async function forigiKomponanton(id) {
   const db = await malfermiDB();
-  const tx = db.transaction('komponentoj', 'readwrite');
-  const store = tx.objectStore('komponentoj');
+  const tx = db.transaction('komponantoj', 'readwrite');
+  const store = tx.objectStore('komponantoj');
   const request = store.delete(id);
   return new Promise((resolve, reject) => {
     request.onsuccess = async () => resolve(request.result);
     request.onerror = () => reject(request.error);
   });
 }
-async function forigiĈiujKomponentoj() {
+async function forigiĈiujKomponantoj() {
   const db = await malfermiDB();
-  const tx = db.transaction('komponentoj', 'readwrite');
-  const store = tx.objectStore('komponentoj');
+  const tx = db.transaction('komponantoj', 'readwrite');
+  const store = tx.objectStore('komponantoj');
   const request = store.clear();
   return new Promise((resolve, reject) => {
     request.onsuccess = async () => resolve(request.result);

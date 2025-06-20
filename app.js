@@ -1,11 +1,11 @@
 // =============================
-// Fengŝu: “Esperanto Vortkomponentoj”
+// Fengŝu: “Esperanto Vortkomponantoj”
 // Ĉi tiu dosiero enhavas la logikon por:
-// - Stoki, legi, ĝisdatigi, forigi vortkomponentojn en indexedDB.
+// - Stoki, legi, ĝisdatigi, forigi vortkomponantojn en indexedDB.
 // - Montri liston de komponantoj.
 // - Formojn por aldoni/redakti komponanton.
 // - Serĉi aŭ malkonstrui tutan vorton.
-// - Importi/eksporti JSON-dosieron.
+// - Enporti/elporti JSON-dosieron.
 // - PWA‐registron de service worker.
 // =============================
 
@@ -15,12 +15,12 @@
 // -----------------------------
 // <1> Difino de ŝlosiloj kaj referencoj
 // -----------------------------
-const ŝlosiloKomponentoj = 'vortkomponentoj'; // Loka stokejo ŝlosilo
+const ŝlosiloKomponantoj = 'vortkomponantoj'; // Loka stokejo ŝlosilo
 
 // Referencoj al HTML-elementoj
 const progreso = document.getElementById('progreso');
-const menuListoKomponentoj = document.getElementById('menu-listo-komponentoj');
-const appbarListoKomponentoj = document.getElementById('appbar-listo-komponentoj');
+const menuListoKomponantoj = document.getElementById('menu-listo-komponantoj');
+const appbar = document.getElementById('appbar-nav');
 const menuAldonuNova = document.getElementById('menu-aldonu-nova');
 const appbarAldonuNova = document.getElementById('appbar-aldonu-nova');
 const menuSerĉi = document.getElementById('menu-serĉi');
@@ -33,22 +33,22 @@ const paneloAldo = document.getElementById('panelo-aldo');
 const paneloSerĉo = document.getElementById('panelo-serĉo');
 const ladoTirilo = document.getElementById('lado-tirilo');
 
-const listoKomponentojUi = document.getElementById('listo-komponentoj');
-const formularoKomponento = document.getElementById('formularo-komponento');
+const listoKomponantojUi = document.getElementById('listo-komponantoj');
+const formularoKomponanto = document.getElementById('formularo-komponanto');
 const titoloAldo = document.getElementById('titolo-aldo');
 const kompTeksto = document.getElementById('komp-teksto');
 const kompTipo = document.getElementById('komp-tipo');
 const kompAntaupovas = document.getElementById('komp-antaupovas');
 const kompPostpovas = document.getElementById('komp-postpovas');
 const kompDifino = document.getElementById('komp-difino');
-const butonoSalvi = document.getElementById('butono-salvi');
+const butonoKonservi = document.getElementById('butono-konservi');
 const butonoNuligi = document.getElementById('butono-nuligi');
 
 const serĉoVorto = document.getElementById('serĉo-vorto');
 const rezultojSerĉo = document.getElementById('rezultoj-serĉo');
 
-const butonoAlŝuti = document.getElementById('butono-alŝuti');
-const butonoEkspremi = document.getElementById('butono-ekspremi');
+const butonoAlŝuti = document.getElementById('menu-enporti');
+const butonoEkspremi = document.getElementById('menu-elporti');
 
 // Variablo por teni la id de komponanto kiam oni redaktas
 let aktivaRedaktadoId = null;
@@ -57,28 +57,28 @@ let listoIndekso = 0;
 
 
 menuFontkodo.addEventListener('click', () => {
-  window.open('https://github.com/helloyanis/Esperanto-Vortkomponentoj', '_blank');
+  window.open('https://github.com/helloyanis/Esperanto-Vortkomponantoj', '_blank');
 });
 menuHelpo.addEventListener('click', () => {
-  window.open('https://github.com/helloyanis/Esperanto-Vortkomponentoj/wiki', '_blank');
+  window.open('https://github.com/helloyanis/Esperanto-Vortkomponantoj/wiki', '_blank');
 });
 
 // Helpo pri la x-sistemo
-function xSistemonSubstituo(texto){
+function xSistemonSubstituo(texto) {
   const replacements = {
-        'c': 'ĉ',
-        'g': 'ĝ',
-        'h': 'ĥ',
-        'j': 'ĵ',
-        's': 'ŝ',
-        'u': 'ŭ'
-    };
+    'c': 'ĉ',
+    'g': 'ĝ',
+    'h': 'ĥ',
+    'j': 'ĵ',
+    's': 'ŝ',
+    'u': 'ŭ'
+  };
 
-    return texto.replace(/([cghjsu])x/gi, (match, letter) => {
-        const lower = letter.toLowerCase();
-        const accented = replacements[lower];
-        return letter === letter.toUpperCase() ? accented.toUpperCase() : accented;
-    });
+  return texto.replace(/([cghjsu])x/gi, (match, letter) => {
+    const lower = letter.toLowerCase();
+    const accented = replacements[lower];
+    return letter === letter.toUpperCase() ? accented.toUpperCase() : accented;
+  });
 }
 document.querySelectorAll('.x-sistemo').forEach((element) => {
   element.addEventListener('input', (evento) => {
@@ -93,7 +93,7 @@ document.querySelectorAll('.x-sistemo').forEach((element) => {
 // <2> Funkcioj por Manipuli IndexedDB
 // -----------------------------
 /**
- * Legas ĉiujn vortkomponentojn el indexedDB kaj returnas kiel tablo.
+ * Legas ĉiujn vortkomponantojn el indexedDB kaj returnas kiel tablo.
  * Se ne ekzistas, returnas malplenan liston.
  */
 const idbWorker = new Worker('web-worker-idb.js');
@@ -115,40 +115,40 @@ function sendToWorker(action, data) {
     idbWorker.postMessage({ id, action, data });
   });
 }
-async function legiKomponentojn() {
-  listo = await sendToWorker('legiKomponentojn');
+async function legiKomponantojn() {
+  listo = await sendToWorker('legiKomponantojn');
   if (!listo || !Array.isArray(listo)) {
     listo = [];
   }
   return listo;
 }
 
-async function aldoniKomponenton(komponento) {
+async function aldoniKomponanton(komponanto) {
   petiKonstantaStokado();
-  await sendToWorker('aldoniKomponenton', komponento);
-  await legiKomponentojn();
+  await sendToWorker('aldoniKomponanton', komponanto);
+  await legiKomponantojn();
   return listo;
 }
 
-async function aldoniKomponentojn(komponentoj) {
+async function aldoniKomponantojn(komponantoj) {
   petiKonstantaStokado();
-  await sendToWorker('aldoniKomponentojn', komponentoj);
-  await legiKomponentojn();
+  await sendToWorker('aldoniKomponantojn', komponantoj);
+  await legiKomponantojn();
 }
 
-async function ĝisdatigiKomponenton(komponento) {
-  await sendToWorker('ĝisdatigiKomponenton', komponento);
-  await legiKomponentojn();
+async function ĝisdatigiKomponanton(komponanto) {
+  await sendToWorker('ĝisdatigiKomponanton', komponanto);
+  await legiKomponantojn();
 }
 
-async function forigiKomponenton(id) {
-  await sendToWorker('forigiKomponenton', id);
-  await legiKomponentojn();
+async function forigiKomponanton(id) {
+  await sendToWorker('forigiKomponanton', id);
+  await legiKomponantojn();
 }
 
-async function forigiĈiujKomponentoj() {
-  await sendToWorker('forigiĈiujKomponentoj');
-  await legiKomponentojn();
+async function forigiĈiujKomponantoj() {
+  await sendToWorker('forigiĈiujKomponantoj');
+  await legiKomponantojn();
 }
 
 
@@ -158,7 +158,7 @@ function petiKonstantaStokado() {
       if (persistent) {
         console.log("✅ La stokejo estas persista.");
       } else {
-        if(sessionStorage.getItem('persistanta-stokejo-rifuzita')) return;
+        if (sessionStorage.getItem('persistanta-stokejo-rifuzita')) return;
         sessionStorage.setItem('persistanta-stokejo-rifuzita', 'true');
         mdui.confirm({
           headline: 'Ebligu Persistantan Stokejon',
@@ -181,7 +181,7 @@ function petiKonstantaStokado() {
         });
       }
     });
-  }else {
+  } else {
     mdui.alert({
       headline: 'Stokejo ne persista',
       description: 'Via retumilo ne subtenas persistan stokejon. La komponantoj eble estos forigitaj kiam la retumilo bezonas liberigi memoron aŭ estas fermita. Uzu Google Chrome, Firefox aŭ aliajn modernajn retumilojn por pli bonan subtenon.',
@@ -201,18 +201,18 @@ function kaŝiĈiujPaneloj() {
   paneloListo.setAttribute('hidden', '');
   paneloAldo.setAttribute('hidden', '');
   paneloSerĉo.setAttribute('hidden', '');
-  appbarAldonuNova.setAttribute('variant', 'standard');
-  appbarListoKomponentoj.setAttribute('variant', 'standard');
+  appbar.value=""
   ladoTirilo.removeAttribute('open');
 }
 
 function montriListon() {
   kaŝiĈiujPaneloj();
+  progreso.style.display = 'block';
+  progreso.indeterminate = true;
   listoIndekso = 0; // Reset the index when showing the list
   paneloListo.removeAttribute('hidden');
-  appbarListoKomponentoj.setAttribute('variant', 'filled');
-  appbarListoKomponentoj.loading = true;
-  refreshListoKomponentoj();
+  appbar.value = 'appbar-listo-komponantoj';
+  refreshListoKomponantoj();
   localStorage.setItem('paneloAktiva', 'panelo-listo');
   document.title = '📜 Listo • VortKom';
   const url = new URL(location);
@@ -221,17 +221,17 @@ function montriListon() {
   }
   url.searchParams.set('panelo', 'listo');
   url.searchParams.delete('vorto');
-  history.pushState({panelo: 'listo'}, '', url.toString());
+  history.pushState({ panelo: 'listo' }, '', url.toString());
 }
 
 function montriAldonPanelon() {
   kaŝiĈiujPaneloj();
   paneloAldo.removeAttribute('hidden');
-  appbarAldonuNova.setAttribute('variant', 'filled');
+  appbar.value = 'appbar-aldonu-nova';
   // resetu formon
-  formularoKomponento.reset();
+  formularoKomponanto.reset();
   aktivaRedaktadoId = null;
-  titoloAldo.textContent = 'Aldoni Novan Komponenton';
+  titoloAldo.textContent = 'Aldoni Novan Komponanton';
   localStorage.setItem('paneloAktiva', 'panelo-aldo');
   document.title = '➕ Aldoni • VortKom';
   const url = new URL(location);
@@ -240,20 +240,20 @@ function montriAldonPanelon() {
   }
   url.searchParams.set('panelo', 'aldo');
   url.searchParams.delete('vorto');
-  history.pushState({panelo: 'aldo'}, '', url.toString());
+  history.pushState({ panelo: 'aldo' }, '', url.toString());
 }
 
 async function montriRedaktonPanelon() {
   kaŝiĈiujPaneloj();
   paneloAldo.removeAttribute('hidden');
-  appbarAldonuNova.setAttribute('variant', 'filled');
+  appbar.value = '';
   // resetu formon
-  formularoKomponento.reset();
+  formularoKomponanto.reset();
   // Plenigu la formon kun la redaktota komponanto
   if (aktivaRedaktadoId) {
     const komponanto = listo.find(kp => kp.id === aktivaRedaktadoId);
     if (komponanto) {
-      titoloAldo.textContent = `Redakti Komponenton: ${komponanto.teksto}`;
+      titoloAldo.textContent = `Redakti Komponanton: ${komponanto.teksto}`;
       kompTeksto.value = komponanto.teksto;
       kompTipo.value = komponanto.tipo;
       kompAntaupovas.value = komponanto.antaŭpovas.join(',');
@@ -266,6 +266,7 @@ async function montriRedaktonPanelon() {
 
 function montriSerĉPanelon() {
   kaŝiĈiujPaneloj();
+  appbar.value = 'appbar-serĉi';
   paneloSerĉo.removeAttribute('hidden');
   rezultojSerĉo.innerHTML = '';
   serĉoVorto.value = '';
@@ -276,12 +277,12 @@ function montriSerĉPanelon() {
     return; // Se jam estas serĉa panelo, ne ŝanĝu la URL
   }
   url.searchParams.set('panelo', 'serĉo');
-  history.pushState({panelo: 'serĉo'}, '', url.toString());
+  history.pushState({ panelo: 'serĉo' }, '', url.toString());
 }
 
 function ŝargiPanelojn() {
   const url = new URL(location);
-  if(url.searchParams.get('panelo')){
+  if (url.searchParams.get('panelo')) {
     const panelo = url.searchParams.get('panelo');
     switch (panelo) {
       case 'listo':
@@ -292,7 +293,7 @@ function ŝargiPanelojn() {
         break;
       case 'serĉo':
         montriSerĉPanelon();
-        if(url.searchParams.get('vorto')) {
+        if (url.searchParams.get('vorto')) {
           serĉoVorto.value = xSistemonSubstituo(url.searchParams.get('vorto'));
           serĉiVorto();
         }
@@ -323,44 +324,68 @@ window.addEventListener('popstate', () => {
 });
 
 // -----------------------------
-// <4> Montri Liston de Komponentoj
+// <4> Montri Liston de Komponantoj
 // -----------------------------
-async function refreshListoKomponentoj() {
-  progreso.style.display = 'block';
-  progreso.indeterminate = true;
+async function refreshListoKomponantoj() {
   progreso.removeAttribute("value")
-  listoKomponentojUi.innerHTML = ''; // purigu antaŭe
+  listoKomponantojUi.innerHTML = ''; // purigu antaŭe
   if (listo.length === 0) {
     progreso.style.display = 'none';
-    const neEkzistas = document.createElement('mdui-list-item');
-    neEkzistas.nonclickable = true;
-    neEkzistas.textContent = 'Neniaj komponantoj trovitaj.';
+    const neEkzistas = document.createElement('div');
+    neEkzistas.style.display = 'flex';
+    neEkzistas.style.justifyContent = 'space-between';
+    neEkzistas.style.flexWrap = 'wrap';
+    neEkzistas.style.alignItems = 'center';
+    const neEkzistasTeksto = document.createElement('span');
+    neEkzistasTeksto.style.flex = '1';
+    neEkzistasTeksto.textContent = 'Neniaj komponantoj trovitaj.';
     const aldoniButono = document.createElement('mdui-button');
-    aldoniButono.slot='end-icon';
+    const aldoniButonoPiktogramo = document.createElement('mdui-icon');
+    aldoniButonoPiktogramo.innerHTML = `
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960">
+  <path d="M440-280h80v-160h160v-80H520v-160h-80v160H280v80h160v160Zm40 200q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Zm0-80q134 0 227-93t93-227q0-134-93-227t-227-93q-134 0-227 93t-93 227q0 134 93 227t227 93Zm0-320Z" />
+</svg>`;
+    aldoniButonoPiktogramo.slot = 'icon';
     aldoniButono.textContent = 'Aldoni';
+    aldoniButono.appendChild(aldoniButonoPiktogramo);
     aldoniButono.addEventListener('click', montriAldonPanelon);
+    neEkzistas.appendChild(neEkzistasTeksto);
     neEkzistas.appendChild(aldoniButono);
-    const importiButono = document.createElement('mdui-button');
-    importiButono.slot='end-icon';
-    importiButono.textContent = 'Importi';
-    importiButono.addEventListener('click', importiKomponentojn);
-    neEkzistas.appendChild(importiButono);
-    listoKomponentojUi.appendChild(neEkzistas);
-    const importiSistemVortaro = document.createElement('mdui-list-item');
-    importiSistemVortaro.nonclickable = true; 
-    importiSistemVortaro.textContent = 'Defaŭlte, ĉi tiu retejo ne enhavas vortaron, do vi povas agordi ĝin laŭplaĉe. Se vi volas, vi povas uzi enkonstruitan Esperanta-angla vortaron!';
-    const importiSistemVortaroButono = document.createElement('mdui-button');
-    importiSistemVortaroButono.slot='end-icon';
-    importiSistemVortaroButono.textContent = 'Importi Vortaron';
-    importiSistemVortaroButono.addEventListener('click', () => {
+    const enportiButono = document.createElement('mdui-button');
+    const enportiButonoPiktogramo = document.createElement('mdui-icon');
+    enportiButonoPiktogramo.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960">
+  <path  d="M440-200h80v-167l64 64 56-57-160-160-160 160 57 56 63-63v167ZM240-80q-33 0-56.5-23.5T160-160v-640q0-33 23.5-56.5T240-880h320l240 240v480q0 33-23.5 56.5T720-80H240Zm280-520v-200H240v640h480v-440H520ZM240-800v200-200 640-640Z" />
+</svg>`;
+    enportiButonoPiktogramo.slot = 'icon';
+    enportiButono.textContent = 'Enporti';
+    enportiButono.appendChild(enportiButonoPiktogramo);
+    enportiButono.addEventListener('click', () => enportiKomponantojn());
+    neEkzistas.appendChild(enportiButono);
+    listoKomponantojUi.appendChild(neEkzistas);
+    const enportiSistemVortaro = document.createElement('div');
+    enportiSistemVortaro.style.display = 'flex';
+    enportiSistemVortaro.style.justifyContent = 'space-between';
+    enportiSistemVortaro.style.flexWrap = 'wrap';
+    enportiSistemVortaro.style.alignItems = 'center';
+    const enportiSistemVortaroTeksto = document.createElement('span');
+    enportiSistemVortaroTeksto.style.flex = '1';
+    enportiSistemVortaroTeksto.textContent = 'Komence, ĉi tiu retejo ne enhavas vortaron, do vi povas agordi ĝin laŭplaĉe. Se vi volas, vi povas uzi enkonstruitan Esperanta-angla vortaron!';
+    const enportiSistemVortaroButono = document.createElement('mdui-button');
+    const enportiSistemVortaroPiktogramo = document.createElement('mdui-icon');
+    enportiSistemVortaroPiktogramo.innerHTML = `
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960"><path d="M160-391h45l23-66h104l24 66h44l-97-258h-46l-97 258Zm81-103 38-107h2l38 107h-78Zm319-70v-68q33-14 67.5-21t72.5-7q26 0 51 4t49 10v64q-24-9-48.5-13.5T700-600q-38 0-73 9.5T560-564Zm0 220v-68q33-14 67.5-21t72.5-7q26 0 51 4t49 10v64q-24-9-48.5-13.5T700-380q-38 0-73 9t-67 27Zm0-110v-68q33-14 67.5-21t72.5-7q26 0 51 4t49 10v64q-24-9-48.5-13.5T700-490q-38 0-73 9.5T560-454ZM260-320q47 0 91.5 10.5T440-278v-394q-41-24-87-36t-93-12q-36 0-71.5 7T120-692v396q35-12 69.5-18t70.5-6Zm260 42q44-21 88.5-31.5T700-320q36 0 70.5 6t69.5 18v-396q-33-14-68.5-21t-71.5-7q-47 0-93 12t-87 36v394Zm-40 118q-48-38-104-59t-116-21q-42 0-82.5 11T100-198q-21 11-40.5-1T40-234v-482q0-11 5.5-21T62-752q46-24 96-36t102-12q58 0 113.5 15T480-740q51-30 106.5-45T700-800q52 0 102 12t96 36q11 5 16.5 15t5.5 21v482q0 23-19.5 35t-40.5 1q-37-20-77.5-31T700-240q-60 0-116 21t-104 59ZM280-499Z"/></svg>`;
+    enportiSistemVortaroPiktogramo.slot = 'icon';
+    enportiSistemVortaroButono.textContent = 'Enporti enkonstruitan vortaron';
+    enportiSistemVortaroButono.appendChild(enportiSistemVortaroPiktogramo);
+    enportiSistemVortaroButono.addEventListener('click', () => {
       mdui.confirm({
-        headline: 'Importi Vortaron',
-        description: 'Ĉu vi certas, ke vi volas importi la enkonstruitan Esperanta-anglan vortaron?',
-        confirmText: '✅ Importi',
+        headline: 'Enporti Vortaron',
+        description: 'Ĉu vi certas, ke vi volas enporti la enkonstruitan Esperanta-anglan vortaron?',
+        confirmText: '✅ Enporti',
         cancelText: '❌ Nuligi',
         onConfirm: async function () {
           try {
-            await importiSistemVortaroKomponentojn();
+            await enportiSistemVortaroKomponantojn();
           } catch (er) {
             mdui.alert({
               headline: 'Eraro dum importado:',
@@ -371,9 +396,9 @@ async function refreshListoKomponentoj() {
         }
       });
     });
-    importiSistemVortaro.appendChild(importiSistemVortaroButono);
-    listoKomponentojUi.appendChild(importiSistemVortaro);
-    appbarListoKomponentoj.loading = false;
+    enportiSistemVortaro.appendChild(enportiSistemVortaroTeksto);
+    enportiSistemVortaro.appendChild(enportiSistemVortaroButono);
+    listoKomponantojUi.appendChild(enportiSistemVortaro);
     return;
   }
   progreso.max = listo.length;
@@ -384,35 +409,35 @@ async function refreshListoKomponentoj() {
   const forigiButono = document.createElement('mdui-button');
   forigiButono.slot = 'end-icon';
   forigiButono.textContent = 'Forigi Ĉiujn';
-  if(listoIndekso=== 0) {
+  if (listoIndekso === 0) {
     forigiButono.addEventListener('click', () => {
       mdui.confirm({
-        headline: 'Forigi Ĉiujn Komponentojn?',
+        headline: 'Forigi Ĉiujn Komponantojn?',
         description: 'Ĉu vi certas forigi ĉiujn komponantojn? Ĉi tio ne povas esti malfariĝita.',
         confirmText: '🗑️ Forigi Ĉiujn',
         cancelText: '↩️ Nuligi',
         onConfirm: async function () {
           try {
-            await forigiĈiujKomponentoj();
+            await forigiĈiujKomponantoj();
             mdui.snackbar({ message: 'Ĉiuj komponantoj forigitaj.' });
-            refreshListoKomponentoj();
-            } catch (er) {
-              mdui.alert({
-                headline: 'Eraro dum forigo:',
-                description: er.message || er,
-                confirmText: 'Komprenis',
-              });
-            }
+            refreshListoKomponantoj();
+          } catch (er) {
+            mdui.alert({
+              headline: 'Eraro dum forigo:',
+              description: er.message || er,
+              confirmText: 'Komprenis',
+            });
           }
+        }
       });
     });
   }
-    forigiListo.appendChild(forigiButono);
-    listoKomponentojUi.appendChild(forigiListo);
+  forigiListo.appendChild(forigiButono);
+  listoKomponantojUi.appendChild(forigiListo);
   let listo2 = listo;
   let stumpigista = false
-  if(listo.length > listoIndekso+200) {
-    listo2 = listo.slice(0, listoIndekso+200); // Limigu al 1000 komponantoj por eviti tro longan liston
+  if (listo.length > listoIndekso + 200) {
+    listo2 = listo.slice(0, listoIndekso + 200); // Limigu al 1000 komponantoj por eviti tro longan liston
     stumpigista = true;
   }
   listo2.forEach((komp) => {
@@ -425,25 +450,25 @@ async function refreshListoKomponentoj() {
 
     // Butono Redakti
     const butonoRedakti = document.createElement('mdui-button-icon');
-    butonoRedakti.slot='end-icon';
+    butonoRedakti.slot = 'end-icon';
     butonoRedakti.innerHTML = `
       <mdui-icon>
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960">
           <path d="M200-200h57l391-391-57-57-391 391v57Zm-80 80v-170l528-527q12-11 26.5-17t30.5-6q16 0 31 6t26 18l55 56q12 11 17.5 26t5.5 30q0 16-5.5 30.5T817-647L290-120H120Zm640-584-56-56 56 56Zm-141 85-28-29 57 57-29-28Z"/>
         </svg>
       </mdui-icon>`;
-    butonoRedakti.addEventListener('click', () => redaktiKomponenton(komp.id));
+    butonoRedakti.addEventListener('click', () => redaktiKomponanton(komp.id));
 
     // Butono Forigi
     const butonoForigi = document.createElement('mdui-button-icon');
-    butonoForigi.slot='end-icon'
+    butonoForigi.slot = 'end-icon'
     butonoForigi.innerHTML = `
       <mdui-icon>
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960">
           <path d="M280-120q-33 0-56.5-23.5T200-200v-520h-40v-80h200v-40h240v40h200v80h-40v520q0 33-23.5 56.5T680-120H280Zm400-600H280v520h400v-520ZM360-280h80v-360h-80v360Zm160 0h80v-360h-80v360ZM280-720v520-520Z"/>
         </svg>
       </mdui-icon>`;
-    butonoForigi.addEventListener('click', () => forigiKomponentonKonfirmo(komp.id));
+    butonoForigi.addEventListener('click', () => forigiKomponantonKonfirmo(komp.id));
 
     // Aldonu la piktogramojn al la linio
     const linioPiktogramoj = document.createElement('mdui-icon');
@@ -462,7 +487,7 @@ async function refreshListoKomponentoj() {
     }
     const linioPiktogramoMesaĝo = document.createElement('mdui-tooltip');
     linioPiktogramoMesaĝo.content = komp.tipo.charAt(0).toUpperCase() + komp.tipo.slice(1);;
-    linioPiktogramoMesaĝo.slot='icon';
+    linioPiktogramoMesaĝo.slot = 'icon';
 
     linio.appendChild(difino);
     linio.appendChild(butonoRedakti);
@@ -470,9 +495,9 @@ async function refreshListoKomponentoj() {
     linioPiktogramoMesaĝo.appendChild(linioPiktogramoj);
     linio.appendChild(linioPiktogramoMesaĝo);
 
-    listoKomponentojUi.appendChild(linio);
+    listoKomponantojUi.appendChild(linio);
     linio.addEventListener('click', () => {
-      if(aktivaRedaktadoId) {
+      if (aktivaRedaktadoId) {
         return; // Ne eblas montri karton dum redaktado
       }
       montriSerĉPanelon();
@@ -481,23 +506,22 @@ async function refreshListoKomponentoj() {
     });
     progreso.value++;
   });
-  if(stumpigista) {
-    const pliDaKomponentoj = document.createElement('mdui-list-item');
-    pliDaKomponentoj.textContent = `+${listo.length - listoIndekso} pli da komponantoj...`;
-    pliDaKomponentoj.addEventListener('click', () => {
+  if (stumpigista) {
+    const pliDaKomponantoj = document.createElement('mdui-list-item');
+    pliDaKomponantoj.textContent = `+${listo.length - listoIndekso} pli da komponantoj...`;
+    pliDaKomponantoj.addEventListener('click', () => {
       listoIndekso += 200;
-      refreshListoKomponentoj();
+      refreshListoKomponantoj();
     });
-    listoKomponentojUi.appendChild(pliDaKomponentoj);
+    listoKomponantojUi.appendChild(pliDaKomponantoj);
   } else {
     listoIndekso = 0; // Reset the index if we show all components
   }
   progreso.style.display = 'none';
-  appbarListoKomponentoj.loading = false;
 
 }
 
-async function importiSistemVortaroKomponentojn() {
+async function enportiSistemVortaroKomponantojn() {
   // Montru progreso dum la importado
   progreso.style.display = 'block';
   progreso.indeterminate = true;
@@ -507,22 +531,22 @@ async function importiSistemVortaroKomponentojn() {
   if (!respondo.ok) {
     throw new Error(`Eraro dum ŝarĝo de sistem-vortaro.json: ${respondo.status} ${respondo.statusText}`);
   }
-  const komponentoj = await respondo.json();
-  if (!Array.isArray(komponentoj)) {
-    throw new Error('Sistem-vortaro.json ne enhavas validan liston de komponentoj.');
+  const komponantoj = await respondo.json();
+  if (!Array.isArray(komponantoj)) {
+    throw new Error('Sistem-vortaro.json ne enhavas validan liston de komponantoj.');
   }
-  await aldoniKomponentojn(komponentoj);
+  await aldoniKomponantojn(komponantoj);
   progreso.style.display = 'none';
-  mdui.snackbar({ message: 'Sistem-vortaro importita kun sukceso.' });
+  mdui.snackbar({ message: 'Sistem-vortaro enportita kun sukceso.' });
   // Refresh the list to show the new components
-  await refreshListoKomponentoj();
+  await refreshListoKomponantoj();
   return true;
 }
 
 // -----------------------------
-// <5> Aldoni / Redakti Komponenton (Form-submeto)
+// <5> Aldoni / Redakti Komponanton (Form-submeto)
 // -----------------------------
-formularoKomponento.addEventListener('submit', async function (evento) {
+formularoKomponanto.addEventListener('submit', async function (evento) {
   evento.preventDefault();
   const teksto = kompTeksto.value.trim();
   const tipo = kompTipo.value;
@@ -542,8 +566,8 @@ formularoKomponento.addEventListener('submit', async function (evento) {
   }
 
   if (aktivaRedaktadoId) {
-    // Redakti ekzistantan komponenton
-    await ĝisdatigiKomponenton({
+    // Redakti ekzistantan komponanton
+    await ĝisdatigiKomponanton({
       id: aktivaRedaktadoId,
       teksto: teksto,
       tipo: tipo,
@@ -551,11 +575,11 @@ formularoKomponento.addEventListener('submit', async function (evento) {
       postpovas: postpovasListo,
       difino: difino,
     });
-    mdui.snackbar({ message: 'Komponento ĝisdatita.' });
+    mdui.snackbar({ message: 'Komponanto ĝisdatita.' });
     aktivaRedaktadoId = null; // nuligi redaktadon
     montriListon(); // montri la ĝisdatitan liston
   } else {
-    // Aldoni novan komponenton
+    // Aldoni novan komponanton
     const novaKp = {
       teksto: teksto,
       tipo: tipo,
@@ -563,32 +587,32 @@ formularoKomponento.addEventListener('submit', async function (evento) {
       postpovas: postpovasListo,
       difino: difino,
     };
-    await aldoniKomponenton(novaKp);
-    refreshListoKomponentoj();
+    await aldoniKomponanton(novaKp);
+    refreshListoKomponantoj();
     mdui.snackbar({
-      message: 'Komponento aldonita.',
+      message: 'Komponanto aldonita.',
       action: 'Montri liston',
       onActionClick: function () {
         montriListon();
       },
     });
-    formularoKomponento.reset();
+    formularoKomponanto.reset();
   }
-  
+
 });
 
 butonoNuligi.addEventListener('click', function () {
-  formularoKomponento.reset();
+  formularoKomponanto.reset();
   aktivaRedaktadoId = null;
-  titoloAldo.textContent = 'Aldoni Novan Komponenton';
+  titoloAldo.textContent = 'Aldoni Novan Komponanton';
 });
 
 // Redakti komponanton (plenigas formon)
-async function redaktiKomponenton(id) {
+async function redaktiKomponanton(id) {
   const trovita = listo.find((kp) => kp.id === id);
   if (!trovita) return;
   aktivaRedaktadoId = id;
-  titoloAldo.textContent = `Redakti Komponenton: ${trovita.teksto}`;
+  titoloAldo.textContent = `Redakti Komponanton: ${trovita.teksto}`;
   kompTeksto.value = trovita.teksto;
   kompTipo.value = trovita.tipo;
   kompAntaupovas.value = trovita.antaŭpovas.join(',');
@@ -598,17 +622,17 @@ async function redaktiKomponenton(id) {
 }
 
 // Forigi komponanton kun konfirmo
-function forigiKomponentonKonfirmo(id) {
+function forigiKomponantonKonfirmo(id) {
   mdui.confirm({
-    headline:'Forigi Komponenton?',
+    headline: 'Forigi Komponanton?',
     description: 'Ĉu vi certe forigi ĉi tiun komponanton?',
     confirmText: '🗑️ Forigi',
     cancelText: '↩️ Nuligi',
     onConfirm: function () {
-      forigiKomponenton(id)
+      forigiKomponanton(id)
         .then(async () => {
-          mdui.snackbar({ message: 'Komponento forigita.' });
-          await refreshListoKomponentoj();
+          mdui.snackbar({ message: 'Komponanto forigita.' });
+          await refreshListoKomponantoj();
           montriListon();
         })
         .catch((er) => {
@@ -618,12 +642,12 @@ function forigiKomponentonKonfirmo(id) {
             confirmText: 'Komprenis'
           });
         });
-      refreshListoKomponentoj();
+      refreshListoKomponantoj();
     },
     onCancel: function () {
       mdui.snackbar({ message: 'Forigo nuligita.' });
     }
-});
+  });
 }
 
 const workerSerĉi = new Worker('web-worker-serĉi.js');
@@ -631,7 +655,18 @@ const workerSerĉi = new Worker('web-worker-serĉi.js');
 serĉoVorto.addEventListener('input', serĉiVorto);
 
 async function serĉiVorto() {
-  serĉoVorto.value=xSistemonSubstituo(serĉoVorto.value)
+  if (!listo.length) {
+    mdui.alert({
+      headline: 'Neniu komponanto disponebla',
+      description: 'Bonvolu aldoni komponantojn antaŭ ol serĉi.',
+      confirmText: 'Komprenis',
+      onConfirm: function () {
+        montriListon();
+      }
+    });
+    return;
+  }
+  serĉoVorto.value = xSistemonSubstituo(serĉoVorto.value)
   const teksto = serĉoVorto.value.trim().toLowerCase();
   document.getElementById('rezulto-karto').innerHTML = '';
   if (!teksto) return rezultojSerĉo.innerHTML = 'Bonvolu enigi vorton por serĉi.';
@@ -639,7 +674,7 @@ async function serĉiVorto() {
   const url = new URL(location);
   url.searchParams.set('vorto', teksto);
   url.searchParams.set('panelo', 'serĉo');
-  history.replaceState({panelo: 'serĉo', vorto: teksto}, '', url.toString());
+  history.replaceState({ panelo: 'serĉo', vorto: teksto }, '', url.toString());
   rezultojSerĉo.innerHTML = '<mdui-circular-progress></mdui-circular-progress>';
   const listoK = listo
   const ekzKom = listoK.find((kp) => kp.teksto.toLowerCase() === teksto);
@@ -650,7 +685,7 @@ async function serĉiVorto() {
     return;
   }
 
-  workerSerĉi.postMessage({ vorto: teksto, komponentoj: listoK });
+  workerSerĉi.postMessage({ vorto: teksto, komponantoj: listoK });
 
   workerSerĉi.onmessage = function (e) {
     rezultojSerĉo.innerHTML = ''; // purigu antaŭe
@@ -683,7 +718,7 @@ function montriĈipojn(deko) {
 
     if (ero.komp) {
       tooltip.setAttribute('content', ero.komp.difino);
-      tooltip.placement="top-start"
+      tooltip.placement = "top-start"
       chip.textContent = ero.mapado.tekstero;
 
       chip.onclick = () => {
@@ -753,7 +788,7 @@ function montriKarton(komp, mapado) {
           <path d="M200-200h57l391-391-57-57-391 391v57Zm-80 80v-170l528-527q12-11 26.5-17t30.5-6q16 0 31 6t26 18l55 56q12 11 17.5 26t5.5 30q0 16-5.5 30.5T817-647L290-120H120Zm640-584-56-56 56 56Zm-141 85-28-29 57 57-29-28Z"/>
         </svg>
       </mdui-icon>`;
-    butonoRedakti.addEventListener('click', () => redaktiKomponenton(komp.id));
+  butonoRedakti.addEventListener('click', () => redaktiKomponanton(komp.id));
   butonoj.appendChild(butonoRedakti);
   const butonoForigi = document.createElement('mdui-button-icon');
   butonoForigi.slot = 'end-icon';
@@ -763,25 +798,25 @@ function montriKarton(komp, mapado) {
           <path d="M280-120q-33 0-56.5-23.5T200-200v-520h-40v-80h200v-40h240v40h200v80h-40v520q0 33-23.5 56.5T680-120H280Zm400-600H280v520h400v-520ZM360-280h80v-360h-80v360Zm160 0h80v-360h-80v360ZM280-720v520-520Z"/>
         </svg>
       </mdui-icon>`;
-  butonoForigi.addEventListener('click', () => forigiKomponentonKonfirmo(komp.id));
+  butonoForigi.addEventListener('click', () => forigiKomponantonKonfirmo(komp.id));
   butonoj.appendChild(butonoForigi);
   karto.appendChild(butonoj);
   container.appendChild(karto);
 }
 
 // -----------------------------
-// <7> Importi JSON-dosieron de Komponentoj
+// <7> Enporti JSON-dosieron de Komponantoj
 // -----------------------------
-butonoAlŝuti.addEventListener('click', () => importiKomponentojn());
+butonoAlŝuti.addEventListener('click', () => enportiKomponantojn());
 
-async function importiKomponentojn(dosiero = null) {
+async function enportiKomponantojn(dosiero = null) {
   if (!dosiero) {
     const inputDos = document.createElement('input');
     inputDos.type = 'file';
     inputDos.accept = '.json,application/json';
     inputDos.addEventListener('change', (evento) => {
       const dos = evento.target.files[0];
-      importiKomponentojn(dos);
+      enportiKomponantojn(dos);
     });
     inputDos.click();
     return;
@@ -789,66 +824,82 @@ async function importiKomponentojn(dosiero = null) {
 
   const legilo = new FileReader();
   legilo.onload = async function (e) {
-    butonoAlŝuti.loading = true;
-    try {
-      if (listo.length > 0) {
-        try {
-          await mdui.confirm({
-            headline: 'Ĉu vi certas?',
-            description: 'Importi novajn komponantojn forigos ĉiujn ekzistantajn komponantojn. Ĉu vi daŭrigi?',
-            confirmText: 'Daŭrigi',
-            cancelText: 'Nuligi'
-          });
-        } catch (er) {
-          console.error('Importo nuligita:', er);
-          butonoAlŝuti.loading = false;
-          return;
+  try {
+    const enhavo = JSON.parse(e.target.result); // ✅ Assign parsed data
+
+    if (!Array.isArray(enhavo)) {
+      throw 'Ne taŭga formato: atendata estas tabelo de komponantoj.';
+    }
+
+    if (listo.length > 0) {
+      mdui.confirm({
+        headline: 'Ĉu vi certas?',
+        description: 'Enporti novajn komponantojn forigos ĉiujn ekzistantajn komponantojn. Ĉu vi daŭrigi?',
+        confirmText: 'Daŭrigi',
+        cancelText: 'Nuligi',
+        onConfirm: async function () {
+          try {
+            listoKomponantojUi.innerHTML = '';
+            listoKomponantojUi.appendChild(progreso);
+            progreso.style.display = 'block';
+            progreso.indeterminate = true;
+            progreso.removeAttribute("value");
+
+            await forigiĈiujKomponantoj();
+            progreso.indeterminate = false;
+            progreso.max = enhavo.length;
+            progreso.value = 0;
+
+            await aldoniKomponantojn(enhavo); // Assuming this updates progreso.value as needed
+
+            progreso.style.display = 'none';
+            mdui.snackbar({ message: 'Komponantoj enportitaj.' });
+            montriListon();
+          } catch (innerError) {
+            console.error('Eraro dum enporto:', innerError);
+            mdui.alert({
+              headline: 'Eraro dum enporto',
+              description: innerError.message || innerError,
+              confirmText: 'Komprenis'
+            });
+          } finally {
+            butonoAlŝuti.loading = false;
+          }
         }
-      }
+      });
+    } else {
+      // No need for confirmation, just proceed directly
       progreso.style.display = 'block';
       progreso.indeterminate = true;
       progreso.removeAttribute("value");
 
-      try{
-        JSON.parse(e.target.result); // Validigi JSON-formaton
-      }
-      catch (er) {
-        throw 'Ne taŭga JSON-dosiero';
-      }
-      if (!Array.isArray(enhavo)) throw 'Ne taŭga formato';
+      await forigiĈiujKomponantoj();
+      progreso.indeterminate = false;
+      progreso.max = enhavo.length;
+      progreso.value = 0;
 
-      listoKomponentojUi.innerHTML = '';
-      listoKomponentojUi.appendChild(progreso);
-
-      progreso.indeterminate = true;
-      progreso.removeAttribute("value");
-
-      forigiĈiujKomponentoj().then(async () => {
-        progreso.indeterminate = false;
-        progreso.max = enhavo.length;
-        progreso.value = 0;
-        await aldoniKomponentojn(enhavo);
-        progreso.style.display = 'none';
-        mdui.snackbar({ message: 'Komponentoj importitaj.' });
-        montriListon();
-        butonoAlŝuti.loading = false;
-      });
-    } catch (er) {
-      console.error('Eraro dum importo:', er);
-      butonoAlŝuti.loading = false;
-      mdui.alert({
-        headline: 'Eraro en importi JSON:',
-        description: er,
-        confirmText: 'Komprenis'
-      });
+      await aldoniKomponantojn(enhavo);
+      progreso.style.display = 'none';
+      mdui.snackbar({ message: 'Komponantoj enportitaj.' });
+      montriListon();
     }
-  };
+
+  } catch (er) {
+    console.error('Eraro dum legado de dosiero:', er);
+    butonoAlŝuti.loading = false;
+    mdui.alert({
+      headline: 'Eraro en enporti JSON:',
+      description: er.message || er,
+      confirmText: 'Komprenis'
+    });
+  }
+};
 
   legilo.readAsText(dosiero, 'UTF-8');
 }
 
 // -----------------------------
-// <8> Eksporti Komponentojn kiel JSON
+// <8> Elporti Komponantojn kiel JSON
 // -----------------------------
 butonoEkspremi.addEventListener('click', async () => {
   const listoSenId = listo.map(kp => {
@@ -860,22 +911,27 @@ butonoEkspremi.addEventListener('click', async () => {
   const url = URL.createObjectURL(dosBlob);
   const ligilo = document.createElement('a');
   ligilo.href = url;
-  ligilo.download = 'vortkomponentoj.json';
+  ligilo.download = 'vortkomponantoj.json';
   ligilo.click();
   //setTimeout(() => URL.revokeObjectURL(url), 10000);
-  mdui.snackbar({ message: 'Komponentoj eksportitaj.' });
+  mdui.snackbar({ message: 'Komponantoj elportitaj.' });
 });
 
 // -----------------------------
 // <9> Event-listeners por menuo
 // -----------------------------
-appbarListoKomponentoj.addEventListener('click', montriListon);
-menuListoKomponentoj.addEventListener('click', montriListon);
-appbarAldonuNova.addEventListener('click', montriAldonPanelon);
-menuAldonuNova.addEventListener('click', montriAldonPanelon);
-appbarSerĉi.addEventListener('click', montriSerĉPanelon);
-menuSerĉi.addEventListener('click', montriSerĉPanelon);
-
+appbar.addEventListener('change', (evento) => {
+  const panelo = evento.target.value;
+  console.log('Ŝanĝo de panelo:', panelo);
+  if (panelo === 'appbar-listo-komponantoj') {
+    montriListon();
+  } else if (panelo === 'appbar-serĉi') {
+    montriSerĉPanelon();
+  } else if (panelo === 'appbar-aldonu-nova') {
+    montriAldonPanelon();
+  }
+}
+);
 
 // -----------------------------
 // <10> PWA: Registri Service Worker
@@ -917,29 +973,29 @@ document.addEventListener('DOMContentLoaded', async () => {
   mdui.setColorScheme("#78A75A");
   document.querySelector('#progreso').removeAttribute('style');
   document.querySelector('#progreso').indeterminate = true
-  listo = await legiKomponentojn();
+  listo = await legiKomponantojn();
   // Montri panelon ĉe starto
   ŝargiPanelojn()
   document.querySelector('#progreso').setAttribute('style', 'display: none;');
 
-  // Importi .json-dosieron de la sistemo se disponebla
+  // Enporti .json-dosieron de la sistemo se disponebla
   if ("launchQueue" in window) {
-  window.launchQueue.setConsumer(async (launchParams) => {
-    if (launchParams.files && launchParams.files.length) {
-      const dosieroHandle = launchParams.files[0];
+    window.launchQueue.setConsumer(async (launchParams) => {
+      if (launchParams.files && launchParams.files.length) {
+        const dosieroHandle = launchParams.files[0];
 
-      try {
-        const dosiero = await dosieroHandle.getFile();
-        importiKomponentojn(dosiero);
-      } catch (er) {
-        console.error("Ne eblis legi la dosieron de launchQueue:", er);
-        mdui.alert({
-          headline: 'Eraro pri malfermo',
-          description: 'Ne eblis legi la dosieron alŝutita de la sistemo.',
-          confirmText: 'Fermi'
-        });
+        try {
+          const dosiero = await dosieroHandle.getFile();
+          enportiKomponantojn(dosiero);
+        } catch (er) {
+          console.error("Ne eblis legi la dosieron de launchQueue:", er);
+          mdui.alert({
+            headline: 'Eraro pri malfermo',
+            description: 'Ne eblis legi la dosieron alŝutita de la sistemo.',
+            confirmText: 'Fermi'
+          });
+        }
       }
-    }
-  });
-}
+    });
+  }
 });
