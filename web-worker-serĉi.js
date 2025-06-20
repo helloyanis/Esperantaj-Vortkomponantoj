@@ -12,13 +12,13 @@ self.addEventListener("message", (e) => {
    */
   function dekomponi(vorto, listoKomp) {
     listoKomp.sort((A, B) => {
-      // first put shorter teksto before longer teksto
-      if (A.teksto.length !== B.teksto.length) {
-        return A.teksto.length - B.teksto.length;
-      }
-      // as a secondary tie-break, maybe sort alphabetically
-      return A.teksto.localeCompare(B.teksto);
-    });
+  // First put **longer** teksto before shorter teksto (fix "Malsanulejo")
+  if (A.teksto.length !== B.teksto.length) {
+    return B.teksto.length - A.teksto.length;
+  }
+  return A.teksto.localeCompare(B.teksto);
+});
+
     const memo = new Map();
 
     /**
