@@ -57,10 +57,10 @@ let listoIndekso = 0;
 
 
 menuFontkodo.addEventListener('click', () => {
-  window.open('https://github.com/helloyanis/Esperanto-Vortkomponantoj', '_blank');
+  window.open('https://github.com/helloyanis/Esperantaj-Vortkomponantoj', '_blank');
 });
 menuHelpo.addEventListener('click', () => {
-  window.open('https://github.com/helloyanis/Esperanto-Vortkomponantoj/wiki', '_blank');
+  window.open('https://github.com/helloyanis/Esperantaj-Vortkomponantoj/wiki', '_blank');
 });
 
 // Helpo pri la x-sistemo

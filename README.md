@@ -4,7 +4,7 @@ An unique system to decompose words in Esperanto, to see their different parts a
 
 ## https://vortkom.🦊💻.ws/
 
-For instructions on how to use, check the [wiki page](https://github.com/helloyanis/Esperanto-Vortkomponantoj/wiki)
+For instructions on how to use, check the [wiki page](https://github.com/helloyanis/Esperantaj-Vortkomponantoj/wiki)
 
 Features :
 
@@ -31,7 +31,7 @@ Unika sistemo por malkomponi vortojn en Esperanto, por vidi iliajn diversajn par
 
 ## https://vortkom.🦊💻.ws/
 
-Por instrukcioj pri kiel uzi, kontrolu la [vikian paĝon](https://github.com/helloyanis/Esperanto-Vortkomponantoj/wiki) (angla)
+Por instrukcioj pri kiel uzi, kontrolu la [vikian paĝon](https://github.com/helloyanis/Esperantaj-Vortkomponantoj/wiki) (angla)
 
 Trajtoj:
 
