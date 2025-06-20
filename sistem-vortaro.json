@@ -71,7 +71,9 @@
       "a",
       "j"
     ],
-    "postpovas": [],
+    "postpovas": [
+      "nenio"
+    ],
     "difino": "Accusative indicator. This shows direct objects, measures, time points, directions. For example, \"Mi amas vin\" (\"I love you\"), \"vi\" is a direct object so it gets the accusative (Who do I love? ➡️You)"
   },
   {
