@@ -168,7 +168,10 @@ function petiKonstantaStokado() {
           onConfirm: function () {
             navigator.storage.persist().then((persisted) => {
               if (persisted) {
-                mdui.snackbar({ message: 'Persistanta stokejo ebligita.' });
+                mdui.snackbar({
+                  message: 'Persistanta stokejo ebligita.',
+                  closeable: true,
+                });
               } else {
                 mdui.confirm({
                   headline: 'Eraro',
@@ -419,7 +422,10 @@ async function refreshListoKomponantoj() {
         onConfirm: async function () {
           try {
             await forigiĈiujKomponantoj();
-            mdui.snackbar({ message: 'Ĉiuj komponantoj forigitaj.' });
+            mdui.snackbar({
+              message: 'Ĉiuj komponantoj forigitaj.',
+              closeable: true,
+            });
             refreshListoKomponantoj();
           } catch (er) {
             mdui.alert({
@@ -537,7 +543,10 @@ async function enportiSistemVortaroKomponantojn() {
   }
   await aldoniKomponantojn(komponantoj);
   progreso.style.display = 'none';
-  mdui.snackbar({ message: 'Sistem-vortaro enportita kun sukceso.' });
+  mdui.snackbar({
+    message: 'Sistem-vortaro enportita kun sukceso.',
+    closeable: true,
+  });
   // Refresh the list to show the new components
   await refreshListoKomponantoj();
   return true;
@@ -575,7 +584,10 @@ formularoKomponanto.addEventListener('submit', async function (evento) {
       postpovas: postpovasListo,
       difino: difino,
     });
-    mdui.snackbar({ message: 'Komponanto ĝisdatita.' });
+    mdui.snackbar({
+      message: 'Komponanto ĝisdatita.',
+      closeable: true,
+    });
     aktivaRedaktadoId = null; // nuligi redaktadon
     montriListon(); // montri la ĝisdatitan liston
   } else {
@@ -592,6 +604,7 @@ formularoKomponanto.addEventListener('submit', async function (evento) {
     mdui.snackbar({
       message: 'Komponanto aldonita.',
       action: 'Montri liston',
+      closeable: true,
       onActionClick: function () {
         montriListon();
       },
@@ -631,7 +644,10 @@ function forigiKomponantonKonfirmo(id) {
     onConfirm: function () {
       forigiKomponanton(id)
         .then(async () => {
-          mdui.snackbar({ message: 'Komponanto forigita.' });
+          mdui.snackbar({
+            message: 'Komponanto forigita.',
+            closeable: true
+          });
           await refreshListoKomponantoj();
           montriListon();
         })
@@ -645,7 +661,10 @@ function forigiKomponantonKonfirmo(id) {
       refreshListoKomponantoj();
     },
     onCancel: function () {
-      mdui.snackbar({ message: 'Forigo nuligita.' });
+      mdui.snackbar({
+        message: 'Forigo nuligita.',
+        closeable: true
+      });
     }
   });
 }
@@ -853,7 +872,10 @@ async function enportiKomponantojn(dosiero = null) {
             await aldoniKomponantojn(enhavo); // Assuming this updates progreso.value as needed
 
             progreso.style.display = 'none';
-            mdui.snackbar({ message: 'Komponantoj enportitaj.' });
+            mdui.snackbar({
+              message: 'Komponantoj enportitaj.',
+              closeable: true
+            });
             montriListon();
           } catch (innerError) {
             console.error('Eraro dum enporto:', innerError);
@@ -880,7 +902,10 @@ async function enportiKomponantojn(dosiero = null) {
 
       await aldoniKomponantojn(enhavo);
       progreso.style.display = 'none';
-      mdui.snackbar({ message: 'Komponantoj enportitaj.' });
+      mdui.snackbar({
+        message: 'Komponantoj enportitaj.',
+        closeable: true
+      });
       montriListon();
     }
 
@@ -914,7 +939,10 @@ butonoEkspremi.addEventListener('click', async () => {
   ligilo.download = 'vortkomponantoj.json';
   ligilo.click();
   //setTimeout(() => URL.revokeObjectURL(url), 10000);
-  mdui.snackbar({ message: 'Komponantoj elportitaj.' });
+  mdui.snackbar({
+    message: 'Komponantoj elportitaj.',
+    closeable: true
+  });
 });
 
 // -----------------------------
