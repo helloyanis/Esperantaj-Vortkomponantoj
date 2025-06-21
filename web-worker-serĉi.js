@@ -139,13 +139,7 @@ self.addEventListener("message", (e) => {
             radikoChainPenalty++;
           }
         }
-        // 7.3.1) Penalty for each consecutive “sufikso→sufikso”
-let suffixChainPenalty = 0;
-for (let i = 1; i < thisParse.length; i++) {
-  const prev = thisParse[i - 1].komp.tipo;
-  const curr = thisParse[i].komp.tipo;
-  if (prev === "sufikso" && curr === "sufikso") suffixChainPenalty++;
-}
+
 
         // 7.4) Bonus if there is at least one prefix anywhere
         let prefixBonus = 0;
@@ -156,9 +150,23 @@ for (let i = 1; i < thisParse.length; i++) {
           }
         }
 
-        // 7.5) Final score
+        const uniqueKompList = ["o", "a", "e", "i", "u"];
+        let uniqueKompMatches = 0;
+
+        // First and only loop to count total matches of uniqueKompList
+        thisParse.forEach(piece => {
+          const text = piece.komp.teksto.toLowerCase();
+          if (uniqueKompList.includes(text)) {
+            uniqueKompMatches++;
+          }
+        });
+
+        // Apply penalty only if more than one vowel match
+        suffixPenalty += uniqueKompMatches > 1 ? uniqueKompMatches * 3 : -1;
+
+        // 7.7) Final score
         let score =
-          baseCount - suffixPenalty - radikoChainPenalty + prefixBonus - hardPenalty - suffixChainPenalty;
+          baseCount - suffixPenalty - radikoChainPenalty + prefixBonus - hardPenalty ;
         // Determine if parse = prefikso* radiko+ sufikso*
         let types = thisParse.map(p => p.komp.tipo);
         let firstRad = types.findIndex(t => t === "radiko");
