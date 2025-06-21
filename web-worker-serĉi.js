@@ -72,30 +72,28 @@ self.addEventListener("message", (e) => {
           hardPenalty += 1
         }
 
-        // ── 4) antaŭpovas/postpovas ──
-        if (lastKp) {
-          if (
-            kp.antaŭpovas.length > 0 &&
-            !kp.antaŭpovas.includes(lastKp.tipo) &&
-            !kp.antaŭpovas.includes(lastKp.teksto)
-          ) {
-            hardPenalty += 1;
-          }
-          if (
-            lastKp.postpovas.length > 0 &&
-            !lastKp.postpovas.includes(kp.tipo) &&
-            !lastKp.postpovas.includes(kp.teksto)
-          ) {
-            hardPenalty += 1;
-          }
+        // ── 4) Reward if antaŭpovas/postpovas match──
+        let contextBonus = 0;
+
+        // (a) if there is a last piece, and this kp lists that piece in its antaŭpovas:
+        if (lastKp && Array.isArray(kp.antaŭpovas) && kp.antaŭpovas.includes(lastKp.teksto)) {
+          contextBonus += 3;
         }
 
-        // ── 5) Recurse on the remainder ──
+        // (b) if the recursive tail begins with a piece that this kp allows after it:
         const suffix = restas.substring(t.length);
         const newUsed = new Set(usedIds);
         newUsed.add(kp.id);
         const tail = helper(suffix, kp, newUsed);
 
+        if (Array.isArray(tail) && tail.length > 0) {
+          const nextKp = tail[0].komp;
+          if (nextKp &&
+              Array.isArray(kp.postpovas) &&
+              kp.postpovas.includes(nextKp.teksto)) {
+            contextBonus += 3;
+          }
+        }
         // ── 6) DROP any candidate that immediately leads to “❌ …” ──
         // If `tail` is exactly a single “failure” piece, treat it as invalid.
         if (
@@ -166,7 +164,7 @@ self.addEventListener("message", (e) => {
 
         // 7.7) Final score
         let score =
-          baseCount - suffixPenalty - radikoChainPenalty + prefixBonus - hardPenalty ;
+          baseCount - suffixPenalty - radikoChainPenalty + prefixBonus - hardPenalty + contextBonus;
         // Determine if parse = prefikso* radiko+ sufikso*
         let types = thisParse.map(p => p.komp.tipo);
         let firstRad = types.findIndex(t => t === "radiko");
@@ -208,52 +206,6 @@ self.addEventListener("message", (e) => {
             },
           },
         ];
-      }
-
-      // ── 9) If bestParse starts with a “prefikso” OR “radiko,” see if a strictly longer radiko can override ──
-      // (i.e. prefer “neni”→… over “ne”→… in “neniu”)
-      if (
-        bestParse.length > 0 &&
-        bestParse[0].komp !== undefined &&
-        (bestParse[0].komp.tipo === "prefikso" || bestParse[0].komp.tipo === "radiko")
-      ) {
-        const first = bestParse[0].komp;
-        const firstText = first.teksto.toLowerCase();
-        const firstLen = firstText.length;
-
-        // Look for any radiko that starts here and is strictly longer
-        for (const kpRad of listoKomp) {
-          if (kpRad.tipo !== "radiko") continue;
-          const radText = kpRad.teksto.toLowerCase();
-          if (
-            restas.toLowerCase().startsWith(radText) &&
-            radText.length > firstLen
-          ) {
-            // Re‐parse using this longer radiko
-            const newUsed = new Set(usedIds);
-            newUsed.add(kpRad.id);
-            const afterRad = restas.substring(radText.length);
-            const tail2 = helper(afterRad, kpRad, newUsed);
-
-            if (
-              Array.isArray(tail2) &&
-              !(tail2.length === 1 && tail2[0].mapado.tipo === "???")
-            ) {
-              bestParse = [
-                {
-                  komp: kpRad,
-                  mapado: {
-                    tekstero: kpRad.teksto,
-                    tipo: kpRad.tipo,
-                    difino: kpRad.difino,
-                  },
-                },
-                ...tail2,
-              ];
-              break;
-            }
-          }
-        }
       }
 
       memo.set(cacheKey, bestParse);

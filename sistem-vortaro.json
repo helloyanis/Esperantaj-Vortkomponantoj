@@ -370,7 +370,7 @@
     "tipo": "sufikso",
     "antaŭpovas": [],
     "postpovas": [],
-    "difino": "Refers to ending of pres. part. act. in verbs"
+    "difino": "Ending of pres. part. act. in verbs"
   },
   {
     "teksto": "ar",
@@ -384,7 +384,7 @@
     "tipo": "sufikso",
     "antaŭpovas": [],
     "postpovas": [],
-    "difino": "Refers to ending of pres. part. pass. in verbs"
+    "difino": "Ending of pres. part. pass. in verbs"
   },
   {
     "teksto": "ĉj",
@@ -510,7 +510,7 @@
     "tipo": "sufikso",
     "antaŭpovas": [],
     "postpovas": [],
-    "difino": "Refers to ending of past part. act. in verbs"
+    "difino": "Ending of past part. act. in verbs"
   },
   {
     "teksto": "ism",
@@ -531,7 +531,7 @@
     "tipo": "sufikso",
     "antaŭpovas": [],
     "postpovas": [],
-    "difino": "Refers to ending of past part. pass. in verbs"
+    "difino": "Ending of past part. pass. in verbs"
   },
   {
     "teksto": "nj",
@@ -559,7 +559,7 @@
     "tipo": "sufikso",
     "antaŭpovas": [],
     "postpovas": [],
-    "difino": "Refers to ending of fut. part. act. in verbs "
+    "difino": "Ending of fut. part. act. in verbs "
   },
   {
     "teksto": "op",
@@ -573,7 +573,7 @@
     "tipo": "sufikso",
     "antaŭpovas": [],
     "postpovas": [],
-    "difino": "Refers to ending of fut. part. pass. in verbs"
+    "difino": "Ending of fut. part. pass. in verbs"
   },
   {
     "teksto": "uj",
