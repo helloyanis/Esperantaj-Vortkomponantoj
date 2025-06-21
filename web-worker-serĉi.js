@@ -161,7 +161,7 @@ self.addEventListener("message", (e) => {
           }
         });
 
-        // Apply penalty only if more than one vowel match
+        // Apply penalty only if more than one match
         suffixPenalty += uniqueKompMatches > 1 ? uniqueKompMatches * 3 : -1;
 
         // 7.7) Final score
