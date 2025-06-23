@@ -1,219 +1,175 @@
 self.addEventListener("message", (e) => {
   const { vorto, komponantoj } = e.data;
 
-  /**
-   * Decompose `vorto` into a sequence of komponantoj.
-   * We do a recursive DP that chooses, among all valid segmentations,
-   * the one with the greatest number of pieces.
-   *
-   * @param {string} vorto             — the word to split (can be uppercase; we lowercase)
-   * @param {Array<Object>} listoKomp  — list of { id, teksto, tipo, antaŭpovas, postpovas, difino, … }
-   * @returns {Array<{komp:kp,mapado:{tekstero,tipo,difino}}>}
-   */
-  function dekomponi(vorto, listoKomp) {
-    listoKomp.sort((A, B) => {
-  // First put **longer** teksto before shorter teksto (fix "Malsanulejo")
-  if (A.teksto.length !== B.teksto.length) {
-    return B.teksto.length - A.teksto.length;
-  }
-  return A.teksto.localeCompare(B.teksto);
-});
+  // Pre-sort components by descending length, tie-breaker lexicographically
+  komponantoj.sort((A, B) =>
+    B.teksto.length !== A.teksto.length
+      ? B.teksto.length - A.teksto.length
+      : A.teksto.localeCompare(B.teksto)
+  );
 
-    const memo = new Map();
+  const memo = new Map();
 
-    /**
-     * @param {string} restas      — the unparsed suffix (always lowercase)
-     * @param {Object|null} lastKp — the previous komponanto (or null at start)
-     * @param {Set<string>} usedIds — set of kp.id’s already used
-     * @returns {Array<{komp:kp,mapado:{tekstero,tipo,difino}}> | null}
-     *     The best (max‐pieces) decomposition of restas, or null if none is valid.
-     */
-    function helper(restas, lastKp, usedIds) {
-      const keyLast = lastKp ? lastKp.id : "__START__";
-      const keyUsed = Array.from(usedIds).sort().join(",");
-      const cacheKey = restas + "|" + keyLast + "|" + keyUsed;
-      if (memo.has(cacheKey)) {
-        return memo.get(cacheKey);
-      }
-      if (restas === "") {
-        memo.set(cacheKey, []);
-        return [];
-      }
+  // Return an array of *all* valid parses for (restas, lastKp, usedIds)
+  function helper(restas, lastKp, usedIds) {
+    const lastKey = lastKp ? lastKp.id : "__START__";
+    const usedKey = [...usedIds].sort().join(",");
+    const cacheKey = `${restas}|${lastKey}|${usedKey}`;
+    if (memo.has(cacheKey)) return memo.get(cacheKey);
 
-      let bestParse = null;
-      let bestScore = -Infinity;
-      const lowerRest = restas.toLowerCase();
-
-      for (const kp of listoKomp) {
-        // ── 1) DISALLOW “sufikso” AT THE VERY START ──
-        if (!lastKp && kp.tipo === "sufikso") {
-          continue;
-        }
-
-        // ─── 1.5) NO REPEATING EXACTLY THE SAME teksto TWICE IN A ROW ───
-        if (lastKp && kp.teksto.toLowerCase() === lastKp.teksto.toLowerCase()) {
-          // If the previous piece was “o” and this candidate is also “o,” skip it.
-          continue;
-        }
-
-        // ── 2) Must match text at front ──
-        const t = kp.teksto.toLowerCase();
-        if (!lowerRest.startsWith(t)) {
-          continue;
-        }
-
-        // ── 3) tipo‐ordering ──
-
-        let hardPenalty = 0;
-        if (lastKp && lastKp.tipo === "radiko" && kp.tipo === "prefikso") {
-          hardPenalty += 2
-        }
-        if (lastKp && lastKp.tipo === "sufikso" && kp.tipo !== "sufikso") {
-          hardPenalty += 1
-        }
-
-        // ── 4) Reward if antaŭpovas/postpovas match──
-        let contextBonus = 0;
-
-        // (a) if there is a last piece, and this kp lists that piece in its antaŭpovas:
-        if (lastKp && Array.isArray(kp.antaŭpovas) && kp.antaŭpovas.includes(lastKp.teksto)) {
-          contextBonus += 3;
-        }
-
-        // (b) if the recursive tail begins with a piece that this kp allows after it:
-        const suffix = restas.substring(t.length);
-        const newUsed = new Set(usedIds);
-        newUsed.add(kp.id);
-        const tail = helper(suffix, kp, newUsed);
-
-        if (Array.isArray(tail) && tail.length > 0) {
-          const nextKp = tail[0].komp;
-          if (nextKp &&
-              Array.isArray(kp.postpovas) &&
-              kp.postpovas.includes(nextKp.teksto)) {
-            contextBonus += 3;
-          }
-        }
-        // ── 6) DROP any candidate that immediately leads to “❌ …” ──
-        // If `tail` is exactly a single “failure” piece, treat it as invalid.
-        if (
-          Array.isArray(tail) &&
-          tail.length === 1 &&
-          tail[0].mapado &&
-          tail[0].mapado.tipo === "???"
-        ) {
-          continue;
-        }
-
-        // ── 7) Build the tentative parse ──
-        const thisParse = [
-          {
-            komp: kp,
-            mapado: {
-              tekstero: kp.teksto,
-              tipo: kp.tipo,
-              difino: kp.difino,
-            },
-          },
-          ...tail,
-        ];
-
-        // 7.1) Base piece count
-        const baseCount = thisParse.length;
-
-        // 7.2) Penalty if last piece is NOT a suffix
-        let suffixPenalty = 0;
-        const lastPiece = thisParse[baseCount - 1].komp;
-        if (lastPiece.tipo !== "sufikso") {
-          suffixPenalty = 1;
-        }
-
-        // 7.3) Penalty for each consecutive “radiko→radiko”
-        let radikoChainPenalty = 0;
-        for (let i = 1; i < baseCount; i++) {
-          const prevType = thisParse[i - 1].komp.tipo;
-          const currType = thisParse[i].komp.tipo;
-          if (prevType === "radiko" && currType === "radiko") {
-            radikoChainPenalty++;
-          }
-        }
-
-
-        // 7.4) Bonus if there is at least one prefix anywhere
-        let prefixBonus = 0;
-        for (const piece of thisParse) {
-          if (piece.komp.tipo === "prefikso") {
-            prefixBonus = 1;
-            break;
-          }
-        }
-
-        const uniqueKompList = ["o", "a", "e", "i", "u"];
-        let uniqueKompMatches = 0;
-
-        // First and only loop to count total matches of uniqueKompList
-        thisParse.forEach(piece => {
-          const text = piece.komp.teksto.toLowerCase();
-          if (uniqueKompList.includes(text)) {
-            uniqueKompMatches++;
-          }
-        });
-
-        // Apply penalty only if more than one match
-        suffixPenalty += uniqueKompMatches > 1 ? uniqueKompMatches * 3 : -1;
-
-        // 7.7) Final score
-        let score =
-          baseCount - suffixPenalty - radikoChainPenalty + prefixBonus - hardPenalty + contextBonus;
-        // Determine if parse = prefikso* radiko+ sufikso*
-        let types = thisParse.map(p => p.komp.tipo);
-        let firstRad = types.findIndex(t => t === "radiko");
-        let lastRad = types.map((t, i) => t === "radiko" ? i : null)
-          .filter(i => i !== null).pop();
-
-        // If there's at least one radiko and all before are prefixes and all after rad are suffixes
-        if (firstRad >= 0
-          && types.slice(0, firstRad).every(t => t === "prefikso")
-          && types.slice(firstRad, lastRad + 1).every(t => t === "radiko")
-          && types.slice(lastRad + 1).every(t => t === "sufikso")) {
-          // give a healthy bonus so these “canonical” parses win
-          score += 3;
-        }
-
-        // 7.6) Compare to bestScore, not just piece‐count
-        if (score > bestScore) {
-          bestScore = score;
-          bestParse = thisParse;
-        } else if (score === bestScore) {
-          // Optional tie-breaker: shorter first komponanto wins
-          const oldFirstLen = bestParse[0].komp.teksto.length;
-          const newFirstLen = thisParse[0].komp.teksto.length;
-          if (newFirstLen < oldFirstLen) {
-            bestParse = thisParse;
-          }
-        }
-      }
-
-
-      // ── 8) If nothing valid, emit a single “❌ restas” chunk ──
-      if (bestParse === null) {
-        bestParse = [
-          {
-            mapado: {
-              tekstero: `❌ ${restas}`,
-              tipo: "???",
-              difino: "Ne valida sekvo aŭ komponanto",
-            },
-          },
-        ];
-      }
-
-      memo.set(cacheKey, bestParse);
-      return bestParse;
+    // Base case: perfectly consumed
+    if (!restas) {
+      memo.set(cacheKey, [[]]);  // one empty parse
+      return [[]];
     }
 
-    return helper(vorto.toLowerCase(), null, new Set());
+    const lower = restas.toLowerCase();
+    const candidates = komponantoj.filter(kp => {
+      const t = kp.teksto.toLowerCase();
+      if (!lower.startsWith(t)) return false;
+      if (!lastKp && kp.tipo === "sufikso") return false;
+      if (lastKp && lastKp.teksto.toLowerCase() === t) return false;
+      return true;
+    });
+
+    // If no candidates, return one “failure” parse
+    if (candidates.length === 0) {
+      const failParse = [{
+        mapado: {
+          tekstero: `❌ ${restas}`,
+          tipo: "???",
+          difino: "Ne valida sekvo aŭ komponanto"
+        }
+      }];
+      memo.set(cacheKey, [failParse]);
+      return [failParse];
+    }
+
+    // Build *all* parses by recursing on each candidate
+    const allParses = [];
+    for (const kp of candidates) {
+      const t = kp.teksto.toLowerCase();
+      const suffix = restas.slice(t.length);
+      const newUsed = new Set(usedIds);
+      newUsed.add(kp.id);
+
+      const tailParses = helper(suffix, kp, newUsed);
+      for (const tail of tailParses) {
+        // skip pure failure
+        if (tail.length === 1 && tail[0].mapado.tipo === "???") continue;
+        allParses.push([
+          { komp: kp, mapado: { tekstero: kp.teksto, tipo: kp.tipo, difino: kp.difino } },
+          ...tail
+        ]);
+      }
+    }
+
+    memo.set(cacheKey, allParses);
+    return allParses;
   }
-  const rezulto = dekomponi(vorto, komponantoj);
-  self.postMessage(rezulto);
+
+  function scoreParse(parseArr) {
+    if (parseArr.some(p => !p.komp)) return -Infinity;
+    const singles = new Set(["o","a","e","i","u"]);
+    const baseCount = parseArr.length;
+    let suffixPenalty = 0, radikoChainPenalty = 0;
+    let prefixBonus = 0, hardPenalty = 0, contextBonus = 0, uniquePenalty = 0;
+
+
+    for (let i = 0; i < parseArr.length; i++) {
+      const kp = parseArr[i].komp;
+      const prev = i > 0 ? parseArr[i-1].komp : null;
+      const next = i < parseArr.length-1 ? parseArr[i+1].komp : null;
+
+      if (prev && prev.tipo === "radiko"   && kp.tipo === "prefikso") hardPenalty += 2;
+      if (prev && prev.tipo === "radiko"   && kp.tipo === "radiko") hardPenalty += 2;
+      if (prev && prev.tipo === "sufikso"  && kp.tipo === "prefikso") hardPenalty += 2;
+      if (prev && prev.tipo === "sufikso" && kp.tipo === "sufikso") suffixPenalty ++;
+      if (prev && prev.tipo === "sufikso" && kp.tipo === "radiko") suffixPenalty ++;
+
+      if (prev && Array.isArray(kp.antaŭpovas) && kp.antaŭpovas.length) {
+        if (kp.antaŭpovas.includes(prev.teksto) || kp.antaŭpovas.includes(prev.tipo))
+          contextBonus += 3;
+        else hardPenalty += 5;
+      }
+      if (next && Array.isArray(kp.postpovas) && kp.postpovas.length) {
+        if (kp.postpovas.includes(next.teksto) || kp.postpovas.includes(next.tipo))
+          contextBonus += 3;
+        else hardPenalty += 5;
+      }
+    }
+
+    let consSingles = 0;
+    parseArr.forEach(p => {
+      if (singles.has(p.komp.teksto.toLowerCase())) consSingles++;
+    });
+    if( consSingles > 1) {
+      uniquePenalty += consSingles+2;
+    }
+
+    for (let i = 1; i < parseArr.length; i++) {
+      const prevT = parseArr[i-1].komp.tipo;
+      const curT  = parseArr[i].komp.tipo;
+      if (prevT === "radiko" && curT === "radiko") radikoChainPenalty+=2;
+      if (prevT === "sufikso" && curT === "sufikso") suffixPenalty ++ ;
+      if ((prevT === "radiko" && curT === "prefikso") ||
+          (prevT === "sufikso" && curT === "prefikso")) {
+        radikoChainPenalty += 5;
+      }
+    }
+
+    if (parseArr[0].komp.tipo === "prefikso") prefixBonus = 1;
+    if (parseArr[baseCount-1].komp.tipo === "sufikso") suffixPenalty -= 3;
+
+
+    const types = parseArr.map(p => p.komp.tipo);
+    const firstRad = types.indexOf("radiko");
+    const lastRad  = types.lastIndexOf("radiko");
+    if (
+      firstRad > 0 &&
+      types.slice(0, firstRad).every(t => t === "prefikso") &&
+      types.slice(firstRad, lastRad+1).every(t => t === "radiko") &&
+      types.slice(lastRad+1).every(t => t === "sufikso")
+    ) {
+      const numRadikos = lastRad - firstRad + 1;
+      contextBonus += Math.max(0, 3 - (numRadikos - 1));
+    }
+
+
+    /*console.log(`Scoring parse: ${parseArr.map(p => p.komp.teksto).join(" + ")} : ${baseCount
+         - suffixPenalty
+         - radikoChainPenalty
+         + prefixBonus
+         - hardPenalty
+         + contextBonus
+        - uniquePenalty
+      }`);
+    console.log(`Base: ${baseCount}, Suffix Penalty: ${suffixPenalty}, Radiko Chain Penalty: ${radikoChainPenalty}, Prefix Bonus: ${prefixBonus}, Hard Penalty: ${hardPenalty}, Context Bonus: ${contextBonus}, Unique Penalty: ${uniquePenalty}`);
+    */
+   return baseCount
+         - suffixPenalty
+         - radikoChainPenalty
+         + prefixBonus
+         - hardPenalty
+         + contextBonus
+          - uniquePenalty
+  }
+  // Build all parses, pick the best one
+  const allParses = helper(vorto, null, new Set());
+  console.log(`Found ${allParses.length} parses for "${vorto}"`);
+  let best = null, bestScore = -Infinity;
+  for (const p of allParses) {
+    const sc = scoreParse(p);
+    if (sc > bestScore) {
+      bestScore = sc;
+      best     = p;
+    }
+  }
+
+  // Send back the champion (or a failure if none)
+  self.postMessage(
+    best || [{
+      mapado: { tekstero: `❌ ${vorto}`, tipo: "???", difino: "Ne valida sekvo aŭ komponanto" }
+    }]
+  );
 });

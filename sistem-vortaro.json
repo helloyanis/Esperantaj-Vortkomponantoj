@@ -47,8 +47,6 @@
     "teksto": "e",
     "tipo": "sufikso",
     "antaŭpovas": [
-      "radiko",
-      "sufikso"
     ],
     "postpovas": [],
     "difino": "This word is an adverb. This component is simillar to -ly in english (As in \"Greatly\")"
@@ -119,9 +117,7 @@
   {
     "teksto": "u",
     "tipo": "sufikso",
-    "antaŭpovas": [
-      "radiko"
-    ],
+    "antaŭpovas": [],
     "postpovas": [],
     "difino": "This word is a verb conjugated to the imperative, to give an instruction or an order (As in \"Do your homework!\"). If following ki,ti,i,ĉi,neni, this means instead that the word refers to an individual (As in \"Who?\")"
   },
@@ -323,18 +319,14 @@
     "teksto": "ni",
     "tipo": "radiko",
     "antaŭpovas": [],
-    "postpovas": [
-      "sufikso"
-    ],
+    "postpovas": [],
     "difino": "Pronoun. Means \"We\""
   },
   {
     "teksto": "ili",
     "tipo": "radiko",
     "antaŭpovas": [],
-    "postpovas": [
-      "sufikso"
-    ],
+    "postpovas": [],
     "difino": "Pronoun, means \"They\" (As in multiple individuals)"
   },
   {

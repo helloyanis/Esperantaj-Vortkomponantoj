@@ -4,12 +4,17 @@ mal[P]-grand[R]-a[S]-j[S]-n[S]
 malsanulejo
 mal[P]-san[R]-u[S]-l[S]-ej[S]-o[S]
 
-babilemulineto
-babil[R]-em[S]-ul[S]-in[S]-et[S]-o[S]
-
 samideano
 sam-ide-an-o
 
+sentema
 sen-tem-a
 
+neniu
 neni-u
+
+multekosta
+mult-e-kost-a
+
+inkludita
+inklud-it-a

@@ -223,7 +223,6 @@ function montriListon() {
     return; // Se jam estas serĉa panelo, ne ŝanĝu la URL
   }
   url.searchParams.set('panelo', 'listo');
-  url.searchParams.delete('vorto');
   history.pushState({ panelo: 'listo' }, '', url.toString());
 }
 
@@ -272,7 +271,6 @@ function montriSerĉPanelon() {
   appbar.value = 'appbar-serĉi';
   paneloSerĉo.removeAttribute('hidden');
   rezultojSerĉo.innerHTML = '';
-  serĉoVorto.value = '';
   localStorage.setItem('paneloAktiva', 'panelo-serĉo');
   document.title = '🔍 Serĉi • VortKom';
   const url = new URL(location);
@@ -281,6 +279,10 @@ function montriSerĉPanelon() {
   }
   url.searchParams.set('panelo', 'serĉo');
   history.pushState({ panelo: 'serĉo' }, '', url.toString());
+  if(url.searchParams.get('vorto')) {
+    serĉoVorto.value = xSistemonSubstituo(url.searchParams.get('vorto'));
+    serĉiVorto();
+  }
 }
 
 function ŝargiPanelojn() {
