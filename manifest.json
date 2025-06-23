@@ -27,5 +27,35 @@
   "start_url": "/",
   "display": "standalone",
   "theme_color": "#78A75A",
-  "description": "Progressiva ret-aplikaĵo por administri kaj lerni Esperanton per vortkomponantoj."
+  "description": "Progressiva ret-aplikaĵo por administri kaj lerni Esperanton per vortkomponantoj.",
+  "screenshots": [
+  {
+    "src": "assets/bildoj/desktop1.png",
+    "sizes": "7402x3900",
+    "type": "image/png",
+    "form_factor": "wide",
+    "label": "La serĉpanelo montranta la malkomponaĵon de la vorto \"Malgranda\""
+  },
+   {
+    "src": "assets/bildoj/desktop2.png",
+    "sizes": "7402x3900",
+    "type": "image/png",
+    "form_factor": "wide",
+    "label": "La serĉpanelo montranta la liston de komponantojn"
+  },
+    {
+    "src": "assets/bildoj/mobile1.png",
+    "sizes": "1440x3040",
+    "type": "image/png",
+    "form_factor": "narrow",
+    "label": "La serĉpanelo montranta la malkomponaĵon de la vorto \"Malgranda\""
+  },
+   {
+    "src": "assets/bildoj/mobile2.png",
+    "sizes": "1440x3040",
+    "type": "image/png",
+    "form_factor": "narrow",
+    "label": "La serĉpanelo montranta la liston de komponantojn"
+  }
+]
 }
