@@ -6,13 +6,12 @@ const DOSIEROJ_KAJHEĴ = [
   '/index.html',
   '/app.js',
   '/analytics.js',
-  '/translations.js',
   '/sistem-vortaro.json',
   '/web-worker-idb.js',
   '/web-worker-serĉi.js',
   '/manifest.json',
-  '/assets/mdui/mdui.min.css',
-  '/assets/mdui/mdui.min.js',
+  '/assets/mdui/mdui.css',
+  '/assets/mdui/mdui.js',
   '/assets/piktogramoj/icon.svg'
 ];
 
