@@ -404,6 +404,32 @@ async function refreshListoKomponantoj() {
     enportiSistemVortaro.appendChild(enportiSistemVortaroTeksto);
     enportiSistemVortaro.appendChild(enportiSistemVortaroButono);
     listoKomponantojUi.appendChild(enportiSistemVortaro);
+    if(!sessionStorage.getItem('auto-enporto')) {
+      sessionStorage.setItem('auto-enporto', 'true');
+        mdui.confirm({
+        headline: 'Enporti Vortaron',
+        description: 'Komence, ĉi tiu retejo ne enhavas vortaron, do vi povas agordi ĝin laŭplaĉe. Se vi volas, vi povas uzi enkonstruitan Esperanta-angla vortaron!',
+        confirmText: 'Enporti',
+        cancelText: 'Nuligi',
+        onConfirm: async function () {
+          try {
+            await enportiSistemVortaroKomponantojn();
+          } catch (er) {
+            mdui.alert({
+              headline: 'Eraro dum importado:',
+              description: er.message || er,
+              confirmText: 'Komprenis',
+            });
+          }
+        },
+        onCancel: function () {
+          mdui.snackbar({
+            message: 'Neniu vortaro enportita.',
+            closeable: true,
+          });
+        }
+      });
+    }
     return;
   }
   progreso.max = listo.length;
