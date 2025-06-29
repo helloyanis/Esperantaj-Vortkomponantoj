@@ -154,6 +154,8 @@ async function forigiĈiujKomponantoj() {
 
 
 function petiKonstantaStokado() {
+  if (sessionStorage.getItem('persistanta-stokejo-rifuzita')) return;
+  sessionStorage.setItem('persistanta-stokejo-rifuzita', 'true');
   if (navigator.storage && navigator.storage.persist) {
     navigator.storage.persisted().then((persistent) => {
       if (persistent) {
@@ -195,7 +197,7 @@ function kaŝiĈiujPaneloj() {
   paneloListo.setAttribute('hidden', '');
   paneloAldo.setAttribute('hidden', '');
   paneloSerĉo.setAttribute('hidden', '');
-  appbar.value=""
+  appbar.value = ""
   ladoTirilo.removeAttribute('open');
 }
 
@@ -270,7 +272,7 @@ function montriSerĉPanelon() {
   }
   url.searchParams.set('panelo', 'serĉo');
   history.pushState({ panelo: 'serĉo' }, '', url.toString());
-  if(url.searchParams.get('vorto')) {
+  if (url.searchParams.get('vorto')) {
     serĉoVorto.value = xSistemonSubstituo(url.searchParams.get('vorto'));
     serĉiVorto();
   }
@@ -395,9 +397,9 @@ async function refreshListoKomponantoj() {
     enportiSistemVortaro.appendChild(enportiSistemVortaroTeksto);
     enportiSistemVortaro.appendChild(enportiSistemVortaroButono);
     listoKomponantojUi.appendChild(enportiSistemVortaro);
-    if(!sessionStorage.getItem('auto-enporto')) {
+    if (!sessionStorage.getItem('auto-enporto')) {
       sessionStorage.setItem('auto-enporto', 'true');
-        mdui.confirm({
+      mdui.confirm({
         headline: 'Enporti Vortaron',
         description: 'Komence, ĉi tiu retejo ne enhavas vortaron, do vi povas agordi ĝin laŭplaĉe. Se vi volas, vi povas uzi enkonstruitan Esperanta-angla vortaron!',
         confirmText: 'Enporti',
@@ -862,82 +864,82 @@ async function enportiKomponantojn(dosiero = null) {
 
   const legilo = new FileReader();
   legilo.onload = async function (e) {
-  try {
-    const enhavo = JSON.parse(e.target.result); // ✅ Assign parsed data
+    try {
+      const enhavo = JSON.parse(e.target.result); // ✅ Assign parsed data
 
-    if (!Array.isArray(enhavo)) {
-      throw 'Ne taŭga formato: atendata estas tabelo de komponantoj.';
-    }
+      if (!Array.isArray(enhavo)) {
+        throw 'Ne taŭga formato: atendata estas tabelo de komponantoj.';
+      }
 
-    if (listo.length > 0) {
-      mdui.confirm({
-        headline: 'Ĉu vi certas?',
-        description: 'Enporti novajn komponantojn forigos ĉiujn ekzistantajn komponantojn. Ĉu vi daŭrigi?',
-        confirmText: 'Daŭrigi',
-        cancelText: 'Nuligi',
-        onConfirm: async function () {
-          try {
-            listoKomponantojUi.innerHTML = '';
-            listoKomponantojUi.appendChild(progreso);
-            progreso.style.display = 'block';
-            progreso.indeterminate = true;
-            progreso.removeAttribute("value");
+      if (listo.length > 0) {
+        mdui.confirm({
+          headline: 'Ĉu vi certas?',
+          description: 'Enporti novajn komponantojn forigos ĉiujn ekzistantajn komponantojn. Ĉu vi daŭrigi?',
+          confirmText: 'Daŭrigi',
+          cancelText: 'Nuligi',
+          onConfirm: async function () {
+            try {
+              listoKomponantojUi.innerHTML = '';
+              listoKomponantojUi.appendChild(progreso);
+              progreso.style.display = 'block';
+              progreso.indeterminate = true;
+              progreso.removeAttribute("value");
 
-            await forigiĈiujKomponantoj();
-            progreso.indeterminate = false;
-            progreso.max = enhavo.length;
-            progreso.value = 0;
+              await forigiĈiujKomponantoj();
+              progreso.indeterminate = false;
+              progreso.max = enhavo.length;
+              progreso.value = 0;
 
-            await aldoniKomponantojn(enhavo); // Assuming this updates progreso.value as needed
+              await aldoniKomponantojn(enhavo); // Assuming this updates progreso.value as needed
 
-            progreso.style.display = 'none';
-            mdui.snackbar({
-              message: 'Komponantoj enportitaj.',
-              closeable: true
-            });
-            montriListon();
-          } catch (innerError) {
-            console.error('Eraro dum enporto:', innerError);
-            mdui.alert({
-              headline: 'Eraro dum enporto',
-              description: innerError.message || innerError,
-              confirmText: 'Komprenis'
-            });
-          } finally {
-            butonoAlŝuti.loading = false;
+              progreso.style.display = 'none';
+              mdui.snackbar({
+                message: 'Komponantoj enportitaj.',
+                closeable: true
+              });
+              montriListon();
+            } catch (innerError) {
+              console.error('Eraro dum enporto:', innerError);
+              mdui.alert({
+                headline: 'Eraro dum enporto',
+                description: innerError.message || innerError,
+                confirmText: 'Komprenis'
+              });
+            } finally {
+              butonoAlŝuti.loading = false;
+            }
           }
-        }
-      });
-    } else {
-      // No need for confirmation, just proceed directly
-      progreso.style.display = 'block';
-      progreso.indeterminate = true;
-      progreso.removeAttribute("value");
+        });
+      } else {
+        // No need for confirmation, just proceed directly
+        progreso.style.display = 'block';
+        progreso.indeterminate = true;
+        progreso.removeAttribute("value");
 
-      await forigiĈiujKomponantoj();
-      progreso.indeterminate = false;
-      progreso.max = enhavo.length;
-      progreso.value = 0;
+        await forigiĈiujKomponantoj();
+        progreso.indeterminate = false;
+        progreso.max = enhavo.length;
+        progreso.value = 0;
 
-      await aldoniKomponantojn(enhavo);
-      progreso.style.display = 'none';
-      mdui.snackbar({
-        message: 'Komponantoj enportitaj.',
-        closeable: true
+        await aldoniKomponantojn(enhavo);
+        progreso.style.display = 'none';
+        mdui.snackbar({
+          message: 'Komponantoj enportitaj.',
+          closeable: true
+        });
+        montriListon();
+      }
+
+    } catch (er) {
+      console.error('Eraro dum legado de dosiero:', er);
+      butonoAlŝuti.loading = false;
+      mdui.alert({
+        headline: 'Eraro en enporti JSON:',
+        description: er.message || er,
+        confirmText: 'Komprenis'
       });
-      montriListon();
     }
-
-  } catch (er) {
-    console.error('Eraro dum legado de dosiero:', er);
-    butonoAlŝuti.loading = false;
-    mdui.alert({
-      headline: 'Eraro en enporti JSON:',
-      description: er.message || er,
-      confirmText: 'Komprenis'
-    });
-  }
-};
+  };
 
   legilo.readAsText(dosiero, 'UTF-8');
 }
