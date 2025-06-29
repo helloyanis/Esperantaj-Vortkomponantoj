@@ -2,6 +2,8 @@
 
 An unique system to decompose words in Esperanto, to see their different parts and what they mean!
 
+<img src="https://github.com/user-attachments/assets/0272a128-99cf-4503-a98f-c9b1996353c7" width="500">
+
 ## https://vortkom.🦊💻.ws/
 
 For instructions on how to use, check the [wiki page](https://github.com/helloyanis/Esperantaj-Vortkomponantoj/wiki)
