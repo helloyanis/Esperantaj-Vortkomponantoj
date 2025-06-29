@@ -26,6 +26,7 @@
   },
   "start_url": "/",
   "display": "standalone",
+  "background_color": "#00000000",
   "theme_color": "#78A75A",
   "description": "Progressiva ret-aplikaĵo por administri kaj lerni Esperanton per vortkomponantoj.",
   "screenshots": [
