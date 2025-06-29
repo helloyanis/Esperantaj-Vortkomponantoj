@@ -5,7 +5,6 @@ const DOSIEROJ_KAJHEĴ = [
   '/', 
   '/index.html',
   '/app.js',
-  '/analytics.js',
   '/sistem-vortaro.json',
   '/web-worker-idb.js',
   '/web-worker-serĉi.js',

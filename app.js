@@ -159,27 +159,17 @@ function petiKonstantaStokado() {
       if (persistent) {
         console.log("✅ La stokejo estas persista.");
       } else {
-        if (sessionStorage.getItem('persistanta-stokejo-rifuzita')) return;
-        sessionStorage.setItem('persistanta-stokejo-rifuzita', 'true');
-        mdui.confirm({
-          headline: 'Ebligu Persistantan Stokejon',
-          description: 'Ĉu vi volas ebligi persistan stokejon por konservi viajn komponantojn eĉ post fermo de la retumilo? Ĉi tio helpas konservi viajn komponantojn sen perdi ilin.',
-          confirmText: '✅ Ebligi',
-          cancelText: '❌ Nuligi',
-          onConfirm: function () {
-            navigator.storage.persist().then((persisted) => {
-              if (persisted) {
-                mdui.snackbar({
-                  message: 'Persistanta stokejo ebligita.',
-                  closeable: true,
-                });
-              } else {
-                mdui.confirm({
-                  headline: 'Eraro',
-                  description: 'Eraro dum ebligado de konstanta stokado. Via retumilo eble ne estas subtenata (ĉu provu Firefox?), aŭ eble vi retumas en privata reĝimo. Se la stoka spaco de via aparato malpleniĝas, via retumilo eble forigos datumojn de ĉi tiu retejo por krei spacon.',
-                  confirmText: 'Komprenis',
-                });
-              }
+        navigator.storage.persist().then((persisted) => {
+          if (persisted) {
+            mdui.snackbar({
+              message: 'Persistanta stokejo .',
+              closeable: true,
+            });
+          } else {
+            mdui.alert({
+              headline: 'Konstanta stokado ne permesita',
+              description: 'Eraro dum permesante la konstanta stokado. Via retumilo eble ne estas subtenata (ĉu provu Firefox?), aŭ eble vi retumas en privata reĝimo. Se la stoka spaco de via aparato malpleniĝas, via retumilo eble forigos datumojn de ĉi tiu retejo por krei spacon.',
+              confirmText: 'Komprenis',
             });
           }
         });
