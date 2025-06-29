@@ -12,7 +12,7 @@ const DOSIEROJ_KAJHEĴ = [
   '/assets/mdui/mdui.css',
   '/assets/mdui/mdui.js',
   '/assets/piktogramoj/icon.svg',
-  './well-known/assetlinks.json',
+  '/.well-known/assetlinks.json',
 ];
 
 // Instalaperiodo: kaŝmemoru la ĉefajn dosierojn
