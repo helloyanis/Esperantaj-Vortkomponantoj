@@ -11,6 +11,7 @@
 
 'use strict';
 
+document.querySelector('#js-averto').remove(); // Forigi la averton kiam la paĝo estas ŝargita
 
 // -----------------------------
 // <1> Difino de ŝlosiloj kaj referencoj
