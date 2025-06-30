@@ -10,12 +10,12 @@ For instructions on how to use, check the [wiki page](https://github.com/helloya
 
 Features :
 
-- 👀 See how a word you find is build! You can know its meaning from understanding how the components are built!
-- 📖 A build-in, fully-featured Esperanto-English dictionnary!
+- 👀 See how a word you find is built! You can know its meaning from understanding how the components are built!
+- 📖 A built-in, fully-featured Esperanto-English dictionnary!
 - 🎨 A clean material design interface, with light and dark themes based on your system.
 - 🏗️ A way to add, edit and delete word components to which you can give a definition, or a translation in another language
 - 💻 Local only, doesn't need a server to run, can even be installed as an app on your device to work offline!
-- 🔍 Smart search, will automatically detect if it's either a component or a word you're looking for, and display the results accordingly
+- 🔍 Smart search, will automatically detect if it's either a component or a word you're looking for, and display the best match accordingly
 - ⚡ Made to be able to work fast with large amounts of data. Loading times when searching should be minimal unless you have a super-large data dictionnary or run this on a potato!
 - 📲 You can create and edit your own dictionnary, as well as export it for others to use!
 
@@ -26,6 +26,10 @@ Which means for example you don't need to learn "Kio", "Nenio", "ĉio" etc, all 
 So with mine you can see that it's built in 2 parts, and if you see that part later in another word you can remember that it was already used in another word before!
 
 Instead of `Word = meaning` you get `Word = part 1 + part 2 + part 3`, `part 1 = this`, `part 2 = that`, etc..."
+
+Third party libraries :
+
+- [MDUI](https://github.com/zdhxiong/mdui) for the interface design
 
 ---
 
@@ -53,3 +57,7 @@ Kio ​​signifas, ekzemple, ke vi ne bezonas lerni "Kio", "Nenio", "ĉio"..., 
 Do kun la mia vi povas vidi, ke ĝi estas konstruita en 2 partoj, kaj se vi vidas tiun parton poste en alia vorto, vi povas memori, ke ĝi jam estis uzita en alia vorto antaŭe!
 
 Anstataŭ `Vorto = signifo` vi ricevas `Vorto = parto 1 + parto 2 + parto 3`, `parto 1 = ĉi tiu`, `parto 2 = tiu`..."
+
+Triapartaj bibliotekoj:
+
+- [MDUI](https://github.com/zdhxiong/mdui) por la interfaca dezajno
