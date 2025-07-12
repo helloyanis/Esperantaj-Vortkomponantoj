@@ -47,6 +47,7 @@
     "teksto": "e",
     "tipo": "sufikso",
     "antaŭpovas": [
+      "radiko"
     ],
     "postpovas": [],
     "difino": "This word is an adverb. This component is simillar to -ly in english (As in \"Greatly\")"
@@ -100,6 +101,15 @@
     ],
     "postpovas": [],
     "difino": "This word is a verb conjugated to the subjunctive."
+  },
+  {
+    "teksto": "is",
+    "tipo": "sufikso",
+    "antaŭpovas": [
+      "radiko"
+    ],
+    "postpovas": [],
+    "difino": "This word is a verb conjugated to the past (As in \"I ate a nice meal\")"
   },
   {
     "teksto": "u",

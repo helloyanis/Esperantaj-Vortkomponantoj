@@ -715,7 +715,7 @@ async function serĉiVorto() {
   url.searchParams.set('vorto', teksto);
   url.searchParams.set('panelo', 'serĉo');
   history.replaceState({ panelo: 'serĉo', vorto: teksto }, '', url.toString());
-  rezultojSerĉo.innerHTML = '<mdui-circular-progress></mdui-circular-progress>';
+  rezultojSerĉo.innerHTML = `<h3>Dekomponado de “${teksto}”:</h3><mdui-circular-progress></mdui-circular-progress>`;
   const listoK = listo
   const ekzKom = listoK.find((kp) => kp.teksto.toLowerCase() === teksto);
 
@@ -728,16 +728,12 @@ async function serĉiVorto() {
   workerSerĉi.postMessage({ vorto: teksto, komponantoj: listoK });
 
   workerSerĉi.onmessage = function (e) {
-    rezultojSerĉo.innerHTML = ''; // purigu antaŭe
+    rezultojSerĉo.innerHTML = `<h3>Dekomponado de “${teksto}”:</h3>`; // purigu antaŭe
     const deko = e.data;
     if (deko.length === 0) {
       rezultojSerĉo.innerHTML = 'Neniaj rezultoj trovita.';
       return;
     }
-
-    const titolo = document.createElement('h3');
-    titolo.textContent = `Dekomponado de “${teksto}”:`;
-    rezultojSerĉo.appendChild(titolo);
 
     montriĈipojn(deko);
   };

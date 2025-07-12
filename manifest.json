@@ -32,14 +32,14 @@
   "screenshots": [
   {
     "src": "assets/bildoj/desktop1.png",
-    "sizes": "7402x3900",
+    "sizes": "2160x1620",
     "type": "image/png",
     "form_factor": "wide",
-    "label": "La serĉpanelo montranta la malkomponaĵon de la vorto \"Malgranda\""
+    "label": "La serĉpanelo montranta la malkomponaĵon de la vorto \"Malgrandajn\""
   },
    {
     "src": "assets/bildoj/desktop2.png",
-    "sizes": "7402x3900",
+    "sizes": "2160x1620",
     "type": "image/png",
     "form_factor": "wide",
     "label": "La serĉpanelo montranta la liston de komponantojn"
@@ -49,7 +49,7 @@
     "sizes": "1440x3040",
     "type": "image/png",
     "form_factor": "narrow",
-    "label": "La serĉpanelo montranta la malkomponaĵon de la vorto \"Malgranda\""
+    "label": "La serĉpanelo montranta la malkomponaĵon de la vorto \"Malgrandajn\""
   },
    {
     "src": "assets/bildoj/mobile2.png",
