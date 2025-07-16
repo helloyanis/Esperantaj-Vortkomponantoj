@@ -9,6 +9,7 @@ const DOSIEROJ_KAJHEĴ = [
   '/web-worker-idb.js',
   '/web-worker-serĉi.js',
   '/manifest.json',
+  '/opensearch.xml',
   '/assets/mdui/mdui.css',
   '/assets/mdui/mdui.js',
   '/assets/piktogramoj/icon.svg',
