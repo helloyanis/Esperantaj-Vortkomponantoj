@@ -211,12 +211,9 @@ function montriListon() {
   appbar.value = 'appbar-listo-komponantoj';
   localStorage.setItem('paneloAktiva', 'panelo-listo');
   document.title = '📜 Listo • VortKom';
+  refreshListoKomponantoj()
   const url = new URL(location);
-  if (url.searchParams.get('panelo') === 'listo') {
-    return; // Se jam estas serĉa panelo, ne ŝanĝu la URL
-  }
   url.searchParams.delete('deko');
-  refreshListoKomponantoj();
   url.searchParams.set('panelo', 'listo');
   history.pushState({ panelo: 'listo' }, '', url.toString());
 }
@@ -801,6 +798,16 @@ function montriĈipojn(deko) {
   </mdui-icon>`;
   butonoDiskonigi.onclick = () => diskonigiURL(deko);
   rezultoFaroj.appendChild(butonoDiskonigi);
+    // Add copy button
+  const butonoKopii = document.createElement('mdui-button-icon');
+  butonoKopii.alt = 'Kopii ligilon';
+  butonoKopii.style.marginLeft = '10px';
+  butonoKopii.variant = 'tonal';
+  butonoKopii.innerHTML = `<mdui-icon>
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960"><path d="M440-280H280q-83 0-141.5-58.5T80-480q0-83 58.5-141.5T280-680h160v80H280q-50 0-85 35t-35 85q0 50 35 85t85 35h160v80ZM320-440v-80h320v80H320Zm200 160v-80h160q50 0 85-35t35-85q0-50-35-85t-85-35H520v-80h160q83 0 141.5 58.5T880-480q0 83-58.5 141.5T680-280H520Z"/></svg>
+  </mdui-icon>`;
+  butonoKopii.onclick = () => kopiiURL(deko);
+  rezultoFaroj.appendChild(butonoKopii);
 }
 
 function montriKarton(komp, mapado) {
@@ -1040,6 +1047,37 @@ function malaktiviInAppInstaliPrompt() {
   instaliPrompt = null;
   instaliButono.setAttribute("style", "display: none;");
 }
+
+function kopiiURL(deko) {
+  const vorto = serĉoVorto.value.trim();
+  const dekoData = deko.map(ero => ({
+    tekstero: ero.mapado.tekstero,
+    tipo: ero.komp ? ero.komp.tipo : null,
+    difino: ero.komp ? ero.komp.difino : null
+  }));
+
+  const dekoJSON = JSON.stringify(dekoData);
+  const dekoEncoded = encodeURIComponent(dekoJSON);
+
+  const baseUrl = window.location.origin + window.location.pathname;
+  const url = new URL(baseUrl);
+  url.searchParams.set('panelo', 'serĉo');
+  url.searchParams.set('vorto', vorto);
+  url.searchParams.set('deko', dekoEncoded);
+  navigator.clipboard.writeText(url.toString()).then(() => {
+    mdui.snackbar({
+      message: 'Ligilo kopiita al tondujo',
+      closeable: true
+    });
+  }).catch(err => {
+    console.error('Ne eblis kopii al tondujo: ', err);
+    mdui.alert({
+      headline: 'Eraro dum kopio al tondujo',
+      description: err.message || err,
+      confirmText: 'Komprenis'
+    });
+  });
+}
 function diskonigiURL(deko) {
   const vorto = serĉoVorto.value.trim();
   const dekoData = deko.map(ero => ({
@@ -1056,7 +1094,6 @@ function diskonigiURL(deko) {
   url.searchParams.set('panelo', 'serĉo');
   url.searchParams.set('vorto', vorto);
   url.searchParams.set('deko', dekoEncoded);
-
   navigator.share({
     title: `Dekomponado de “${vorto}”`,
     text: `Jen la dekomponado de la vorto “${vorto}”:`,
@@ -1118,10 +1155,6 @@ function displayDecompositionFromURL(vorto, dekoData) {
     };
   });
   rezultojSerĉo.appendChild(kartoj);
-  const butonoDiskonigi = document.createElement('mdui-button');
-  butonoDiskonigi.textContent = 'Kuniĝi Ligilon';
-  butonoDiskonigi.onclick = () => legiURLFromData(vorto, dekoData);
-  rezultojSerĉo.appendChild(butonoDiskonigi);
   document.title = `🔍 Serĉo de ${vorto} • VortKom`;
 }
 
