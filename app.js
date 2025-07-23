@@ -47,6 +47,7 @@ const butonoNuligi = document.getElementById('butono-nuligi');
 
 const serĉoVorto = document.getElementById('serĉo-vorto');
 const rezultojSerĉo = document.getElementById('rezultoj-serĉo');
+const rezultoFaroj = document.getElementById('rezulto-faroj');
 
 const butonoAlŝuti = document.getElementById('menu-enporti');
 const butonoEkspremi = document.getElementById('menu-elporti');
@@ -208,13 +209,14 @@ function montriListon() {
   listoIndekso = 0; // Reset the index when showing the list
   paneloListo.removeAttribute('hidden');
   appbar.value = 'appbar-listo-komponantoj';
-  refreshListoKomponantoj();
   localStorage.setItem('paneloAktiva', 'panelo-listo');
   document.title = '📜 Listo • VortKom';
   const url = new URL(location);
   if (url.searchParams.get('panelo') === 'listo') {
     return; // Se jam estas serĉa panelo, ne ŝanĝu la URL
   }
+  url.searchParams.delete('deko');
+  refreshListoKomponantoj();
   url.searchParams.set('panelo', 'listo');
   history.pushState({ panelo: 'listo' }, '', url.toString());
 }
@@ -233,6 +235,7 @@ function montriAldonPanelon() {
   if (url.searchParams.get('panelo') === 'aldo') {
     return; // Se jam estas serĉa panelo, ne ŝanĝu la URL
   }
+  url.searchParams.delete('deko');
   url.searchParams.set('panelo', 'aldo');
   url.searchParams.delete('vorto');
   history.pushState({ panelo: 'aldo' }, '', url.toString());
@@ -263,13 +266,13 @@ function montriSerĉPanelon() {
   kaŝiĈiujPaneloj();
   appbar.value = 'appbar-serĉi';
   paneloSerĉo.removeAttribute('hidden');
-  rezultojSerĉo.innerHTML = '';
   localStorage.setItem('paneloAktiva', 'panelo-serĉo');
   document.title = '🔍 Serĉi • VortKom';
   const url = new URL(location);
   if (url.searchParams.get('panelo') === 'serĉo') {
     return; // Se jam estas serĉa panelo, ne ŝanĝu la URL
   }
+  rezultojSerĉo.innerHTML = '';
   url.searchParams.set('panelo', 'serĉo');
   history.pushState({ panelo: 'serĉo' }, '', url.toString());
   if (url.searchParams.get('vorto')) {
@@ -293,7 +296,18 @@ function ŝargiPanelojn() {
         montriSerĉPanelon();
         if (url.searchParams.get('vorto')) {
           serĉoVorto.value = xSistemonSubstituo(url.searchParams.get('vorto'));
-          serĉiVorto();
+          const dekoParam = url.searchParams.get('deko');
+          if (dekoParam) {
+            try {
+              const dekoData = JSON.parse(decodeURIComponent(dekoParam));
+              displayDecompositionFromURL(serĉoVorto.value, dekoData);
+            } catch (e) {
+              console.error('Error parsing decomposition data:', e);
+              serĉiVorto();
+            }
+          } else {
+            serĉiVorto();
+          }
         }
         break;
       default:
@@ -695,6 +709,7 @@ const workerSerĉi = new Worker('web-worker-serĉi.js');
 serĉoVorto.addEventListener('input', serĉiVorto);
 
 async function serĉiVorto() {
+  new URL(location).searchParams.delete('deko');
   if (!listo.length) {
     mdui.alert({
       headline: 'Neniu komponanto disponebla',
@@ -709,6 +724,7 @@ async function serĉiVorto() {
   serĉoVorto.value = xSistemonSubstituo(serĉoVorto.value)
   const teksto = serĉoVorto.value.trim().toLowerCase();
   document.getElementById('rezulto-karto').innerHTML = '';
+  rezultoFaroj.innerHTML = '';
   if (!teksto) return rezultojSerĉo.innerHTML = 'Bonvolu enigi vorton por serĉi.';
   document.title = `🔍 Serĉo de ${teksto} • VortKom`;
   const url = new URL(location);
@@ -744,6 +760,7 @@ function montriĈipojn(deko) {
   kartoj.style.display = 'flex';
   kartoj.style.flexWrap = 'wrap';
   kartoj.id = 'chip-container';
+  
   deko.forEach((ero, index) => {
     const tooltip = document.createElement('mdui-tooltip');
     const chip = document.createElement('mdui-chip');
@@ -775,6 +792,15 @@ function montriĈipojn(deko) {
     kartoj.appendChild(tooltip);
   });
   rezultojSerĉo.appendChild(kartoj);
+      // Add share button
+  const butonoDiskonigi = document.createElement('mdui-button-icon');
+  butonoDiskonigi.alt = 'Diskonigi Vorton';
+  butonoDiskonigi.variant = 'tonal';
+  butonoDiskonigi.innerHTML = `<mdui-icon>
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960"><path d="M680-80q-50 0-85-35t-35-85q0-6 3-28L282-392q-16 15-37 23.5t-45 8.5q-50 0-85-35t-35-85q0-50 35-85t85-35q24 0 45 8.5t37 23.5l281-164q-2-7-2.5-13.5T560-760q0-50 35-85t85-35q50 0 85 35t35 85q0 50-35 85t-85 35q-24 0-45-8.5T598-672L317-508q2 7 2.5 13.5t.5 14.5q0 8-.5 14.5T317-452l281 164q16-15 37-23.5t45-8.5q50 0 85 35t35 85q0 50-35 85t-85 35Zm0-80q17 0 28.5-11.5T720-200q0-17-11.5-28.5T680-240q-17 0-28.5 11.5T640-200q0 17 11.5 28.5T680-160ZM200-440q17 0 28.5-11.5T240-480q0-17-11.5-28.5T200-520q-17 0-28.5 11.5T160-480q0 17 11.5 28.5T200-440Zm480-280q17 0 28.5-11.5T720-760q0-17-11.5-28.5T680-800q-17 0-28.5 11.5T640-760q0 17 11.5 28.5T680-720Zm0 520ZM200-480Zm480-280Z"/></svg>
+  </mdui-icon>`;
+  butonoDiskonigi.onclick = () => diskonigiURL(deko);
+  rezultoFaroj.appendChild(butonoDiskonigi);
 }
 
 function montriKarton(komp, mapado) {
@@ -1014,6 +1040,114 @@ function malaktiviInAppInstaliPrompt() {
   instaliPrompt = null;
   instaliButono.setAttribute("style", "display: none;");
 }
+function diskonigiURL(deko) {
+  const vorto = serĉoVorto.value.trim();
+  const dekoData = deko.map(ero => ({
+    tekstero: ero.mapado.tekstero,
+    tipo: ero.komp ? ero.komp.tipo : null,
+    difino: ero.komp ? ero.komp.difino : null
+  }));
+
+  const dekoJSON = JSON.stringify(dekoData);
+  const dekoEncoded = encodeURIComponent(dekoJSON);
+
+  const baseUrl = window.location.origin + window.location.pathname;
+  const url = new URL(baseUrl);
+  url.searchParams.set('panelo', 'serĉo');
+  url.searchParams.set('vorto', vorto);
+  url.searchParams.set('deko', dekoEncoded);
+
+  navigator.share({
+    title: `Dekomponado de “${vorto}”`,
+    text: `Jen la dekomponado de la vorto “${vorto}”:`,
+    url: url.toString()
+  }).then(() => {
+    // mdui.snackbar({
+    //   message: 'Ligilo kopiita al tondujo',
+    //   closeable: true
+    // });
+  }).catch(err => {
+    console.error('Ne eblis kopii al tondujo: ', err);
+    mdui.alert({
+      headline: 'Eraro dum kopio al tondujo',
+      description: err.message || err,
+      confirmText: 'Komprenis'
+    });
+  });
+}
+
+function displayDecompositionFromURL(vorto, dekoData) {
+  rezultojSerĉo.innerHTML = `<h3>Dekomponado de “${vorto}”:</h3>`;
+  const kartoj = document.createElement('div');
+  kartoj.style.display = 'flex';
+  kartoj.style.flexWrap = 'wrap';
+  kartoj.id = 'chip-container';
+  dekoData.forEach((ero, index) => {
+    const tooltip = document.createElement('mdui-tooltip');
+    const chip = document.createElement('mdui-chip');
+    chip.setAttribute('variant', 'filter');
+    chip.classList.add('chip-selectable');
+    chip.dataset.index = index;
+    chip.textContent = ero.tekstero;
+    if (ero.difino) {
+      tooltip.setAttribute('content', ero.difino);
+      tooltip.placement = "top-start";
+    } else {
+      tooltip.setAttribute('content', 'Nevalida');
+    }
+    tooltip.appendChild(chip);
+    kartoj.appendChild(tooltip);
+    chip.onclick = () => {
+      document.querySelectorAll('.chip-selectable').forEach(c => c.removeAttribute('selected'));
+      chip.setAttribute('selected', '');
+      const container = document.getElementById('rezulto-karto');
+      container.innerHTML = '';
+      const karto = document.createElement('mdui-card');
+      karto.variant = 'filled';
+      karto.style.padding = '10px';
+      karto.style.width = '100%';
+      const title = document.createElement('h3');
+      title.textContent = `${ero.tekstero} (${ero.tipo || 'nekonata'})`;
+      karto.appendChild(title);
+      if (ero.difino) {
+        const difinoPara = document.createElement('p');
+        difinoPara.textContent = ero.difino;
+        karto.appendChild(difinoPara);
+      }
+      container.appendChild(karto);
+    };
+  });
+  rezultojSerĉo.appendChild(kartoj);
+  const butonoDiskonigi = document.createElement('mdui-button');
+  butonoDiskonigi.textContent = 'Kuniĝi Ligilon';
+  butonoDiskonigi.onclick = () => legiURLFromData(vorto, dekoData);
+  rezultojSerĉo.appendChild(butonoDiskonigi);
+  document.title = `🔍 Serĉo de ${vorto} • VortKom`;
+}
+
+function legiURLFromData(vorto, dekoData) {
+  const dekoJSON = JSON.stringify(dekoData);
+  const dekoEncoded = encodeURIComponent(dekoJSON);
+  const baseUrl = window.location.origin + window.location.pathname;
+  const url = new URL(baseUrl);
+  url.searchParams.set('panelo', 'serĉo');
+  url.searchParams.set('vorto', vorto);
+  url.searchParams.set('deko', dekoEncoded);
+  navigator.clipboard.writeText(url.toString()).then(() => {
+    mdui.snackbar({
+      message: 'Ligilo kopiita al tondujo',
+      closeable: true
+    });
+  }).catch(err => {
+    console.error('Ne eblis kopii al tondujo: ', err);
+    mdui.alert({
+      headline: 'Eraro dum kopio al tondujo',
+      description: err.message || err,
+      confirmText: 'Komprenis'
+    });
+  });
+}
+
 document.addEventListener('DOMContentLoaded', async () => {
   mdui.setColorScheme("#78A75A");
   document.querySelector('#progreso').removeAttribute('style');

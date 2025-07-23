@@ -41,7 +41,7 @@
     <!-- Top App Bar -->
      <span id="js-averto">Nun ŝarĝiĝas. Se vi vidas ĉi tiun mesaĝon dum longa tempo, bonvolu kontroli, ke JavaScript estas ebligita kaj ke via retkonekto estas stabila.</span>
     <mdui-top-app-bar>
-        <mdui-button-icon onclick="toggleDrawer()">
+        <mdui-button-icon alt="Malfermi flanka menuo" onclick="toggleDrawer()">
             <mdui-icon>
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960">
                     <path d="M120-240v-80h720v80H120Zm0-200v-80h720v80H120Zm0-200v-80h720v80H120Z" />
@@ -56,7 +56,7 @@
     <mdui-navigation-drawer id="lado-tirilo">
         <mdui-list>
             <mdui-list-item nonclickable id="fermi-tirilo">
-                <mdui-button-icon slot="end-icon" onclick="toggleDrawer()">
+                <mdui-button-icon slot="end-icon" alt="Fermi flanka menuo" onclick="toggleDrawer()">
                     <mdui-icon>
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960">
                             <path
@@ -115,6 +115,36 @@
             </mdui-list-item>
         </mdui-list>
     </mdui-navigation-drawer>
+
+    
+    <mdui-bottom-app-bar fab-detach scroll-behavior="hide" scroll-threshold="30">
+        <mdui-navigation-bar id="appbar-nav">
+            <mdui-navigation-bar-item value="appbar-listo-komponantoj">Listo
+                <mdui-icon slot="icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960">
+                        <path
+                            d="M320-280q17 0 28.5-11.5T360-320q0-17-11.5-28.5T320-360q-17 0-28.5 11.5T280-320q0 17 11.5 28.5T320-280Zm0-160q17 0 28.5-11.5T360-480q0-17-11.5-28.5T320-520q-17 0-28.5 11.5T280-480q0 17 11.5 28.5T320-440Zm0-160q17 0 28.5-11.5T360-640q0-17-11.5-28.5T320-680q-17 0-28.5 11.5T280-640q0 17 11.5 28.5T320-600Zm120 320h240v-80H440v80Zm0-160h240v-80H440v80Zm0-160h240v-80H440v80ZM200-120q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h560q33 0 56.5 23.5T840-760v560q0 33-23.5 56.5T760-120H200Zm0-80h560v-560H200v560Zm0-560v560-560Z" />
+                    </svg>
+                </mdui-icon>
+            </mdui-navigation-bar-item>
+            <mdui-navigation-bar-item value="appbar-aldonu-nova">Aldoni
+                <mdui-icon slot="icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960">
+                        <path
+                            d="M440-280h80v-160h160v-80H520v-160h-80v160H280v80h160v160Zm40 200q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Zm0-80q134 0 227-93t93-227q0-134-93-227t-227-93q-134 0-227 93t-93 227q0 134 93 227t227 93Zm0-320Z" />
+                    </svg>
+                </mdui-icon>
+            </mdui-navigation-bar-item>
+            <mdui-navigation-bar-item value="appbar-serĉi">Serĉi
+                <mdui-icon slot="icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960">
+                        <path
+                            d="M784-120 532-372q-30 24-69 38t-83 14q-109 0-184.5-75.5T120-580q0-109 75.5-184.5T380-840q109 0 184.5 75.5T640-580q0 44-14 83t-38 69l252 252-56 56ZM380-400q75 0 127.5-52.5T560-580q0-75-52.5-127.5T380-760q-75 0-127.5 52.5T200-580q0 75 52.5 127.5T380-400Z" />
+                    </svg>
+                </mdui-icon>
+            </mdui-navigation-bar-item>
+        </mdui-navigation-bar>
+    </mdui-bottom-app-bar>
 
     <!-- Main Content -->
     <mdui-linear-progress id="progreso" indeterminate style="display: none;"></mdui-linear-progress>
@@ -187,7 +217,7 @@
         <!-- Search/Decompose Panel -->
         <section id="panelo-serĉo" hidden>
             <h2>Serĉi Vorton aŭ komponanton</h2>
-            <mdui-text-field label="Entajpu radikon aŭ tutan vorton" id="serĉo-vorto">
+            <mdui-text-field label="Entajpu radikon aŭ tutan vorton" id="serĉo-vorto" clearable>
                 <mdui-icon slot="icon">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960">
                         <path
@@ -197,36 +227,8 @@
             </mdui-text-field>
             <div id="rezultoj-serĉo" style="margin-top: 24px;"></div>
             <div id="rezulto-karto" style="margin-top: 1em; width: 100%;"></div>
+            <div id="rezulto-faroj" style="margin-top: 1em; width: 100%;"></div>
         </section>
-
-        <mdui-bottom-app-bar fab-detach scroll-behavior="hide" scroll-threshold="30">
-            <mdui-navigation-bar id="appbar-nav">
-                <mdui-navigation-bar-item value="appbar-listo-komponantoj">Listo
-                    <mdui-icon slot="icon">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960">
-                            <path
-                                d="M320-280q17 0 28.5-11.5T360-320q0-17-11.5-28.5T320-360q-17 0-28.5 11.5T280-320q0 17 11.5 28.5T320-280Zm0-160q17 0 28.5-11.5T360-480q0-17-11.5-28.5T320-520q-17 0-28.5 11.5T280-480q0 17 11.5 28.5T320-440Zm0-160q17 0 28.5-11.5T360-640q0-17-11.5-28.5T320-680q-17 0-28.5 11.5T280-640q0 17 11.5 28.5T320-600Zm120 320h240v-80H440v80Zm0-160h240v-80H440v80Zm0-160h240v-80H440v80ZM200-120q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h560q33 0 56.5 23.5T840-760v560q0 33-23.5 56.5T760-120H200Zm0-80h560v-560H200v560Zm0-560v560-560Z" />
-                        </svg>
-                    </mdui-icon>
-                </mdui-navigation-bar-item>
-                <mdui-navigation-bar-item value="appbar-aldonu-nova">Aldoni
-                    <mdui-icon slot="icon">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960">
-                            <path
-                                d="M440-280h80v-160h160v-80H520v-160h-80v160H280v80h160v160Zm40 200q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Zm0-80q134 0 227-93t93-227q0-134-93-227t-227-93q-134 0-227 93t-93 227q0 134 93 227t227 93Zm0-320Z" />
-                        </svg>
-                    </mdui-icon>
-                </mdui-navigation-bar-item>
-                <mdui-navigation-bar-item value="appbar-serĉi">Serĉi
-                    <mdui-icon slot="icon">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960">
-                            <path
-                                d="M784-120 532-372q-30 24-69 38t-83 14q-109 0-184.5-75.5T120-580q0-109 75.5-184.5T380-840q109 0 184.5 75.5T640-580q0 44-14 83t-38 69l252 252-56 56ZM380-400q75 0 127.5-52.5T560-580q0-75-52.5-127.5T380-760q-75 0-127.5 52.5T200-580q0 75 52.5 127.5T380-400Z" />
-                        </svg>
-                    </mdui-icon>
-                </mdui-navigation-bar-item>
-            </mdui-navigation-bar>
-        </mdui-bottom-app-bar>
     </main>
 
     <!-- Main Application Script -->
