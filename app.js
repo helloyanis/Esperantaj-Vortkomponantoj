@@ -756,6 +756,7 @@ function montriĈipojn(deko) {
   kartoj.style.display = 'flex';
   kartoj.style.flexWrap = 'wrap';
   kartoj.id = 'chip-container';
+  kartoj.style.marginBottom = '28px';
   
   deko.forEach((ero, index) => {
     const tooltip = document.createElement('mdui-tooltip');
@@ -1059,7 +1060,7 @@ function kopiiURL(deko) {
   const dekoJSON = JSON.stringify(dekoData);
   const dekoEncoded = encodeURIComponent(dekoJSON);
 
-  const baseUrl = window.location.origin + window.location.pathname;
+  const baseUrl = "https://vortkom.🦊💻.ws/";
   const url = new URL(baseUrl);
   url.searchParams.set('panelo', 'serĉo');
   url.searchParams.set('vorto', vorto);
@@ -1089,7 +1090,7 @@ function diskonigiURL(deko) {
   const dekoJSON = JSON.stringify(dekoData);
   const dekoEncoded = encodeURIComponent(dekoJSON);
 
-  const baseUrl = window.location.origin + window.location.pathname;
+  const baseUrl = "https://vortkom.🦊💻.ws/";
   const url = new URL(baseUrl);
   url.searchParams.set('panelo', 'serĉo');
   url.searchParams.set('vorto', vorto);
@@ -1118,6 +1119,7 @@ function displayDecompositionFromURL(vorto, dekoData) {
   const kartoj = document.createElement('div');
   kartoj.style.display = 'flex';
   kartoj.style.flexWrap = 'wrap';
+  kartoj.style.marginBottom = '20px';
   kartoj.id = 'chip-container';
   dekoData.forEach((ero, index) => {
     const tooltip = document.createElement('mdui-tooltip');
@@ -1156,29 +1158,6 @@ function displayDecompositionFromURL(vorto, dekoData) {
   });
   rezultojSerĉo.appendChild(kartoj);
   document.title = `🔍 Serĉo de ${vorto} • VortKom`;
-}
-
-function legiURLFromData(vorto, dekoData) {
-  const dekoJSON = JSON.stringify(dekoData);
-  const dekoEncoded = encodeURIComponent(dekoJSON);
-  const baseUrl = window.location.origin + window.location.pathname;
-  const url = new URL(baseUrl);
-  url.searchParams.set('panelo', 'serĉo');
-  url.searchParams.set('vorto', vorto);
-  url.searchParams.set('deko', dekoEncoded);
-  navigator.clipboard.writeText(url.toString()).then(() => {
-    mdui.snackbar({
-      message: 'Ligilo kopiita al tondujo',
-      closeable: true
-    });
-  }).catch(err => {
-    console.error('Ne eblis kopii al tondujo: ', err);
-    mdui.alert({
-      headline: 'Eraro dum kopio al tondujo',
-      description: err.message || err,
-      confirmText: 'Komprenis'
-    });
-  });
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
