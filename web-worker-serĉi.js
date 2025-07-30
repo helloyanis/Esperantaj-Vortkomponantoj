@@ -111,7 +111,7 @@ self.addEventListener("message", (e) => {
       const prevT = parseArr[i-1].komp.tipo;
       const curT  = parseArr[i].komp.tipo;
       if (prevT === "radiko" && curT === "radiko") radikoChainPenalty+=2;
-      if (prevT === "sufikso" && curT === "sufikso") suffixPenalty ++ ;
+      if (prevT === "sufikso" && curT === "sufikso" || prevT === "sufikso" && curT === "radiko") suffixPenalty ++ ;
       if ((prevT === "radiko" && curT === "prefikso") ||
           (prevT === "sufikso" && curT === "prefikso")) {
         radikoChainPenalty += 5;
@@ -136,7 +136,7 @@ self.addEventListener("message", (e) => {
     }
 
 
-    /*console.log(`Scoring parse: ${parseArr.map(p => p.komp.teksto).join(" + ")} : ${baseCount
+    console.log(`Scoring parse: ${parseArr.map(p => p.komp.teksto).join(" + ")} : ${baseCount
          - suffixPenalty
          - radikoChainPenalty
          + prefixBonus
@@ -145,7 +145,6 @@ self.addEventListener("message", (e) => {
         - uniquePenalty
       }`);
     console.log(`Base: ${baseCount}, Suffix Penalty: ${suffixPenalty}, Radiko Chain Penalty: ${radikoChainPenalty}, Prefix Bonus: ${prefixBonus}, Hard Penalty: ${hardPenalty}, Context Bonus: ${contextBonus}, Unique Penalty: ${uniquePenalty}`);
-    */
    return baseCount
          - suffixPenalty
          - radikoChainPenalty

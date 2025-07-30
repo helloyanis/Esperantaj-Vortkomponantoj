@@ -57,6 +57,8 @@ let aktivaRedaktadoId = null;
 let listo = false; // Listo de komponantoj
 let listoIndekso = 0;
 
+let paneloAktiva = null // Por teni la aktiva panelo
+
 
 menuFontkodo.addEventListener('click', () => {
   window.open('https://github.com/helloyanis/Esperantaj-Vortkomponantoj', '_blank');
@@ -203,6 +205,8 @@ function kaŝiĈiujPaneloj() {
 }
 
 function montriListon() {
+  if (paneloAktiva === 'panelo-listo') return;
+  paneloAktiva = 'panelo-listo';
   kaŝiĈiujPaneloj();
   progreso.style.display = 'block';
   progreso.indeterminate = true;
@@ -219,6 +223,8 @@ function montriListon() {
 }
 
 function montriAldonPanelon() {
+  if (paneloAktiva === 'panelo-aldo') return;
+  paneloAktiva = 'panelo-aldo';
   kaŝiĈiujPaneloj();
   paneloAldo.removeAttribute('hidden');
   appbar.value = 'appbar-aldonu-nova';
@@ -229,9 +235,6 @@ function montriAldonPanelon() {
   localStorage.setItem('paneloAktiva', 'panelo-aldo');
   document.title = '➕ Aldoni • VortKom';
   const url = new URL(location);
-  if (url.searchParams.get('panelo') === 'aldo') {
-    return; // Se jam estas serĉa panelo, ne ŝanĝu la URL
-  }
   url.searchParams.delete('deko');
   url.searchParams.set('panelo', 'aldo');
   url.searchParams.delete('vorto');
@@ -260,15 +263,14 @@ async function montriRedaktonPanelon() {
 }
 
 function montriSerĉPanelon() {
+  if (paneloAktiva === 'panelo-serĉo') return;
+  paneloAktiva = 'panelo-serĉo';
   kaŝiĈiujPaneloj();
   appbar.value = 'appbar-serĉi';
   paneloSerĉo.removeAttribute('hidden');
   localStorage.setItem('paneloAktiva', 'panelo-serĉo');
   document.title = '🔍 Serĉi • VortKom';
   const url = new URL(location);
-  if (url.searchParams.get('panelo') === 'serĉo') {
-    return; // Se jam estas serĉa panelo, ne ŝanĝu la URL
-  }
   rezultojSerĉo.innerHTML = '';
   url.searchParams.set('panelo', 'serĉo');
   history.pushState({ panelo: 'serĉo' }, '', url.toString());
@@ -680,7 +682,6 @@ function forigiKomponantonKonfirmo(id) {
             message: 'Komponanto forigita.',
             closeable: true
           });
-          await refreshListoKomponantoj();
           montriListon();
         })
         .catch((er) => {
@@ -920,14 +921,14 @@ async function enportiKomponantojn(dosiero = null) {
               progreso.max = enhavo.length;
               progreso.value = 0;
 
-              await aldoniKomponantojn(enhavo); // Assuming this updates progreso.value as needed
+              await aldoniKomponantojn(enhavo);
 
               progreso.style.display = 'none';
               mdui.snackbar({
                 message: 'Komponantoj enportitaj.',
                 closeable: true
               });
-              montriListon();
+              await refreshListoKomponantoj();
             } catch (innerError) {
               console.error('Eraro dum enporto:', innerError);
               mdui.alert({
@@ -957,7 +958,7 @@ async function enportiKomponantojn(dosiero = null) {
           message: 'Komponantoj enportitaj.',
           closeable: true
         });
-        montriListon();
+        await refreshListoKomponantoj();
       }
 
     } catch (er) {
@@ -1080,6 +1081,14 @@ function kopiiURL(deko) {
   });
 }
 function diskonigiURL(deko) {
+  if(!navigator.share) {
+    mdui.alert({
+      headline: 'Ne eblas diskonigi',
+      description: 'Via retumilo ne subtenas la funkcion "navigator.share". Bonvolu uzi la kopii-butonon anstataŭe.',
+      confirmText: 'Komprenis'
+    });
+    return;
+  }
   const vorto = serĉoVorto.value.trim();
   const dekoData = deko.map(ero => ({
     tekstero: ero.mapado.tekstero,

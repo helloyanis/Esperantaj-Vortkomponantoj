@@ -79,7 +79,6 @@
     "teksto": "os",
     "tipo": "sufikso",
     "antaŭpovas": [
-      "radiko"
     ],
     "postpovas": [],
     "difino": "This word is a verb conjugated to the future (As in \"I will do better\")"
@@ -88,7 +87,6 @@
     "teksto": "as",
     "tipo": "sufikso",
     "antaŭpovas": [
-      "radiko"
     ],
     "postpovas": [],
     "difino": "This word is a verb conjugated to the present (As in \"I am sleepy\")"
@@ -97,7 +95,6 @@
     "teksto": "us",
     "tipo": "sufikso",
     "antaŭpovas": [
-      "radiko"
     ],
     "postpovas": [],
     "difino": "This word is a verb conjugated to the subjunctive."
@@ -106,7 +103,6 @@
     "teksto": "is",
     "tipo": "sufikso",
     "antaŭpovas": [
-      "radiko"
     ],
     "postpovas": [],
     "difino": "This word is a verb conjugated to the past (As in \"I ate a nice meal\")"
