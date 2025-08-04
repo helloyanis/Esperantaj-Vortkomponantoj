@@ -367,7 +367,7 @@
     "teksto": "ant",
     "tipo": "sufikso",
     "antaŭpovas": [],
-    "postpovas": [],
+    "postpovas": ["sufikso"],
     "difino": "Ending of pres. part. act. in verbs"
   },
   {

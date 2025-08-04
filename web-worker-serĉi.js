@@ -81,11 +81,11 @@ self.addEventListener("message", (e) => {
       const prev = i > 0 ? parseArr[i-1].komp : null;
       const next = i < parseArr.length-1 ? parseArr[i+1].komp : null;
 
-      if (prev && prev.tipo === "radiko"   && kp.tipo === "prefikso") hardPenalty += 2;
+      if (prev && prev.tipo === "radiko"   && kp.tipo === "prefikso") hardPenalty += 5;
       if (prev && prev.tipo === "radiko"   && kp.tipo === "radiko") hardPenalty += 2;
       if (prev && prev.tipo === "sufikso"  && kp.tipo === "prefikso") hardPenalty += 2;
-      if (prev && prev.tipo === "sufikso" && kp.tipo === "sufikso") suffixPenalty ++;
-      if (prev && prev.tipo === "sufikso" && kp.tipo === "radiko") suffixPenalty ++;
+      //if (prev && prev.tipo === "sufikso" && kp.tipo === "sufikso") suffixPenalty ++;
+      if (prev && prev.tipo === "sufikso" && kp.tipo === "radiko") suffixPenalty +=2;
 
       if (prev && Array.isArray(kp.antaŭpovas) && kp.antaŭpovas.length) {
         if (kp.antaŭpovas.includes(prev.teksto) || kp.antaŭpovas.includes(prev.tipo))
@@ -107,19 +107,8 @@ self.addEventListener("message", (e) => {
       uniquePenalty += consSingles+2;
     }
 
-    for (let i = 1; i < parseArr.length; i++) {
-      const prevT = parseArr[i-1].komp.tipo;
-      const curT  = parseArr[i].komp.tipo;
-      if (prevT === "radiko" && curT === "radiko") radikoChainPenalty+=2;
-      if (prevT === "sufikso" && curT === "sufikso" || prevT === "sufikso" && curT === "radiko") suffixPenalty ++ ;
-      if ((prevT === "radiko" && curT === "prefikso") ||
-          (prevT === "sufikso" && curT === "prefikso")) {
-        radikoChainPenalty += 5;
-      }
-    }
-
-    if (parseArr[0].komp.tipo === "prefikso") prefixBonus = 1;
-    if (parseArr[baseCount-1].komp.tipo === "sufikso") suffixPenalty -= 3;
+    if (parseArr[0].komp.tipo === "prefikso") prefixBonus = 0;
+    if (parseArr[baseCount-1].komp.tipo === "sufikso") suffixPenalty -= 1;
 
 
     const types = parseArr.map(p => p.komp.tipo);

@@ -21,3 +21,6 @@ inklud-it-a
 
 bezonatas
 bezon-at-as
+
+trovanto
+trov-ant-o
