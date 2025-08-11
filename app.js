@@ -242,6 +242,7 @@ function montriAldonPanelon() {
 }
 
 async function montriRedaktonPanelon() {
+  paneloAktiva = 'panelo-redakto';
   kaŝiĈiujPaneloj();
   paneloAldo.removeAttribute('hidden');
   appbar.value = '';
