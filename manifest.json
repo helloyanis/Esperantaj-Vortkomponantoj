@@ -6,7 +6,11 @@
       "src": "assets/piktogramoj/icon.svg",
       "type": "image/svg+xml",
       "sizes": "any"
-    }
+    },
+    {
+      "src": "/assets/piktogramoj/icon.png",
+      "type": "image/png",
+      "sizes": "248x248" }
   ],
   "categories": [
     "education",
