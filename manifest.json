@@ -29,6 +29,14 @@
   "launch_handler": {
     "client_mode": ["navigate-existing", "auto"]
   },
+  "share_target": {
+    "action": "/?panelo=ser%C4%89o",
+    "method": "GET",
+    "enctype": "application/x-www-form-urlencoded",
+    "params": {
+      "text": "vorto"
+    }
+  },
   "start_url": "/",
   "display": "standalone",
   "background_color": "#00000000",
