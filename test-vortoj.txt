@@ -2,7 +2,7 @@ malgrandajn
 mal[P]-grand[R]-a[S]-j[S]-n[S]
 
 malsanulejo
-mal[P]-san[R]-u[S]-l[S]-ej[S]-o[S]
+mal[P]-san[R]-ul-ej[S]-o[S]
 
 samideano
 sam-ide-an-o
@@ -24,3 +24,6 @@ bezon-at-as
 
 trovanto
 trov-ant-o
+
+sukera
+suker-a

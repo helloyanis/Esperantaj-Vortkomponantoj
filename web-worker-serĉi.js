@@ -84,8 +84,8 @@ self.addEventListener("message", (e) => {
       if (prev && prev.tipo === "radiko"   && kp.tipo === "prefikso") hardPenalty += 5;
       if (prev && prev.tipo === "radiko"   && kp.tipo === "radiko") hardPenalty += 2;
       if (prev && prev.tipo === "sufikso"  && kp.tipo === "prefikso") hardPenalty += 2;
-      //if (prev && prev.tipo === "sufikso" && kp.tipo === "sufikso") suffixPenalty ++;
-      if (prev && prev.tipo === "sufikso" && kp.tipo === "radiko") suffixPenalty +=2;
+      if (prev && prev.tipo === "sufikso" && kp.tipo === "sufikso") suffixPenalty ++;
+      if (prev && prev.tipo === "sufikso" && kp.tipo === "radiko") suffixPenalty +=3;
 
       if (prev && Array.isArray(kp.antaŭpovas) && kp.antaŭpovas.length) {
         if (kp.antaŭpovas.includes(prev.teksto) || kp.antaŭpovas.includes(prev.tipo))
@@ -125,7 +125,7 @@ self.addEventListener("message", (e) => {
     }
 
 
-    console.log(`Scoring parse: ${parseArr.map(p => p.komp.teksto).join(" + ")} : ${baseCount
+    console.log(`Scoring parse: ${parseArr.map(p => `${p.komp.teksto}[${p.komp.tipo}]`).join(" + ")} : ${baseCount
          - suffixPenalty
          - radikoChainPenalty
          + prefixBonus

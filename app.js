@@ -167,28 +167,29 @@ function petiKonstantaStokado() {
         navigator.storage.persist().then((persisted) => {
           if (persisted) {
             mdui.snackbar({
-              message: 'Persistanta stokejo .',
+              message: '✅ La stokejo estas persista.',
               closeable: true,
             });
           } else {
-            mdui.alert({
-              headline: 'Konstanta stokado ne permesita',
-              description: 'Eraro dum permesante la konstanta stokado. Via retumilo eble ne estas subtenata (ĉu provu Firefox?), aŭ eble vi retumas en privata reĝimo. Se la stoka spaco de via aparato malpleniĝas, via retumilo eble forigos datumojn de ĉi tiu retejo por krei spacon.',
-              confirmText: 'Komprenis',
-            });
+            // mdui.alert({
+            //   headline: 'Konstanta stokado ne permesita',
+            //   description: 'Eraro dum permesante la konstanta stokado. Via retumilo eble ne estas subtenata (ĉu provu Firefox?), aŭ eble vi retumas en privata reĝimo. Se la stoka spaco de via aparato malpleniĝas, via retumilo eble forigos datumojn de ĉi tiu retejo por krei spacon.',
+            //   confirmText: 'Komprenis',
+            // });
           }
         });
       }
     });
   } else {
-    mdui.alert({
-      headline: 'Stokejo ne persista',
-      description: 'Via retumilo ne subtenas persistan stokejon. La komponantoj eble estos forigitaj kiam la retumilo bezonas liberigi memoron aŭ estas fermita. Uzu Google Chrome, Firefox aŭ aliajn modernajn retumilojn por pli bonan subtenon.',
-      confirmText: 'Komprenis',
-      onConfirm: function () {
-        sessionStorage.setItem('persistanta-stokejo-rifuzita', 'true');
-      }
-    });
+    sessionStorage.setItem('persistanta-stokejo-rifuzita', 'true');
+    // mdui.alert({
+    //   headline: 'Stokejo ne persista',
+    //   description: 'Via retumilo ne subtenas persistan stokejon. La komponantoj eble estos forigitaj kiam la retumilo bezonas liberigi memoron aŭ estas fermita. Uzu Google Chrome, Firefox aŭ aliajn modernajn retumilojn por pli bonan subtenon.',
+    //   confirmText: 'Komprenis',
+    //   onConfirm: function () {
+    //     sessionStorage.setItem('persistanta-stokejo-rifuzita', 'true');
+    //   }
+    // });
   }
 
 }
