@@ -205,7 +205,7 @@ function kaŝiĈiujPaneloj() {
   ladoTirilo.removeAttribute('open');
 }
 
-function montriListon() {
+function montriListon(ignoreHistory = false) {
   if (paneloAktiva === 'panelo-listo') return;
   paneloAktiva = 'panelo-listo';
   kaŝiĈiujPaneloj();
@@ -220,10 +220,10 @@ function montriListon() {
   const url = new URL(location);
   url.searchParams.delete('deko');
   url.searchParams.set('panelo', 'listo');
-  history.pushState({ panelo: 'listo' }, '', url.toString());
+  if (!ignoreHistory) history.pushState({ panelo: 'listo' }, '', url.toString());
 }
 
-function montriAldonPanelon() {
+function montriAldonPanelon(ignoreHistory = false) {
   if (paneloAktiva === 'panelo-aldo') return;
   paneloAktiva = 'panelo-aldo';
   kaŝiĈiujPaneloj();
@@ -239,7 +239,7 @@ function montriAldonPanelon() {
   url.searchParams.delete('deko');
   url.searchParams.set('panelo', 'aldo');
   url.searchParams.delete('vorto');
-  history.pushState({ panelo: 'aldo' }, '', url.toString());
+  if (!ignoreHistory) history.pushState({ panelo: 'aldo' }, '', url.toString());
 }
 
 async function montriRedaktonPanelon() {
@@ -264,7 +264,7 @@ async function montriRedaktonPanelon() {
   }
 }
 
-function montriSerĉPanelon() {
+function montriSerĉPanelon(ignoreHistory = false) {
   if (paneloAktiva === 'panelo-serĉo') return;
   paneloAktiva = 'panelo-serĉo';
   kaŝiĈiujPaneloj();
@@ -275,26 +275,26 @@ function montriSerĉPanelon() {
   const url = new URL(location);
   rezultojSerĉo.innerHTML = '';
   url.searchParams.set('panelo', 'serĉo');
-  history.pushState({ panelo: 'serĉo' }, '', url.toString());
+  if (!ignoreHistory) history.pushState({ panelo: 'serĉo' }, '', url.toString());
   if (url.searchParams.get('vorto')) {
     serĉoVorto.value = xSistemonSubstituo(url.searchParams.get('vorto'));
     serĉiVorto();
   }
 }
 
-function ŝargiPanelojn() {
+function ŝargiPanelojn(ignoreHistory = false) {
   const url = new URL(location);
   if (url.searchParams.get('panelo')) {
     const panelo = url.searchParams.get('panelo');
     switch (panelo) {
       case 'listo':
-        montriListon();
+        montriListon(ignoreHistory);
         break;
       case 'aldo':
-        montriAldonPanelon();
+        montriAldonPanelon(ignoreHistory);
         break;
       case 'serĉo':
-        montriSerĉPanelon();
+        montriSerĉPanelon(ignoreHistory);
         if (url.searchParams.get('vorto')) {
           serĉoVorto.value = xSistemonSubstituo(url.searchParams.get('vorto'));
           const dekoParam = url.searchParams.get('deko');
@@ -313,27 +313,27 @@ function ŝargiPanelojn() {
         break;
       default:
         // defaŭlta al listo
-        montriListon();
+        montriListon(ignoreHistory);
         break;
     }
     return
   }
   const antaŭaPanelo = localStorage.getItem('paneloAktiva');
   if (antaŭaPanelo === 'panelo-listo') {
-    montriListon();
+    montriListon(ignoreHistory);
   } else if (antaŭaPanelo === 'panelo-aldo') {
-    montriAldonPanelon();
+    montriAldonPanelon(ignoreHistory);
   } else if (antaŭaPanelo === 'panelo-serĉo') {
-    montriSerĉPanelon();
+    montriSerĉPanelon(ignoreHistory);
   } else {
     // defaŭlta al listo
-    montriListon();
+    montriListon(ignoreHistory);
   }
 }
 
 window.addEventListener('popstate', () => {
   console.log('Popstate event detected. Reloading panel...');
-  ŝargiPanelojn()
+  ŝargiPanelojn(true);
 });
 
 // -----------------------------
