@@ -1,6 +1,6 @@
 // Service Worker por PWA: kaŝmemoru la necesajn dosierojn por ke la app funkciu senrete.
 
-const NOMA_STOKEJO = 'vortkomponantoj-stokejo-v1';
+const NOMA_STOKEJO = 'vortkomponantoj-stokejo-v2';
 const DOSIEROJ_KAJHEĴ = [
   '/', 
   '/index.html',

@@ -238,7 +238,6 @@ function montriAldonPanelon(ignoreHistory = false) {
   const url = new URL(location);
   url.searchParams.delete('deko');
   url.searchParams.set('panelo', 'aldo');
-  url.searchParams.delete('vorto');
   if (!ignoreHistory) history.pushState({ panelo: 'aldo' }, '', url.toString());
 }
 
@@ -278,8 +277,19 @@ function montriSerĉPanelon(ignoreHistory = false) {
   if (!ignoreHistory) history.pushState({ panelo: 'serĉo' }, '', url.toString());
   if (url.searchParams.get('vorto')) {
     serĉoVorto.value = xSistemonSubstituo(url.searchParams.get('vorto'));
-    serĉiVorto();
   }
+  const dekoParam = url.searchParams.get('deko');
+    if (dekoParam) {
+      try {
+        const dekoData = JSON.parse(decodeURIComponent(dekoParam));
+        displayDecompositionFromURL(serĉoVorto.value, dekoData);
+      } catch (e) {
+        console.error('Error parsing decomposition data:', e);
+        serĉiVorto();
+      }
+    } else {
+      serĉiVorto();
+    }
 }
 
 function ŝargiPanelojn(ignoreHistory = false) {
@@ -295,21 +305,6 @@ function ŝargiPanelojn(ignoreHistory = false) {
         break;
       case 'serĉo':
         montriSerĉPanelon(ignoreHistory);
-        if (url.searchParams.get('vorto')) {
-          serĉoVorto.value = xSistemonSubstituo(url.searchParams.get('vorto'));
-          const dekoParam = url.searchParams.get('deko');
-          if (dekoParam) {
-            try {
-              const dekoData = JSON.parse(decodeURIComponent(dekoParam));
-              displayDecompositionFromURL(serĉoVorto.value, dekoData);
-            } catch (e) {
-              console.error('Error parsing decomposition data:', e);
-              serĉiVorto();
-            }
-          } else {
-            serĉiVorto();
-          }
-        }
         break;
       default:
         // defaŭlta al listo
@@ -654,6 +649,16 @@ butonoNuligi.addEventListener('click', function () {
   formularoKomponanto.reset();
   aktivaRedaktadoId = null;
   titoloAldo.textContent = 'Aldoni Novan Komponanton';
+  switch (new URL(location).searchParams.get('panelo')){
+    case 'listo':
+      montriListon();
+      break;
+    case 'serĉo':
+      montriSerĉPanelon();
+      break;
+    default:
+      break;
+  }
 });
 
 // Redakti komponanton (plenigas formon)
@@ -740,17 +745,26 @@ async function serĉiVorto() {
     return;
   }
 
-  workerSerĉi.postMessage({ vorto: teksto, komponantoj: listoK });
+  const vortoj = teksto.split(/[\s-]+/).filter(v => v.length > 0);
+  const longa = vortoj.length
+  let vortojOK = 0;
+  let dekomponadoj = [];
+  vortoj.forEach(vorto => {
+    workerSerĉi.postMessage({ vorto: vorto, komponantoj: listoK });
+  });
 
   workerSerĉi.onmessage = function (e) {
     rezultojSerĉo.innerHTML = `<h3>Dekomponado de “${teksto}”:</h3>`; // purigu antaŭe
-    const deko = e.data;
-    if (deko.length === 0) {
+    dekomponadoj.push(...e.data);
+    if (dekomponadoj.length === 0) {
       rezultojSerĉo.innerHTML = 'Neniaj rezultoj trovita.';
       return;
     }
-
-    montriĈipojn(deko);
+    vortojOK++;
+    if (vortojOK == longa) {
+      montriĈipojn(dekomponadoj);
+    }
+    
   };
 }
 
@@ -792,14 +806,17 @@ function montriĈipojn(deko) {
     kartoj.appendChild(tooltip);
   });
   rezultojSerĉo.appendChild(kartoj);
+  if(navigator.share){
       // Add share button
-  const butonoDiskonigi = document.createElement('mdui-button-icon');
-  butonoDiskonigi.alt = 'Diskonigi Vorton';
-  butonoDiskonigi.variant = 'tonal';
-  butonoDiskonigi.innerHTML = `<mdui-icon>
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960"><path d="M680-80q-50 0-85-35t-35-85q0-6 3-28L282-392q-16 15-37 23.5t-45 8.5q-50 0-85-35t-35-85q0-50 35-85t85-35q24 0 45 8.5t37 23.5l281-164q-2-7-2.5-13.5T560-760q0-50 35-85t85-35q50 0 85 35t35 85q0 50-35 85t-85 35q-24 0-45-8.5T598-672L317-508q2 7 2.5 13.5t.5 14.5q0 8-.5 14.5T317-452l281 164q16-15 37-23.5t45-8.5q50 0 85 35t35 85q0 50-35 85t-85 35Zm0-80q17 0 28.5-11.5T720-200q0-17-11.5-28.5T680-240q-17 0-28.5 11.5T640-200q0 17 11.5 28.5T680-160ZM200-440q17 0 28.5-11.5T240-480q0-17-11.5-28.5T200-520q-17 0-28.5 11.5T160-480q0 17 11.5 28.5T200-440Zm480-280q17 0 28.5-11.5T720-760q0-17-11.5-28.5T680-800q-17 0-28.5 11.5T640-760q0 17 11.5 28.5T680-720Zm0 520ZM200-480Zm480-280Z"/></svg>
-  </mdui-icon>`;
-  butonoDiskonigi.onclick = () => diskonigiURL(deko);
+      const butonoDiskonigi = document.createElement('mdui-button-icon');
+      butonoDiskonigi.alt = 'Diskonigi Vorton';
+      butonoDiskonigi.variant = 'tonal';
+      butonoDiskonigi.innerHTML = `<mdui-icon>
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960"><path d="M680-80q-50 0-85-35t-35-85q0-6 3-28L282-392q-16 15-37 23.5t-45 8.5q-50 0-85-35t-35-85q0-50 35-85t85-35q24 0 45 8.5t37 23.5l281-164q-2-7-2.5-13.5T560-760q0-50 35-85t85-35q50 0 85 35t35 85q0 50-35 85t-85 35q-24 0-45-8.5T598-672L317-508q2 7 2.5 13.5t.5 14.5q0 8-.5 14.5T317-452l281 164q16-15 37-23.5t45-8.5q50 0 85 35t35 85q0 50-35 85t-85 35Zm0-80q17 0 28.5-11.5T720-200q0-17-11.5-28.5T680-240q-17 0-28.5 11.5T640-200q0 17 11.5 28.5T680-160ZM200-440q17 0 28.5-11.5T240-480q0-17-11.5-28.5T200-520q-17 0-28.5 11.5T160-480q0 17 11.5 28.5T200-440Zm480-280q17 0 28.5-11.5T720-760q0-17-11.5-28.5T680-800q-17 0-28.5 11.5T640-760q0 17 11.5 28.5T680-720Zm0 520ZM200-480Zm480-280Z"/></svg>
+      </mdui-icon>`;
+      butonoDiskonigi.onclick = () => diskonigiURL(deko);
+      rezultoFaroj.appendChild(butonoDiskonigi);
+  }
     // Add copy button
   const butonoKopii = document.createElement('mdui-button-icon');
   butonoKopii.alt = 'Kopii ligilon';
@@ -810,7 +827,6 @@ function montriĈipojn(deko) {
   </mdui-icon>`;
   butonoKopii.onclick = () => kopiiURL(deko);
   rezultoFaroj.innerHTML = '';
-  rezultoFaroj.appendChild(butonoDiskonigi);
   rezultoFaroj.appendChild(butonoKopii);
 }
 
@@ -1063,7 +1079,7 @@ function kopiiURL(deko) {
   const dekoJSON = JSON.stringify(dekoData);
   const dekoEncoded = encodeURIComponent(dekoJSON);
 
-  const baseUrl = "https://vortkom.🦊💻.ws/";
+  const baseUrl = window.location.origin + "/";
   const url = new URL(baseUrl);
   url.searchParams.set('panelo', 'serĉo');
   url.searchParams.set('vorto', vorto);
@@ -1101,7 +1117,7 @@ function diskonigiURL(deko) {
   const dekoJSON = JSON.stringify(dekoData);
   const dekoEncoded = encodeURIComponent(dekoJSON);
 
-  const baseUrl = "https://vortkom.🦊💻.ws/";
+  const baseUrl = window.location.origin + "/";
   const url = new URL(baseUrl);
   url.searchParams.set('panelo', 'serĉo');
   url.searchParams.set('vorto', vorto);

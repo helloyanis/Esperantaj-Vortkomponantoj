@@ -45,7 +45,8 @@
 
 <body style="font-family: system-ui;">
     <!-- Top App Bar -->
-     <span id="js-averto">Nun ŝarĝiĝas. Se vi vidas ĉi tiun mesaĝon dum longa tempo, bonvolu kontroli, ke JavaScript estas ebligita kaj ke via retkonekto estas stabila.</span>
+     <h1 id="js-averto">
+        <progress></progress><br/>Nun ŝarĝiĝas. Se vi vidas ĉi tiun mesaĝon dum longa tempo, bonvolu kontroli, ke JavaScript estas ebligita kaj ke via retkonekto estas stabila.</h1>
     <mdui-top-app-bar>
         <mdui-button-icon alt="Malfermi flanka menuo" onclick="toggleDrawer()">
             <mdui-icon>
@@ -223,7 +224,7 @@
         <!-- Search/Decompose Panel -->
         <section id="panelo-serĉo" hidden>
             <h2>Serĉi Vorton aŭ komponanton</h2>
-            <mdui-text-field label="Entajpu radikon aŭ tutan vorton" id="serĉo-vorto" clearable>
+            <mdui-text-field required label="Entajpu radikon aŭ tutan vorton" id="serĉo-vorto" clearable>
                 <mdui-icon slot="icon">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960">
                         <path
