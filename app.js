@@ -365,7 +365,7 @@ async function refreshListoKomponantoj() {
   <path  d="M440-200h80v-167l64 64 56-57-160-160-160 160 57 56 63-63v167ZM240-80q-33 0-56.5-23.5T160-160v-640q0-33 23.5-56.5T240-880h320l240 240v480q0 33-23.5 56.5T720-80H240Zm280-520v-200H240v640h480v-440H520ZM240-800v200-200 640-640Z" />
 </svg>`;
     enportiButonoPiktogramo.slot = 'icon';
-    enportiButono.textContent = 'Enporti';
+    enportiButono.textContent = 'Alŝuti';
     enportiButono.appendChild(enportiButonoPiktogramo);
     enportiButono.addEventListener('click', () => enportiKomponantojn());
     neEkzistas.appendChild(enportiButono);
@@ -383,13 +383,13 @@ async function refreshListoKomponantoj() {
     enportiSistemVortaroPiktogramo.innerHTML = `
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960"><path d="M160-391h45l23-66h104l24 66h44l-97-258h-46l-97 258Zm81-103 38-107h2l38 107h-78Zm319-70v-68q33-14 67.5-21t72.5-7q26 0 51 4t49 10v64q-24-9-48.5-13.5T700-600q-38 0-73 9.5T560-564Zm0 220v-68q33-14 67.5-21t72.5-7q26 0 51 4t49 10v64q-24-9-48.5-13.5T700-380q-38 0-73 9t-67 27Zm0-110v-68q33-14 67.5-21t72.5-7q26 0 51 4t49 10v64q-24-9-48.5-13.5T700-490q-38 0-73 9.5T560-454ZM260-320q47 0 91.5 10.5T440-278v-394q-41-24-87-36t-93-12q-36 0-71.5 7T120-692v396q35-12 69.5-18t70.5-6Zm260 42q44-21 88.5-31.5T700-320q36 0 70.5 6t69.5 18v-396q-33-14-68.5-21t-71.5-7q-47 0-93 12t-87 36v394Zm-40 118q-48-38-104-59t-116-21q-42 0-82.5 11T100-198q-21 11-40.5-1T40-234v-482q0-11 5.5-21T62-752q46-24 96-36t102-12q58 0 113.5 15T480-740q51-30 106.5-45T700-800q52 0 102 12t96 36q11 5 16.5 15t5.5 21v482q0 23-19.5 35t-40.5 1q-37-20-77.5-31T700-240q-60 0-116 21t-104 59ZM280-499Z"/></svg>`;
     enportiSistemVortaroPiktogramo.slot = 'icon';
-    enportiSistemVortaroButono.textContent = 'Enporti enkonstruitan vortaron';
+    enportiSistemVortaroButono.textContent = 'Alŝuti enkonstruitan vortaron';
     enportiSistemVortaroButono.appendChild(enportiSistemVortaroPiktogramo);
     enportiSistemVortaroButono.addEventListener('click', () => {
       mdui.confirm({
-        headline: 'Enporti Vortaron',
-        description: 'Ĉu vi certas, ke vi volas enporti la enkonstruitan Esperanta-anglan vortaron?',
-        confirmText: '✅ Enporti',
+        headline: 'Alŝuti Vortaron',
+        description: 'Ĉu vi certas, ke vi volas alŝuti la enkonstruitan Esperanta-anglan vortaron?',
+        confirmText: '✅ Alŝuti',
         cancelText: '❌ Nuligi',
         onConfirm: async function () {
           try {
@@ -410,9 +410,9 @@ async function refreshListoKomponantoj() {
     if (!sessionStorage.getItem('auto-enporto')) {
       sessionStorage.setItem('auto-enporto', 'true');
       mdui.confirm({
-        headline: 'Enporti Vortaron',
+        headline: 'Alŝuti Vortaron',
         description: 'Komence, ĉi tiu retejo ne enhavas vortaron, do vi povas agordi ĝin laŭplaĉe. Se vi volas, vi povas uzi enkonstruitan Esperanta-angla vortaron!',
-        confirmText: 'Enporti',
+        confirmText: 'Alŝuti',
         cancelText: 'Nuligi',
         onConfirm: async function () {
           try {
@@ -427,7 +427,7 @@ async function refreshListoKomponantoj() {
         },
         onCancel: function () {
           mdui.snackbar({
-            message: 'Neniu vortaro enportita.',
+            message: 'Neniu vortaro alŝutita.',
             closeable: true,
           });
         }
@@ -923,7 +923,7 @@ async function enportiKomponantojn(dosiero = null) {
       if (listo.length > 0) {
         mdui.confirm({
           headline: 'Ĉu vi certas?',
-          description: 'Enporti novajn komponantojn forigos ĉiujn ekzistantajn komponantojn. Ĉu vi daŭrigi?',
+          description: 'Alŝuti novajn komponantojn forigos ĉiujn ekzistantajn komponantojn. Ĉu vi daŭrigi?',
           confirmText: 'Daŭrigi',
           cancelText: 'Nuligi',
           onConfirm: async function () {
@@ -943,7 +943,7 @@ async function enportiKomponantojn(dosiero = null) {
 
               progreso.style.display = 'none';
               mdui.snackbar({
-                message: 'Komponantoj enportitaj.',
+                message: 'Komponantoj alŝutitaj.',
                 closeable: true
               });
               await refreshListoKomponantoj();
@@ -983,7 +983,7 @@ async function enportiKomponantojn(dosiero = null) {
       console.error('Eraro dum legado de dosiero:', er);
       butonoAlŝuti.loading = false;
       mdui.alert({
-        headline: 'Eraro en enporti JSON:',
+        headline: 'Eraro dum alŝutado de JSON:',
         description: er.message || er,
         confirmText: 'Komprenis'
       });
@@ -1010,7 +1010,7 @@ butonoEkspremi.addEventListener('click', async () => {
   ligilo.click();
   //setTimeout(() => URL.revokeObjectURL(url), 10000);
   mdui.snackbar({
-    message: 'Komponantoj elportitaj.',
+    message: 'Komponantoj elŝutitaj.',
     closeable: true
   });
 });

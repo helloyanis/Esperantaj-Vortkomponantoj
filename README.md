@@ -48,7 +48,7 @@ Trajtoj:
 - 💻 Nur loke, ne bezonas servilon por funkcii, eĉ povas esti instalita kiel aplikaĵo sur via aparato por labori senkonekte!
 - 🔍 Inteligenta serĉo, aŭtomate detektos ĉu temas pri komponanto aŭ vorto, kiun vi serĉas, kaj montros la rezultojn laŭe
 - ⚡ Farita por povi labori rapide kun grandaj kvantoj da datumoj. Ŝarĝtempoj dum serĉado devus esti minimumaj krom se vi havas supergrandan datumvortaron aŭ uzas ĝin per terpomo!
-- 📲 Ĉu vi ne volas krei vian propran vortaron? Ne zorgu! Vi povas krei vian propran vortaron aŭ peti amikon elporti ilian kiel dosieron kaj enporti sian al via aparato ene de sekundoj!
+- 📲 Ĉu vi ne volas krei vian propran vortaron? Ne zorgu! Vi povas krei vian propran vortaron aŭ peti amikon elŝuti ilian kiel dosieron kaj alŝuti sian al via aparato ene de sekundoj!
 
 ## Kial ne normala vortaro?
 Kiam vi vidas vorton en teksto, kiel komencanto vi eble serĉos ĝin en la vortaro kaj scios ĝian signifon. Sed dum mi lernis, mi trovis, ke EO havas vortojn konstruitajn iom pli kiel legoj.
